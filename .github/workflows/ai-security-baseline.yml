@@ -2,8 +2,9 @@ name: AI security baseline
 
 on:
   pull_request:
-  push:
     branches: [main]
+  push:
+    branches: ["**"]
 
 permissions:
   contents: read

@@ -41,3 +41,7 @@ PDI e geração de PDF ficam fora do MVP e serão tratados na fase 2.
 ## Segurança
 
 Não coloque credenciais ou dados reais de colaboradores no repositório. Arquivos `.env`, chaves, credenciais e as fontes cadastrais locais estão bloqueados pelas políticas locais. Instalação de dependências, rede, banco remoto, Git remoto e deploy exigem aprovação específica.
+
+## Fluxo de contribuição
+
+Envie mudanças para uma branch diferente de `main`. Cada push executa as validações automáticas e cria um pull request para `main` quando ainda não existir um PR aberto para a branch. O deploy contínuo permanece fora do escopo desta fase.

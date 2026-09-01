@@ -25,6 +25,7 @@ REQUIRED = [
     "07_POLITICA_MCP.yaml",
     "15_POLITICA_APROVACAO_HUMANA.yaml",
     ".github/workflows/ai-security-baseline.yml",
+    ".github/workflows/auto-pull-request.yml",
 ]
 
 
@@ -107,9 +108,35 @@ if workflow.is_file():
         "python -B scripts/validate_local_hardening.py",
         "python -B guardrails/scripts/validate_package.py",
         "python -B -m unittest discover -s guardrails/tests -v",
+        'branches: ["**"]',
     ):
         if fragment not in workflow_text:
             fail(f"CI workflow lacks required supply-chain control: {fragment}")
+
+auto_pr_workflow = ROOT / ".github" / "workflows" / "auto-pull-request.yml"
+if auto_pr_workflow.is_file():
+    auto_pr_text = auto_pr_workflow.read_text(encoding="utf-8")
+    for reference in re.findall(
+        r"^\s*-?\s*uses:\s*(\S+)\s*$", auto_pr_text, flags=re.MULTILINE
+    ):
+        if reference.startswith("./"):
+            continue
+        if not re.fullmatch(r"[^@\s]+@[0-9a-f]{40}", reference):
+            fail(f"GitHub Action is not pinned by commit SHA: {reference}")
+    for fragment in (
+        "branches-ignore: [main]",
+        "contents: read",
+        "pull-requests: write",
+        "runs-on: ubuntu-24.04",
+        "timeout-minutes: 5",
+        "GH_TOKEN: ${{ github.token }}",
+        'existing="$(gh pr list',
+        "gh pr create",
+    ):
+        if fragment not in auto_pr_text:
+            fail(f"Automatic PR workflow lacks required control: {fragment}")
+    if "contents: write" in auto_pr_text:
+        fail("Automatic PR workflow must not grant contents: write")
 
 validation_lock = ROOT / "requirements-validation.txt"
 if validation_lock.is_file():
