@@ -45,3 +45,21 @@ Não coloque credenciais ou dados reais de colaboradores no repositório. Arquiv
 ## Fluxo de contribuição
 
 Envie mudanças para uma branch diferente de `main`. Cada push executa as validações automáticas e cria um pull request para `main` quando ainda não existir um PR aberto para a branch. O deploy contínuo permanece fora do escopo desta fase.
+
+## Desenvolvimento local
+
+Pré-requisitos: Node.js 20.9 ou superior e npm.
+
+```powershell
+npm.cmd ci --ignore-scripts --audit=false --fund=false
+npm.cmd run dev
+```
+
+A aplicação fica disponível em `http://localhost:3000`. Antes de enviar uma mudança, execute:
+
+```powershell
+npm.cmd run lint
+npm.cmd run typecheck
+npm.cmd test
+npm.cmd run build
+```
