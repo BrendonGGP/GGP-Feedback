@@ -8,6 +8,8 @@ import sys
 import tomllib
 from typing import Any
 
+from path_policy import is_allowed_protected_template, is_protected_path
+
 try:
     import yaml
 except ImportError as exc:  # pragma: no cover
@@ -77,6 +79,10 @@ for path in ROOT.rglob("*"):
     if not path.is_file() or "dist" in path.parts:
         continue
     rel = path.relative_to(ROOT)
+    if is_protected_path(rel):
+        if not is_allowed_protected_template(rel):
+            fail(f"Protected path present in package: {rel}")
+        continue
     if path.suffix == ".pyc" or "__pycache__" in path.parts:
         fail(f"Artefato Python compilado não deve estar no pacote: {rel}")
     if path.name in {"id_rsa", "id_ed25519"}:

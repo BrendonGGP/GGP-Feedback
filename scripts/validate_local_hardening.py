@@ -90,6 +90,36 @@ if rules.is_file():
         if fragment not in text:
             fail(f"Execpolicy does not cover: {fragment}")
 
+workflow = ROOT / ".github" / "workflows" / "ai-security-baseline.yml"
+if workflow.is_file():
+    workflow_text = workflow.read_text(encoding="utf-8")
+    for reference in re.findall(r"^\s*-?\s*uses:\s*(\S+)\s*$", workflow_text, flags=re.MULTILINE):
+        if reference.startswith("./"):
+            continue
+        if not re.fullmatch(r"[^@\s]+@[0-9a-f]{40}", reference):
+            fail(f"GitHub Action is not pinned by commit SHA: {reference}")
+    for fragment in (
+        "runs-on: ubuntu-24.04",
+        'python-version: "3.14.7"',
+        "persist-credentials: false",
+        "--only-binary=:all:",
+        "--require-hashes",
+    ):
+        if fragment not in workflow_text:
+            fail(f"CI workflow lacks required supply-chain control: {fragment}")
+
+validation_lock = ROOT / "requirements-validation.txt"
+if validation_lock.is_file():
+    lock_text = validation_lock.read_text(encoding="utf-8")
+    requirements = [
+        line for line in lock_text.splitlines()
+        if line.strip() and not line.lstrip().startswith("#") and "==" in line
+    ]
+    if not requirements or any(not line.rstrip().endswith("\\") for line in requirements):
+        fail("Validation requirements must be pinned and followed by hashes")
+    if lock_text.count("--hash=sha256:") < len(requirements):
+        fail("Validation requirements do not provide enough SHA-256 hashes")
+
 for skill in ("safe-preflight", "secure-code-review", "project-hardening"):
     skill_root = ROOT / ".agents" / "skills" / skill
     if not (skill_root / "SKILL.md").is_file():
@@ -106,4 +136,3 @@ if ERRORS:
 print("LOCAL HARDENING VALIDATION OK")
 print("- Active policies contain no unresolved placeholders")
 print("- AGENTS, Codex config, execpolicy and skill structure are coherent")
-

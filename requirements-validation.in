@@ -1,0 +1,3 @@
+# Dependências mínimas para validar as políticas e os schemas locais.
+PyYAML==6.0.3
+jsonschema==4.26.0
