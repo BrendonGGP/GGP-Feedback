@@ -62,7 +62,11 @@ class DatabaseGuardrailsTest(unittest.TestCase):
         schema = root / "prisma/schema.prisma"
         schema.parent.mkdir(parents=True)
         schema.write_text(
-            'datasource db {\n  provider = "postgresql"\n  url      = env("DATABASE_URL")\n}\n',
+            'datasource db {\n'
+            '  provider  = "postgresql"\n'
+            '  url       = env("DATABASE_URL")\n'
+            '  directUrl = env("DIRECT_URL")\n'
+            '}\n',
             encoding="utf-8",
         )
 

@@ -1,26 +1,42 @@
 # Supabase e banco de dados
 
-O ambiente de dados previsto para o projeto fica no Supabase, na regiÃ£o de SÃ£o Paulo. O projeto Supabase e as credenciais permanecem fora deste repositÃ³rio.
+O PostgreSQL do projeto está no Supabase, na região de São Paulo. Projeto, URLs e credenciais permanecem fora do repositório.
 
-## Credencial local
+## Conexões locais
 
-Crie ou atualize o arquivo local `.env` somente na sua mÃ¡quina, sem versionÃ¡-lo, com a variÃ¡vel `DATABASE_URL` apontando para a conexÃ£o de banco indicada pelo painel do Supabase para migrations. NÃ£o envie essa URL, senhas ou chaves do Supabase pelo Git, PR, chat ou logs.
+O Prisma 6 utiliza duas conexões com responsabilidades diferentes:
+
+- `DATABASE_URL`: transaction pooler na porta `6543`, reservado para o runtime serverless;
+- `DIRECT_URL`: conexão direta ou session pooler na porta `5432`, usada por Prisma Migrate e comandos administrativos.
+
+O `schema.prisma` referencia somente os nomes das variáveis. Crie o `.env` manualmente, sem versioná-lo:
+
+```env
+DATABASE_URL="postgresql://...:6543/postgres"
+DIRECT_URL="postgresql://...:5432/postgres"
+```
+
+Use as strings fornecidas pelo painel em **Connect → ORM → Prisma** e substitua os marcadores de senha localmente. Não envie URLs, senhas ou chaves pelo Git, PR, chat ou logs.
+
+As credenciais administrativas usadas nesta fase não devem ser reutilizadas pelo runtime implantado. Antes de conectar a aplicação, será definida uma identidade de menor privilégio coerente com autenticação e RLS.
 
 ## Validar antes de aplicar
 
-No PowerShell, dentro do projeto e com `DATABASE_URL` carregada apenas na sua sessÃ£o local:
+Com as duas variáveis configuradas localmente:
 
 ```powershell
 npm.cmd run prisma:validate
 npm.cmd run prisma:migrate:status
 ```
 
+`prisma:migrate:status` consulta o banco, mas não aplica migrations.
+
 ## Aplicar migrations
 
-Depois de revisar o SQL versionado e aprovar a mudanÃ§a, execute:
+Somente após revisar o SQL, confirmar o ambiente e obter aprovação explícita:
 
 ```powershell
 npm.cmd run prisma:migrate:deploy
 ```
 
-Esse comando altera o banco configurado em `DATABASE_URL`; ele nunca deve ser executado contra produÃ§Ã£o sem aprovaÃ§Ã£o, backup e plano de rollback.
+Esse comando altera o banco apontado por `DIRECT_URL`. Banco com dados exige backup, janela de mudança e rollback testado.

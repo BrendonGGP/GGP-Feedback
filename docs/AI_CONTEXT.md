@@ -42,7 +42,7 @@ npm.cmd run validate:database
 npm.cmd run validate:hardening
 ```
 
-Use uma `DATABASE_URL` sintética somente para validar ou gerar o Prisma sem conexão. Aplicar migration, usar rede, publicar branch ou criar PR exige aprovação explícita.
+Use `DATABASE_URL` e `DIRECT_URL` sintéticas somente para validar ou gerar o Prisma sem conexão. Aplicar migration, usar rede, publicar branch ou criar PR exige aprovação explícita.
 
 ## Fluxo GitHub
 
