@@ -3,9 +3,7 @@ export type ProjectStatus = Readonly<{
   nextMilestone: string;
 }>;
 
-export function getProjectStatus(): ProjectStatus {
-  return {
-    phase: "Fundação técnica",
-    nextMilestone: "Autenticação e autorização",
-  };
-}
+export const CURRENT_PROJECT_STATUS = {
+  phase: "Fundação técnica",
+  nextMilestone: "Autenticação e autorização",
+} as const satisfies ProjectStatus;

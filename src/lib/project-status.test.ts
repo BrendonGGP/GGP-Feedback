@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { getProjectStatus } from "./project-status";
+import { CURRENT_PROJECT_STATUS } from "./project-status";
 
-describe("getProjectStatus", () => {
+describe("CURRENT_PROJECT_STATUS", () => {
   it("descreve a etapa inicial sem prometer funcionalidade pronta", () => {
-    expect(getProjectStatus()).toEqual({
+    expect(CURRENT_PROJECT_STATUS).toEqual({
       phase: "Fundação técnica",
       nextMilestone: "Autenticação e autorização",
     });

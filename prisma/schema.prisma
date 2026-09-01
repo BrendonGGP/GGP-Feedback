@@ -39,6 +39,7 @@ enum QuestionType {
   SHORT_TEXT
 }
 
+// Estrutura organizacional
 model Company {
   id          String       @id @default(uuid()) @db.Uuid
   name        String       @db.VarChar(160)
@@ -99,6 +100,7 @@ model Person {
   @@map("people")
 }
 
+// Identidade, papéis e sessões
 model AccessAccount {
   id                     String                 @id @default(uuid()) @db.Uuid
   personId               String                 @unique @map("person_id") @db.Uuid
@@ -164,6 +166,7 @@ model ReportingLineHistory {
   @@map("reporting_line_history")
 }
 
+// Ciclos e formulários
 model Cycle {
   id                       String      @id @default(uuid()) @db.Uuid
   name                     String      @db.VarChar(160)
@@ -221,6 +224,7 @@ model CycleFormTemplate {
   @@map("cycle_form_templates")
 }
 
+// Feedbacks e trilha de auditoria
 model Feedback {
   id                String         @id @default(uuid()) @db.Uuid
   cycleId           String         @map("cycle_id") @db.Uuid
