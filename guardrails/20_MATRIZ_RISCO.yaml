@@ -1,0 +1,49 @@
+schema_version: "1.0"
+default: "deny"
+
+levels:
+  L0:
+    description: "Informativo ou criativo; sem efeito externo."
+    automatic: true
+    human_approval: false
+  L1:
+    description: "Leitura autorizada; sem alteração."
+    automatic: true
+    human_approval: false
+  L2:
+    description: "Mudança local, reversível e de baixo impacto."
+    automatic: "policy_dependent"
+    human_approval: "policy_dependent"
+  L3:
+    description: "Efeito externo, PII, segredo, permissão, contrato, finanças ou operação."
+    automatic: false
+    human_approval: "single"
+  L4:
+    description: "Irreversível, destrutivo, produção, infraestrutura, pagamento ou decisão regulada."
+    automatic: false
+    human_approval: "dual_or_blocked"
+
+classifiers:
+  reads_authorized_source: L1
+  edits_local_source_code: L2
+  adds_dependency: L3
+  reads_secret: L4
+  changes_auth_or_iam: L4
+  sends_external_message: L3
+  bulk_external_message: L4
+  writes_customer_record: L3
+  deletes_record: L4
+  executes_database_mutation: L4
+  creates_financial_transaction: L4
+  deploys_to_production: L4
+  applies_infrastructure: L4
+  publishes_package_or_release: L4
+  opens_unapproved_network_destination: L3
+  enables_unapproved_mcp_or_skill: L4
+
+required_controls:
+  L0: [scope_validation]
+  L1: [authentication, tenant_check, read_scope, audit]
+  L2: [workspace_sandbox, diff_review, tests, rollback]
+  L3: [all_L2, server_authorization, human_approval, idempotency, audit, dry_run]
+  L4: [all_L3, dual_approval_or_block, canary, tested_rollback, incident_owner]

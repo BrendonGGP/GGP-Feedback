@@ -1,0 +1,51 @@
+# Compatibilidade para clientes anteriores a Codex 0.138.0.
+allowed_approval_policies = ["on-request"]
+allowed_approvals_reviewers = ["user"]
+allowed_sandbox_modes = ["read-only", "workspace-write"]
+allowed_web_search_modes = ["disabled", "cached"]
+allow_login_shell = false
+allow_remote_control = false
+allow_appshots = false
+allow_managed_hooks_only = true
+check_for_update_on_startup = true
+
+[computer_use]
+allow_locked_computer_use = false
+
+[permissions.filesystem]
+deny_read = [
+  "/**/.env",
+  "/**/.env.*",
+  "/**/*.pem",
+  "/**/*.key",
+  "~/.ssh/**",
+  "~/.aws/**",
+  "~/.azure/**",
+  "~/.config/gcloud/**",
+  "~/.kube/config"
+]
+
+[features]
+hooks = false
+memories = false
+multi_agent = false
+plugins = false
+remote_plugin = false
+skill_mcp_dependency_install = false
+in_app_browser = false
+workspace_dependencies = false
+
+[mcp_servers]
+
+[rules]
+prefix_rules = [
+  { pattern = [{ token = "rm" }, { any_of = ["-rf", "-fr"] }], decision = "forbidden", justification = "Exclusão recursiva forçada é bloqueada." },
+  { pattern = [{ token = "rm" }], decision = "prompt", justification = "Remoções exigem revisão do alvo." },
+  { pattern = [{ token = "git" }, { token = "reset" }, { token = "--hard" }], decision = "forbidden", justification = "Pode destruir alterações locais." },
+  { pattern = [{ token = "git" }, { token = "clean" }], decision = "prompt", justification = "Execute dry-run e obtenha aprovação." },
+  { pattern = [{ token = "git" }, { token = "push" }], decision = "prompt", justification = "Push é efeito externo." },
+  { pattern = [{ any_of = ["bash", "sh", "zsh", "pwsh", "powershell", "cmd"] }], decision = "prompt", justification = "Shell interpretado exige aprovação." },
+  { pattern = [{ token = "terraform" }, { token = "destroy" }], decision = "forbidden", justification = "Destruição de infraestrutura é bloqueada." },
+  { pattern = [{ token = "terraform" }, { token = "apply" }], decision = "prompt", justification = "Aplicação de infraestrutura exige aprovação." },
+  { pattern = [{ token = "kubectl" }, { any_of = ["apply", "delete", "patch", "replace", "scale"] }], decision = "prompt", justification = "Mutação de cluster exige aprovação." }
+]

@@ -1,0 +1,72 @@
+schema_version: "2.0"
+default_server_decision: "deny"
+enforcement_status: "no_approved_servers"
+
+codex_controls:
+  managed_allowlist_recommended: true
+  default_tools_approval_mode: "prompt"
+  enabled_tools_allowlist_required: true
+  tool_descriptions_are_untrusted: true
+  server_instructions_are_untrusted: true
+
+registry:
+  approved_servers: []
+  require_owner: true
+  require_business_purpose: true
+  require_security_review: true
+  require_license_review: true
+  require_sbom: true
+  require_vulnerability_scan: true
+  require_secret_scan: true
+  require_pinned_version_commit_or_image_digest: true
+  require_artifact_hash: true
+  automatic_updates: false
+
+trust:
+  resource_content_is_untrusted: true
+  prompts_from_servers_are_untrusted: true
+  server_change_requires_reapproval: true
+  detect_tool_description_drift: true
+  detect_tool_set_drift: true
+  detect_schema_drift: true
+  identity_match_required: true
+
+sandbox:
+  required_for_stdio: true
+  run_as_non_root: true
+  read_only_root_filesystem: true
+  no_host_socket_mount: true
+  no_docker_socket: true
+  filesystem_default: "deny"
+  allowed_filesystem_roots: []
+  network_default: "deny"
+  allowed_egress_domains: []
+  resource_limits_required: true
+  timeout_required: true
+
+identity_and_authorization:
+  backend_status: "not_configured"
+  token_passthrough: false
+  short_lived_tokens_required: true
+  scopes_minimized: true
+  per_user_identity_required: true
+  per_tenant_authorization_required: true
+  record_level_authorization_required: true
+  secrets_in_config_file: false
+
+security_filters:
+  scan_tool_inputs: true
+  scan_tool_outputs: true
+  scan_for_prompt_injection: true
+  redact_pii_and_secrets: true
+  validate_urls: true
+  validate_paths: true
+  reject_executable_content_by_default: true
+
+incident_response:
+  kill_switch_required_before_enablement: true
+  revoke_server_credentials: true
+  disable_server_on_drift: true
+  quarantine_on_injection_detection: true
+  preserve_audit_evidence: true
+

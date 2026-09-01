@@ -1,0 +1,21 @@
+schema_version: "1.0"
+servers:
+  - id: "{{SERVER_ID}}"
+    owner: "{{OWNER}}"
+    purpose: "{{PURPOSE}}"
+    identity:
+      type: "stdio" # stdio | https
+      command_or_url: "{{PINNED_IDENTITY}}"
+    source_repository: "{{REPOSITORY}}"
+    pinned_version_or_commit: "{{VERSION_OR_COMMIT}}"
+    artifact_sha256: "{{SHA256}}"
+    sbom: "{{SBOM_LOCATION}}"
+    review_expires_at: "{{DATE}}"
+    default_tools_approval_mode: "prompt"
+    enabled_tools: []
+    denied_tools: []
+    roles: []
+    tenants: ["current"]
+    filesystem_roots: []
+    egress_domains: []
+    credential_scopes: []

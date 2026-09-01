@@ -1,0 +1,3 @@
+interface:
+  display_name: "Safe Preflight"
+  short_description: "Read-only risk and execution preflight"

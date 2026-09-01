@@ -1,0 +1,3 @@
+interface:
+  display_name: "Secure Code Review"
+  short_description: "Evidence-based security review of code changes"

@@ -1,0 +1,112 @@
+schema_version: "2.0"
+default_decision: "deny"
+enforcement_status: "local_codex_controls_only"
+
+principles:
+  least_privilege: true
+  fail_closed: true
+  validate_outside_model_when_backend_exists: true
+  tool_results_are_untrusted: true
+  approval_is_not_model_supplied: true
+
+codex_execution:
+  sandbox_required: true
+  allowed_permission_profiles:
+    - ":read-only"
+    - "project_guarded_workspace"
+  danger_full_access_allowed: false
+  yolo_allowed: false
+  network_default: "deny"
+  write_outside_workspace: false
+  login_shell_allowed: false
+  command_rules_required: true
+
+preflight_checks:
+  - "tool_is_allowlisted"
+  - "input_matches_expected_shape"
+  - "destination_is_authorized"
+  - "no_secret_or_unnecessary_pii"
+  - "no_path_traversal_or_symlink_escape"
+  - "no_shell_sql_template_or_url_injection"
+  - "environment_is_confirmed"
+  - "approval_is_valid_when_required"
+
+postflight_checks:
+  - "result_is_treated_as_untrusted"
+  - "sensitive_fields_are_redacted"
+  - "side_effect_is_not_assumed_from_ambiguous_output"
+  - "execution_evidence_is_recorded"
+
+tools:
+  inspect_workspace:
+    enabled: true
+    effect: "read"
+    risk_level: "L1"
+    allowed_roles: ["workspace_user"]
+    approval_required: false
+    allowed_paths: [":workspace_roots"]
+    protected_paths_enforced: true
+    network_egress: "deny"
+
+  edit_workspace:
+    enabled: true
+    effect: "workspace_write"
+    risk_level: "L2"
+    allowed_roles: ["workspace_user"]
+    approval_required: "policy_dependent"
+    allowed_paths: [":workspace_roots"]
+    external_side_effect: false
+    rollback: "review_diff_or_restore_explicit_files"
+
+  run_local_verification:
+    enabled: true
+    effect: "local_process"
+    risk_level: "L2"
+    allowed_roles: ["workspace_user"]
+    approval_required: "command_policy_dependent"
+    network_egress: "deny"
+    timeout_required: true
+
+  command_network_access:
+    enabled: false
+    effect: "external_read_or_write"
+    risk_level: "L3"
+    approval_required: true
+
+  write_capable_mcp:
+    enabled: false
+    effect: "external_write"
+    risk_level: "L3"
+    approval_required: true
+
+  git_remote_mutation:
+    enabled: false
+    effect: "external_write"
+    risk_level: "L3"
+    approval_required: true
+
+  send_external_message:
+    enabled: false
+    effect: "external_write"
+    risk_level: "L3"
+    approval_required: true
+
+  deploy_or_infrastructure:
+    enabled: false
+    effect: "production_change"
+    risk_level: "L4"
+    approval_required: "dual_or_pipeline_only"
+
+  destructive_operation:
+    enabled: false
+    effect: "destructive"
+    risk_level: "L4"
+    approval_required: "dual_or_blocked"
+
+failure_behavior:
+  authorization_error: "block"
+  schema_error: "block"
+  missing_approval: "block"
+  ambiguous_tool_result: "do_not_assume_success"
+  timeout: "do_not_retry_more_than_once"
+  partial_side_effect: "stop_and_reconcile"

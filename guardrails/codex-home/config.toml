@@ -1,0 +1,60 @@
+# Copiar para ~/.codex/config.toml.
+approval_policy = "on-request"
+approvals_reviewer = "user"
+default_permissions = "user_guarded_workspace"
+web_search = "disabled"
+allow_login_shell = false
+hide_agent_reasoning = true
+show_raw_agent_reasoning = false
+project_doc_max_bytes = 32768
+cli_auth_credentials_store = "keyring"
+mcp_oauth_credentials_store = "keyring"
+check_for_update_on_startup = true
+
+[analytics]
+enabled = false
+
+[history]
+persistence = "none"
+
+[permissions.user_guarded_workspace]
+description = "Workspace editável com secrets negados e rede desligada."
+extends = ":workspace"
+
+[permissions.user_guarded_workspace.filesystem]
+glob_scan_max_depth = 8
+
+[permissions.user_guarded_workspace.filesystem.":workspace_roots"]
+"**/.env" = "deny"
+"**/.env.*" = "deny"
+"**/*.pem" = "deny"
+"**/*.key" = "deny"
+"**/credentials*" = "deny"
+"**/.ssh/**" = "deny"
+"**/.aws/**" = "deny"
+"**/.azure/**" = "deny"
+"**/.config/gcloud/**" = "deny"
+"**/.kube/config" = "deny"
+
+[permissions.user_guarded_workspace.network]
+enabled = false
+
+[shell_environment_policy]
+inherit = "core"
+ignore_default_excludes = false
+experimental_use_profile = false
+
+[apps._default]
+enabled = false
+destructive_enabled = false
+open_world_enabled = false
+default_tools_approval_mode = "prompt"
+approvals_reviewer = "user"
+
+[features]
+hooks = false
+memories = false
+plugins = false
+remote_plugin = false
+skill_mcp_dependency_install = false
+network_proxy = false

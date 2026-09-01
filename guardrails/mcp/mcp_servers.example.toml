@@ -1,0 +1,46 @@
+# Copie somente servidores homologados para config.toml.
+
+# Documentação oficial OpenAI, read-only. Mantido desabilitado até decisão do owner.
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
+enabled = false
+required = false
+default_tools_approval_mode = "prompt"
+startup_timeout_sec = 10
+tool_timeout_sec = 30
+
+# Servidor stdio executado em container restrito e imagem fixada por digest.
+[mcp_servers.approved_readonly]
+command = "docker"
+args = [
+  "run", "--rm", "-i",
+  "--network", "none",
+  "--read-only",
+  "--cap-drop", "ALL",
+  "--security-opt", "no-new-privileges",
+  "--memory", "256m",
+  "--cpus", "0.5",
+  "--pids-limit", "64",
+  "-v", "{{APPROVED_READONLY_PATH}}:/workspace:ro",
+  "{{PINNED_MCP_IMAGE_WITH_DIGEST}}"
+]
+enabled = false
+required = false
+default_tools_approval_mode = "prompt"
+enabled_tools = ["{{READ_TOOL_1}}", "{{READ_TOOL_2}}"]
+disabled_tools = []
+startup_timeout_sec = 10
+tool_timeout_sec = 30
+env_vars = []
+
+# Servidor remoto. O token vem do ambiente, nunca do arquivo.
+[mcp_servers.approved_remote]
+url = "{{MCP_HTTPS_URL}}"
+bearer_token_env_var = "MCP_APPROVED_REMOTE_TOKEN"
+enabled = false
+required = false
+default_tools_approval_mode = "prompt"
+enabled_tools = ["{{APPROVED_TOOL_1}}"]
+disabled_tools = []
+startup_timeout_sec = 10
+tool_timeout_sec = 30

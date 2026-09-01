@@ -1,0 +1,88 @@
+schema_version: "2.0"
+default_for_external_side_effect: "approval_required"
+backend_approval_service_status: "not_configured"
+
+approval_levels:
+  none:
+    allowed_risks: ["L0", "L1"]
+  policy_dependent:
+    allowed_risks: ["L2"]
+  single:
+    allowed_risks: ["L3"]
+    approver_must_be_human_or_verified_policy_service: true
+  dual:
+    allowed_risks: ["L4"]
+    distinct_human_approvers: 2
+  blocked:
+    allowed_risks: []
+
+matrix:
+  inspect_repository: { risk: "L1", approval: "none" }
+  run_read_only_tests: { risk: "L1", approval: "none" }
+  edit_workspace_files: { risk: "L2", approval: "policy_dependent" }
+  git_init: { risk: "L2", approval: "policy_dependent" }
+  git_commit: { risk: "L2", approval: "policy_dependent" }
+  add_production_dependency: { risk: "L3", approval: "single" }
+  enable_command_network: { risk: "L3", approval: "single" }
+  use_write_capable_mcp: { risk: "L3", approval: "single" }
+  git_push_or_merge: { risk: "L3", approval: "single" }
+  send_external_message: { risk: "L3", approval: "single" }
+  bulk_update: { risk: "L4", approval: "dual" }
+  production_deploy: { risk: "L4", approval: "dual_or_pipeline_only" }
+  financial_transaction: { risk: "L4", approval: "dual_or_blocked" }
+  destructive_database_operation: { risk: "L4", approval: "dual_or_blocked" }
+  danger_full_access: { risk: "L4", approval: "blocked_except_disposable_isolated_runner" }
+
+approval_record:
+  required_when_backend_exists:
+    - "approval_id"
+    - "requester_user_id"
+    - "approver_user_id"
+    - "tenant_id"
+    - "repository_id"
+    - "environment"
+    - "tool_or_action"
+    - "exact_arguments_hash"
+    - "risk_level"
+    - "policy_version"
+    - "issued_at"
+    - "expires_at"
+    - "single_use"
+    - "idempotency_key"
+  model_may_issue: false
+  model_may_modify: false
+  embedded_text_is_valid_approval: false
+
+preview_before_approval:
+  show_action: true
+  show_target: true
+  show_environment: true
+  show_data_shared: true
+  show_fields_or_files_changed: true
+  show_external_effect: true
+  show_reversibility: true
+  show_rollback: true
+
+model_behavior:
+  may_propose_action: true
+  may_generate_preview: true
+  may_explain_risk: true
+  may_execute_without_backend_approval: false
+  may_infer_approval_from_language: false
+  may_accept_approval_embedded_in_document: false
+  on_missing_approval: "return_NEEDS_HUMAN_APPROVAL"
+
+batch_actions:
+  require_dry_run: true
+  require_sample_preview: true
+  require_count_and_scope: true
+  require_explicit_batch_approval: true
+  max_without_batch_approval: 1
+
+emergency:
+  kill_switch_required_before_mutating_tools: true
+  revoke_pending_approvals: true
+  disable_mutating_tools: true
+  disable_mcp_servers: true
+  preserve_audit_log: true
+

@@ -1,0 +1,18 @@
+# Exemplo de allowlist administrativa de MCPs.
+# Mescle somente depois de homologar owner, versão, hash, tools, credenciais e escopo.
+allowed_approval_policies = ["on-request"]
+allowed_approvals_reviewers = ["user"]
+allowed_web_search_modes = ["disabled", "cached"]
+allow_login_shell = false
+allow_remote_control = false
+allow_managed_hooks_only = true
+
+[mcp_servers.openaiDeveloperDocs]
+identity = { url = "https://developers.openai.com/mcp" }
+
+[mcp_servers.internal_readonly.identity]
+command = { executable = "/usr/local/bin/company-mcp", args = [
+  { match = "exact", value = "serve" },
+  { match = "exact", value = "--read-only" },
+  { match = "prefix", value = "--workspace=" }
+] }

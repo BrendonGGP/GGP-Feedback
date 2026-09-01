@@ -1,0 +1,27 @@
+# Compatibilidade para clientes anteriores ao uso gerenciado de permission profiles.
+approval_policy = "on-request"
+approvals_reviewer = "user"
+sandbox_mode = "workspace-write"
+web_search = "disabled"
+allow_login_shell = false
+hide_agent_reasoning = true
+show_raw_agent_reasoning = false
+project_doc_max_bytes = 32768
+
+[sandbox_workspace_write]
+network_access = false
+exclude_slash_tmp = true
+exclude_tmpdir_env_var = true
+writable_roots = []
+
+[shell_environment_policy]
+inherit = "core"
+ignore_default_excludes = false
+experimental_use_profile = false
+
+[features]
+hooks = false
+memories = false
+plugins = false
+remote_plugin = false
+skill_mcp_dependency_install = false

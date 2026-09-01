@@ -1,0 +1,7 @@
+# Fixe versões e hashes em produção após testar no seu ambiente.
+openai
+pydantic>=2
+PyYAML
+jsonschema
+openai-agents
+openai-codex

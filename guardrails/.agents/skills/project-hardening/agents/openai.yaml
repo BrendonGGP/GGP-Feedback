@@ -1,0 +1,3 @@
+interface:
+  display_name: "Project Hardening"
+  short_description: "Audit and reduce Codex project blast radius"

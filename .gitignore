@@ -1,0 +1,52 @@
+# Secrets and local credentials
+.env
+.env.*
+*.pem
+*.key
+credentials*
+.ssh/
+.aws/
+.azure/
+.config/gcloud/
+.kube/config
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Node.js / Next.js
+node_modules/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+.turbo/
+
+# Prisma and local databases
+*.db
+*.db-journal
+prisma/dev.db*
+
+# Logs and generated exports
+*.log
+exports/
+tmp/
+/guardrails/dist/
+
+# Local source data that may contain personal or confidential information
+/Base_Cadastro_Feedback_PDI_GGP.xlsx
+/GGP_Levantamento_Requisitos_Feedback_PDI (1).docx
+/dados-privados/
+~$*.xlsx
+~$*.docx
+
+# IDE and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

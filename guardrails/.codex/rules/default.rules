@@ -1,0 +1,107 @@
+# Regras de execução do Codex. O resultado mais restritivo prevalece.
+
+prefix_rule(
+    pattern = ["rm", ["-rf", "-fr"]],
+    decision = "forbidden",
+    justification = "Exclusão recursiva forçada é proibida. Selecione arquivos explicitamente e preserve rollback.",
+    match = ["rm -rf /", "rm -rf .", "rm -fr ./build"],
+    not_match = ["rm file.txt"],
+)
+
+prefix_rule(
+    pattern = ["git", "reset", "--hard"],
+    decision = "forbidden",
+    justification = "Pode destruir alterações locais. Use um plano de restauração ou operação seletiva.",
+    match = ["git reset --hard", "git reset --hard HEAD~1"],
+)
+
+prefix_rule(
+    pattern = ["git", "clean"],
+    decision = "prompt",
+    justification = "Pode apagar arquivos não rastreados. Exige revisão do escopo e dry-run com -n.",
+    match = ["git clean -fd", "git clean -xdf"],
+)
+
+prefix_rule(
+    pattern = ["git", "push", ["--force", "-f", "--force-with-lease"]],
+    decision = "forbidden",
+    justification = "Reescrita de histórico remoto é proibida para o agente.",
+    match = ["git push --force origin main", "git push -f", "git push --force-with-lease"],
+)
+
+prefix_rule(
+    pattern = ["git", "push"],
+    decision = "prompt",
+    justification = "Push tem efeito externo e exige aprovação explícita.",
+    match = ["git push", "git push origin feature"],
+)
+
+prefix_rule(
+    pattern = ["gh", "pr", "merge"],
+    decision = "prompt",
+    justification = "Merge de pull request exige revisão humana.",
+    match = ["gh pr merge 123", "gh pr merge --squash"],
+)
+
+prefix_rule(
+    pattern = ["gh", "release", "create"],
+    decision = "prompt",
+    justification = "Publicação de release é efeito externo.",
+    match = ["gh release create v1.0.0"],
+)
+
+prefix_rule(
+    pattern = ["terraform", "destroy"],
+    decision = "forbidden",
+    justification = "Destruição de infraestrutura deve ocorrer somente por pipeline aprovado.",
+    match = ["terraform destroy", "terraform destroy -auto-approve"],
+)
+
+prefix_rule(
+    pattern = ["terraform", "apply"],
+    decision = "prompt",
+    justification = "Aplicação de infraestrutura exige revisão e aprovação.",
+    match = ["terraform apply", "terraform apply plan.out"],
+)
+
+prefix_rule(
+    pattern = ["kubectl", ["apply", "delete", "patch", "replace", "scale"]],
+    decision = "prompt",
+    justification = "Alteração de cluster exige contexto, namespace e aprovação explícitos.",
+    match = ["kubectl apply -f deploy.yaml", "kubectl delete pod x", "kubectl scale deploy api --replicas=5"],
+)
+
+prefix_rule(
+    pattern = ["docker", "system", "prune"],
+    decision = "forbidden",
+    justification = "Limpeza global do Docker pode remover dados e artefatos compartilhados.",
+    match = ["docker system prune", "docker system prune -a"],
+)
+
+prefix_rule(
+    pattern = [["npm", "pnpm", "yarn"], "publish"],
+    decision = "prompt",
+    justification = "Publicação de pacote exige aprovação e revisão de conteúdo.",
+    match = ["npm publish", "pnpm publish", "yarn publish"],
+)
+
+prefix_rule(
+    pattern = ["twine", "upload"],
+    decision = "prompt",
+    justification = "Publicação de pacote Python exige aprovação.",
+    match = ["twine upload dist/*"],
+)
+
+prefix_rule(
+    pattern = [["aws", "gcloud", "az"]],
+    decision = "prompt",
+    justification = "CLIs de cloud podem acessar ou alterar recursos externos.",
+    match = ["aws s3 ls", "gcloud projects list", "az account show"],
+)
+
+prefix_rule(
+    pattern = [["bash", "sh", "zsh", "pwsh", "powershell", "cmd"]],
+    decision = "prompt",
+    justification = "Entrada em shell interpretado exige aprovação fora do sandbox.",
+    match = ["bash -lc echo ok", "pwsh -Command Get-ChildItem"],
+)

@@ -1,0 +1,46 @@
+# Baseline atual por repositório para Codex 0.138.0+.
+# O projeto precisa estar marcado como confiável para a camada .codex ser carregada.
+# Permission profiles estão em beta: valide contra a versão instalada antes do rollout.
+approval_policy = "on-request"
+approvals_reviewer = "user"
+default_permissions = "project_guarded_workspace"
+web_search = "disabled"
+allow_login_shell = false
+hide_agent_reasoning = true
+show_raw_agent_reasoning = false
+project_doc_max_bytes = 32768
+
+[permissions.project_guarded_workspace]
+description = "Escrita no workspace, leitura mínima, secrets negados e rede desligada."
+extends = ":workspace"
+
+[permissions.project_guarded_workspace.filesystem]
+glob_scan_max_depth = 8
+
+[permissions.project_guarded_workspace.filesystem.":workspace_roots"]
+"**/.env" = "deny"
+"**/.env.*" = "deny"
+"**/*.pem" = "deny"
+"**/*.key" = "deny"
+"**/credentials*" = "deny"
+"**/.ssh/**" = "deny"
+"**/.aws/**" = "deny"
+"**/.azure/**" = "deny"
+"**/.config/gcloud/**" = "deny"
+"**/.kube/config" = "deny"
+
+[permissions.project_guarded_workspace.network]
+enabled = false
+
+[shell_environment_policy]
+inherit = "core"
+ignore_default_excludes = false
+experimental_use_profile = false
+
+[features]
+hooks = false
+memories = false
+plugins = false
+remote_plugin = false
+skill_mcp_dependency_install = false
+network_proxy = false
