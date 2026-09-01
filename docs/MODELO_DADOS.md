@@ -23,9 +23,9 @@ Feedback 1 --- N FeedbackAnswer
 AccessAccount 1 --- N AuditEvent
 ```
 
-## Restrições que serão adicionadas por migration SQL
+## Restrições da migration inicial
 
-Nem todas as regras são representáveis apenas no arquivo Prisma. As migrations deverão incluir:
+Nem todas as regras são representáveis apenas no arquivo Prisma. A migration inicial inclui:
 
 - `CHECK` para impedir que uma pessoa seja gestora de si mesma;
 - unicidade case-insensitive para e-mail e identificador de login;
@@ -33,7 +33,8 @@ Nem todas as regras são representáveis apenas no arquivo Prisma. As migrations
 - limites de nota conforme a pergunta;
 - políticas de Row-Level Security como defesa adicional;
 - índices para gestor, ciclo, pessoa avaliada e status;
-- trigger ou serviço transacional para trilha de alterações relevantes.
+
+A trilha de alterações relevantes será gravada pelo serviço transacional quando autenticação e autorização forem implementadas. Isso evita registrar texto de feedback ou atributos pessoais além do necessário.
 
 ## Importação
 

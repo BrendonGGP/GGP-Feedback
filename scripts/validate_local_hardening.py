@@ -29,6 +29,9 @@ REQUIRED = [
     ".node-version",
     "package.json",
     "package-lock.json",
+    "prisma/migrations/migration_lock.toml",
+    "prisma/migrations/20260901153000_init_supabase_schema/migration.sql",
+    "docs/SUPABASE.md",
 ]
 
 
@@ -114,6 +117,10 @@ if workflow.is_file():
         "npm test",
         "npm audit --omit=dev --audit-level=high",
         "npm run build",
+        "npm run prisma:validate",
+        "npm run prisma:generate",
+        "npm run prisma:migrate:diff",
+        "python -B scripts/validate_database_foundation.py",
         'python-version: "3.14.7"',
         "persist-credentials: false",
         "--only-binary=:all:",
@@ -137,6 +144,21 @@ if package_file.is_file():
         fail("package.json must set private to true")
     if package_data.get("packageManager") != "npm@11.16.0":
         fail("package.json must pin npm 11.16.0")
+    expected_dependencies = {
+        "@prisma/client": "6.12.0",
+        "prisma": "6.12.0",
+    }
+    for dependency, version in expected_dependencies.items():
+        groups = ("dependencies", "devDependencies")
+        actual = next(
+            (package_data.get(group, {}).get(dependency) for group in groups if dependency in package_data.get(group, {})),
+            None,
+        )
+        if actual != version:
+            fail(f"package.json must pin {dependency} to {version}")
+    for script in ("prisma:validate", "prisma:generate", "prisma:migrate:diff", "prisma:migrate:deploy"):
+        if script not in package_data.get("scripts", {}):
+            fail(f"package.json lacks required Prisma script: {script}")
     for group in ("dependencies", "devDependencies"):
         for dependency, version in package_data.get(group, {}).items():
             if not re.fullmatch(r"\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?", version):

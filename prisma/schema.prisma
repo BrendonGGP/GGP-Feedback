@@ -75,7 +75,7 @@ model Person {
   departmentId         String                 @map("department_id") @db.Uuid
   managerId            String?                @map("manager_id") @db.Uuid
   fullName             String                 @map("full_name") @db.VarChar(200)
-  corporateEmail       String?                @unique @map("corporate_email") @db.VarChar(254)
+  corporateEmail       String?                @map("corporate_email") @db.VarChar(254)
   jobTitle             String                 @map("job_title") @db.VarChar(160)
   employmentRegime     String                 @map("employment_regime") @db.VarChar(80)
   active               Boolean                @default(true)
@@ -95,13 +95,14 @@ model Person {
   @@index([companyId, active])
   @@index([departmentId, active])
   @@index([managerId, active])
+  @@index([corporateEmail])
   @@map("people")
 }
 
 model AccessAccount {
   id                     String                 @id @default(uuid()) @db.Uuid
   personId               String                 @unique @map("person_id") @db.Uuid
-  loginIdentifier        String                 @unique @map("login_identifier") @db.VarChar(190)
+  loginIdentifier        String                 @map("login_identifier") @db.VarChar(190)
   passwordHash           String                 @map("password_hash") @db.VarChar(255)
   status                 AccountStatus          @default(PENDING_ACTIVATION)
   mustChangePassword     Boolean                @default(true) @map("must_change_password")
@@ -119,6 +120,7 @@ model AccessAccount {
   hierarchyChanges       ReportingLineHistory[] @relation("HistoryChangedBy")
 
   @@index([status])
+  @@index([loginIdentifier])
   @@map("access_accounts")
 }
 

@@ -4,7 +4,7 @@ Plataforma interna para gestão de ciclos e feedbacks dos colaboradores do grupo
 
 ## Estado atual
 
-O repositório contém a especificação técnica inicial e o esquema proposto do banco. A aplicação, as dependências, os serviços externos e os ambientes ainda não foram provisionados.
+O repositório contém a fundação Next.js, o esquema Prisma e a migration inicial do banco. A aplicação ainda não possui autenticação, dados reais ou conexão configurada com o Supabase; ambientes externos e deploy permanecem pendentes.
 
 ## Escopo do MVP
 
@@ -26,6 +26,7 @@ PDI e geração de PDF ficam fora do MVP e serão tratados na fase 2.
 - [Modelo de dados](docs/MODELO_DADOS.md)
 - [Segurança e ameaças](docs/SEGURANCA.md)
 - [Dados e privacidade](docs/DADOS_E_PRIVACIDADE.md)
+- [Supabase e migrations](docs/SUPABASE.md)
 
 ## Stack aprovada
 
