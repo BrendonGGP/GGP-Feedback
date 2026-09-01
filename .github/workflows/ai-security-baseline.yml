@@ -30,10 +30,10 @@ jobs:
           --require-hashes
           -r requirements-validation.txt
       - name: Validate active local hardening
-        run: python scripts/validate_local_hardening.py
+        run: python -B scripts/validate_local_hardening.py
       - name: Validate guardrails source package
-        run: python guardrails/scripts/validate_package.py
+        run: python -B guardrails/scripts/validate_package.py
       - name: Unit tests
-        run: python -m unittest discover -s guardrails/tests -v
+        run: python -B -m unittest discover -s guardrails/tests -v
       - name: Python syntax
         run: python -m compileall -q scripts guardrails/examples guardrails/scripts guardrails/tests guardrails/.agents/skills

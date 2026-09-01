@@ -104,6 +104,9 @@ if workflow.is_file():
         "persist-credentials: false",
         "--only-binary=:all:",
         "--require-hashes",
+        "python -B scripts/validate_local_hardening.py",
+        "python -B guardrails/scripts/validate_package.py",
+        "python -B -m unittest discover -s guardrails/tests -v",
     ):
         if fragment not in workflow_text:
             fail(f"CI workflow lacks required supply-chain control: {fragment}")

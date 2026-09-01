@@ -8,6 +8,8 @@ import sys
 import tomllib
 from typing import Any
 
+sys.dont_write_bytecode = True
+
 from path_policy import is_allowed_protected_template, is_protected_path
 
 try:
