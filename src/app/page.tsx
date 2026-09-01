@@ -1,8 +1,6 @@
-import { getProjectStatus } from "@/lib/project-status";
+import { CURRENT_PROJECT_STATUS } from "@/lib/project-status";
 
 export default function Home() {
-  const status = getProjectStatus();
-
   return (
     <main>
       <section className="hero" aria-labelledby="page-title">
@@ -15,11 +13,11 @@ export default function Home() {
         <dl className="status-card">
           <div>
             <dt>Etapa atual</dt>
-            <dd>{status.phase}</dd>
+            <dd>{CURRENT_PROJECT_STATUS.phase}</dd>
           </div>
           <div>
             <dt>Próximo marco</dt>
-            <dd>{status.nextMilestone}</dd>
+            <dd>{CURRENT_PROJECT_STATUS.nextMilestone}</dd>
           </div>
         </dl>
       </section>

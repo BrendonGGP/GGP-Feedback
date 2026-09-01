@@ -21,6 +21,7 @@ PDI e geração de PDF ficam fora do MVP e serão tratados na fase 2.
 
 ## Documentação
 
+- [Contexto enxuto para desenvolvimento com IA](docs/AI_CONTEXT.md)
 - [Especificação do MVP](docs/ESPECIFICACAO_MVP.md)
 - [Arquitetura](docs/ARQUITETURA.md)
 - [Modelo de dados](docs/MODELO_DADOS.md)
@@ -49,7 +50,13 @@ Envie mudanças para uma branch diferente de `main`. Cada push executa as valida
 
 ## Desenvolvimento local
 
-Pré-requisitos: Node.js 20.9 ou superior e npm.
+Pré-requisitos: Node.js 20.9 ou superior, npm e Python 3.14 com as dependências fixadas em `requirements-validation.txt`.
+
+No Windows, ative o ambiente Python local antes das validações:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
 
 ```powershell
 npm.cmd ci --ignore-scripts --audit=false --fund=false
@@ -63,4 +70,8 @@ npm.cmd run lint
 npm.cmd run typecheck
 npm.cmd test
 npm.cmd run build
+npm.cmd run validate:database
+npm.cmd run validate:hardening
 ```
+
+Os validadores do projeto ficam na biblioteca local `ggp_guardrails/`. O pacote `guardrails/` permanece como baseline de referência e não precisa ser carregado integralmente em cada tarefa.

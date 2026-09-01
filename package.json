@@ -18,7 +18,9 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate:diff": "prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script",
     "prisma:migrate:status": "prisma migrate status",
-    "prisma:migrate:deploy": "prisma migrate deploy"
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "validate:database": "python -B -m ggp_guardrails database",
+    "validate:hardening": "python -B -m ggp_guardrails hardening"
   },
   "dependencies": {
     "@prisma/client": "6.12.0",

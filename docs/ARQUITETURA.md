@@ -43,7 +43,7 @@ Nenhuma migration de desenvolvimento será executada automaticamente em produç�
 
 ## Decisões pendentes
 
-- região aprovada para aplicação e banco;
+- aprovação corporativa formal do Supabase na região de São Paulo;
 - política corporativa de retenção dos feedbacks;
 - responsável formal por segurança, incidentes e administração;
 - exigência futura de SSO/MFA;
