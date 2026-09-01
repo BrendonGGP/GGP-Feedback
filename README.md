@@ -44,7 +44,7 @@ Não coloque credenciais ou dados reais de colaboradores no repositório. Arquiv
 
 ## Fluxo de contribuição
 
-Envie mudanças para uma branch diferente de `main`. Cada push executa as validações automáticas e cria um pull request para `main` quando ainda não existir um PR aberto para a branch. O deploy contínuo permanece fora do escopo desta fase.
+Envie mudanças para uma branch diferente de `main`. Cada push executa as validações automáticas, mas não cria pull requests. Antes de criar um PR, revise o resumo das alterações, os arquivos modificados e os resultados das validações. O merge na `main` é sempre uma aprovação humana. O deploy contínuo permanece fora do escopo desta fase.
 
 ## Desenvolvimento local
 
