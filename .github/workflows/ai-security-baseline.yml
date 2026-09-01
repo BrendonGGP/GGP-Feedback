@@ -35,6 +35,18 @@ jobs:
         run: npm audit --omit=dev --audit-level=high
       - name: Build application
         run: npm run build
+      - name: Validate Prisma schema
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/ggp_feedback?schema=public
+        run: npm run prisma:validate
+      - name: Generate Prisma client
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/ggp_feedback?schema=public
+        run: npm run prisma:generate
+      - name: Verify Prisma schema diff
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/ggp_feedback?schema=public
+        run: npm run prisma:migrate:diff
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
@@ -47,6 +59,8 @@ jobs:
           --only-binary=:all:
           --require-hashes
           -r requirements-validation.txt
+      - name: Validate database foundation
+        run: python -B scripts/validate_database_foundation.py
       - name: Validate active local hardening
         run: python -B scripts/validate_local_hardening.py
       - name: Validate guardrails source package

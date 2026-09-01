@@ -54,8 +54,8 @@ Para dados pessoais, o alvo é combinar níveis 2 e 3 do baseline local: control
 
 ## Riscos residuais atuais
 
-- provedor, região e contratos ainda não foram aprovados;
+- Supabase foi selecionado na região de São Paulo; contratos, privacidade e aprovação corporativa ainda precisam de confirmação formal;
 - SSO/MFA ainda não foram definidos;
-- dependências ainda não foram instaladas ou auditadas;
-- políticas RLS e migrations SQL ainda não existem;
+- dependências são fixadas e auditadas no CI; a atualização de ESLint depende de compatibilidade futura do ecossistema Next.js;
+- migration inicial e RLS fail-closed estão versionadas, mas ainda não foram aplicadas ao Supabase;
 - retenção e descarte de feedbacks precisam de decisão do responsável pelo negócio.
