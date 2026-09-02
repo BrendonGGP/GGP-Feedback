@@ -27,3 +27,14 @@ ao redor da marca.
 As imagens são os arquivos fornecidos pelo responsável, preservados em PNG
 com transparência. O manual não é versionado para evitar duplicar um documento
 de referência interno.
+
+## Tipografia e movimento
+
+- A interface usa **Plus Jakarta Sans Variable**, auto-hospedada pelo projeto,
+  para manter nitidez, consistência e funcionamento sem dependência de fontes
+  externas em tempo de execução.
+- As entradas de página usam GSAP com movimentos curtos baseados somente em
+  `transform` e opacidade. Usuários com `prefers-reduced-motion` recebem o
+  estado final sem animação.
+- A área transparente original das logos é compensada apenas pelo layout. Os
+  arquivos oficiais e suas proporções não são modificados.
