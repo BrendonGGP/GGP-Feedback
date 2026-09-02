@@ -4,12 +4,15 @@ Plataforma interna para gestão de ciclos e feedbacks dos colaboradores do grupo
 
 ## Estado atual
 
-O repositório contém a fundação Next.js, o esquema Prisma e a migration inicial do banco. A aplicação ainda não possui autenticação, dados reais ou conexão configurada com o Supabase; ambientes externos e deploy permanecem pendentes.
+O repositório contém a fundação Next.js, o esquema Prisma e a migration inicial
+aplicada ao Supabase de desenvolvimento. Os perfis e limites de autorização já
+estão definidos; autenticação, políticas RLS de negócio, dados reais e deploy
+permanecem pendentes.
 
 ## Escopo do MVP
 
 - autenticação por identificador interno ou e-mail corporativo;
-- perfis de administrador, gestor e colaborador;
+- perfis de administrador do sistema, RH, gestor e colaborador;
 - acesso do gestor somente aos liderados diretos;
 - cadastro de empresas, áreas, pessoas e hierarquia;
 - criação e execução de ciclos de feedback;
@@ -24,6 +27,7 @@ PDI e geração de PDF ficam fora do MVP e serão tratados na fase 2.
 - [Contexto enxuto para desenvolvimento com IA](docs/AI_CONTEXT.md)
 - [Especificação do MVP](docs/ESPECIFICACAO_MVP.md)
 - [Arquitetura](docs/ARQUITETURA.md)
+- [Perfis e limites de autorização](docs/AUTORIZACAO.md)
 - [Modelo de dados](docs/MODELO_DADOS.md)
 - [Segurança e ameaças](docs/SEGURANCA.md)
 - [Dados e privacidade](docs/DADOS_E_PRIVACIDADE.md)

@@ -25,11 +25,14 @@ O frontend e as rotas de servidor ficam no mesmo projeto Next.js. O navegador nu
 
 ## Autorização
 
-As consultas recebem a identidade da sessão no servidor e aplicam uma das condições:
+As consultas recebem a identidade da sessão no servidor e aplicam as regras
+detalhadas em `docs/AUTORIZACAO.md`:
 
-- `ADMIN`: escopo organizacional completo autorizado;
-- `MANAGER`: lista e cria feedback para `pessoa.manager_id = pessoa_do_usuario`, mas lê feedback submetido somente quando também é o avaliador registrado;
-- `EMPLOYEE`: `pessoa.id = pessoa_do_usuario`.
+- `SYSTEM_ADMIN`: administra o sistema sem acessar conteúdo de feedback ou PDI;
+- `HR_ADMIN`: escopo funcional completo nas empresas autorizadas;
+- `MANAGER`: lista liderados diretos, mas lê feedback submetido somente quando
+  também é o avaliador registrado;
+- `EMPLOYEE`: acessa apenas os próprios registros autorizados.
 
 Rotas de leitura, escrita e exportação usam a mesma camada de autorização. Identificadores fornecidos pelo navegador nunca substituem a identidade autenticada.
 
