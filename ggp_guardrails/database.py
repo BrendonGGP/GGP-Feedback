@@ -11,6 +11,9 @@ from .core import PROJECT_ROOT, ValidationReport, read_required_text, require_fr
 INITIAL_MIGRATION = Path(
     "prisma/migrations/20260901153000_init_supabase_schema/migration.sql"
 )
+ACCESS_ROLE_MIGRATION = Path(
+    "prisma/migrations/20260902124500_define_access_roles/migration.sql"
+)
 
 REQUIRED_DATABASE_CONTROLS = (
     'CREATE UNIQUE INDEX "people_corporate_email_ci_key"',
@@ -39,6 +42,16 @@ RLS_TABLES = (
     "audit_events",
 )
 
+REQUIRED_ACCESS_ROLE_CONTROLS = (
+    "BEGIN;",
+    "ALTER TYPE \"AccessRole\" RENAME VALUE 'ADMIN' TO 'HR_ADMIN'",
+    "ALTER TYPE \"AccessRole\" ADD VALUE 'SYSTEM_ADMIN' BEFORE 'HR_ADMIN'",
+    'CREATE FUNCTION "enforce_system_admin_role_exclusivity"()',
+    'pg_catalog.pg_advisory_xact_lock(',
+    'CREATE TRIGGER "account_roles_enforce_system_admin_exclusivity"',
+    "COMMIT;",
+)
+
 
 def validate_database_foundation(root: Path = PROJECT_ROOT) -> ValidationReport:
     """Confirma conexão via ambiente, integridade SQL e RLS fail-closed."""
@@ -53,6 +66,9 @@ def validate_database_foundation(root: Path = PROJECT_ROOT) -> ValidationReport:
 
     schema_text = read_required_text(root / "prisma/schema.prisma", report)
     migration_text = read_required_text(root / INITIAL_MIGRATION, report)
+    access_role_migration_text = read_required_text(
+        root / ACCESS_ROLE_MIGRATION, report
+    )
 
     if schema_text is not None:
         datasource_start = schema_text.find("datasource db")
@@ -91,6 +107,14 @@ def validate_database_foundation(root: Path = PROJECT_ROOT) -> ValidationReport:
         report.require(
             "create policy" not in migration_text.casefold(),
             "Initial migration must not add policies before authorization is implemented",
+        )
+
+    if access_role_migration_text is not None:
+        require_fragments(
+            access_role_migration_text,
+            REQUIRED_ACCESS_ROLE_CONTROLS,
+            report,
+            "Access role migration lacks required separation control",
         )
 
     return report

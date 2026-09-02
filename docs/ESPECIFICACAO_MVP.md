@@ -18,7 +18,13 @@ Data-alvo informada: 04/09/2026. A data é uma meta de planejamento e não const
 
 ## Papéis
 
-### Administrador
+### Administrador do Sistema
+
+- administra configuração técnica, contas e papéis;
+- não acessa conteúdo de feedback ou PDI;
+- usa identidade exclusiva, sem acumular papéis funcionais na mesma conta.
+
+### RH
 
 - administra empresas, áreas, pessoas, contas, ciclos e formulários;
 - consulta todas as empresas;
@@ -51,7 +57,8 @@ Data-alvo informada: 04/09/2026. A data é uma meta de planejamento e não const
 
 ## Critérios de aceite iniciais
 
-- administrador acessa o conjunto autorizado completo;
+- RH acessa o conjunto funcional autorizado completo;
+- administrador do sistema não acessa conteúdo de feedback;
 - gestor não acessa pessoa que não seja seu liderado direto;
 - colaborador não acessa feedback de outra pessoa;
 - CEO funciona sem gestor superior;

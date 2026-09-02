@@ -3,7 +3,9 @@ from tempfile import TemporaryDirectory
 import unittest
 
 from ggp_guardrails.database import (
+    ACCESS_ROLE_MIGRATION,
     INITIAL_MIGRATION,
+    REQUIRED_ACCESS_ROLE_CONTROLS,
     REQUIRED_DATABASE_CONTROLS,
     RLS_TABLES,
     validate_database_foundation,
@@ -77,6 +79,13 @@ class DatabaseGuardrailsTest(unittest.TestCase):
             f'ALTER TABLE "{table}" ENABLE ROW LEVEL SECURITY;' for table in RLS_TABLES
         )
         migration.write_text("\n".join(fragments), encoding="utf-8")
+
+        access_role_migration = root / ACCESS_ROLE_MIGRATION
+        access_role_migration.parent.mkdir(parents=True)
+        access_role_migration.write_text(
+            "\n".join(REQUIRED_ACCESS_ROLE_CONTROLS),
+            encoding="utf-8",
+        )
 
 
 if __name__ == "__main__":

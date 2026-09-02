@@ -6,8 +6,8 @@ Este arquivo é o ponto de entrada técnico do projeto. Leia apenas as referênc
 
 - Next.js e TypeScript concentram interface e servidor.
 - Prisma descreve o domínio; PostgreSQL é fornecido pelo Supabase na região de São Paulo.
-- A migration inicial está versionada, mas sua aplicação remota precisa ser confirmada separadamente.
-- Autenticação, autorização, políticas RLS de negócio e telas do produto ainda serão implementadas.
+- A migration inicial foi aplicada ao Supabase de desenvolvimento; novas migrations exigem aprovação separada.
+- Os perfis e a política de autorização estão em `docs/AUTORIZACAO.md`; autenticação, integração da identidade com RLS e telas ainda serão implementadas.
 - Antes de criar telas, solicite ao responsável os prints de referência visual.
 
 ## Mapa do código

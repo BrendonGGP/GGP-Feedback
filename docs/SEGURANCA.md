@@ -23,6 +23,7 @@
 | Ameaça | Impacto | Controle preventivo |
 |---|---|---|
 | Acesso a colaborador fora da equipe | Vazamento de PII e feedback | autorização por registro no servidor e RLS |
+| Administrador técnico acessa conteúdo funcional | Quebra de segregação de funções | `SYSTEM_ADMIN` exclusivo e negação explícita de feedback/PDI |
 | Manipulação de ID na URL | Acesso indevido | identidade derivada da sessão e consulta fail-closed |
 | SQL injection | Leitura ou alteração indevida | Prisma, parâmetros e validação Zod |
 | Roubo de senha | Comprometimento de conta | Argon2id, política de senha, bloqueio e futura MFA |
@@ -57,5 +58,6 @@ Para dados pessoais, o alvo é combinar níveis 2 e 3 do baseline local: control
 - Supabase foi selecionado na região de São Paulo; contratos, privacidade e aprovação corporativa ainda precisam de confirmação formal;
 - SSO/MFA ainda não foram definidos;
 - dependências são fixadas e auditadas no CI; a atualização de ESLint depende de compatibilidade futura do ecossistema Next.js;
-- migration inicial e RLS fail-closed estão versionadas, mas ainda não foram aplicadas ao Supabase;
+- migration inicial e RLS fail-closed foram aplicadas ao Supabase de desenvolvimento;
+- políticas RLS de negócio aguardam a integração de uma identidade de runtime de menor privilégio;
 - retenção e descarte de feedbacks precisam de decisão do responsável pelo negócio.

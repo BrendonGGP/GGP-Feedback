@@ -9,7 +9,8 @@ datasource db {
 }
 
 enum AccessRole {
-  ADMIN
+  SYSTEM_ADMIN
+  HR_ADMIN
   MANAGER
   EMPLOYEE
 }
