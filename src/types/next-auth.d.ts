@@ -16,6 +16,7 @@ declare module "next-auth" {
     personId: string;
     roles: AccessRole[];
     sessionId: string;
+    sessionNonce: string;
     sessionVersion: number;
   }
 }
@@ -26,6 +27,7 @@ declare module "next-auth/jwt" {
     personId?: string;
     roles?: AccessRole[];
     sessionId?: string;
+    sessionNonce?: string;
     sessionVersion?: number;
     revoked?: boolean;
   }

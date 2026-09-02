@@ -1,4 +1,4 @@
-import { createHash, randomBytes, randomUUID } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 
 import { z } from "zod";
 
@@ -9,6 +9,7 @@ import {
 } from "@/lib/authorization/access-control";
 import { prisma } from "@/lib/prisma";
 import { DUMMY_PASSWORD_HASH, verifyPassword } from "@/lib/auth/password";
+import { hashSessionNonce } from "@/lib/auth/sessions";
 
 export const loginCredentialsSchema = z.object({
   loginIdentifier: z.string().trim().min(1).max(190),
@@ -27,11 +28,9 @@ export type AuthenticatedUser = Readonly<{
   personId: string;
   roles: AccessRole[];
   sessionId: string;
+  sessionNonce: string;
   sessionVersion: number;
 }>;
-
-const hashSessionNonce = (nonce: string): string =>
-  createHash("sha256").update(nonce, "utf8").digest("hex");
 
 const verifyInvalidAttempt = async (password: unknown): Promise<void> => {
   await verifyPassword(
@@ -40,11 +39,17 @@ const verifyInvalidAttempt = async (password: unknown): Promise<void> => {
   );
 };
 
-const registerFailedAttempt = async (accountId: string): Promise<void> => {
+const registerFailedAttempt = async (
+  accountId: string,
+  resetExpiredLock = false,
+): Promise<void> => {
   await prisma.$transaction(async (transaction) => {
     const account = await transaction.accessAccount.update({
       where: { id: accountId },
-      data: { failedLoginCount: { increment: 1 } },
+      data: {
+        failedLoginCount: resetExpiredLock ? 1 : { increment: 1 },
+        ...(resetExpiredLock ? { status: "ACTIVE", lockedUntil: null } : {}),
+      },
       select: { failedLoginCount: true },
     });
 
@@ -92,18 +97,33 @@ const authorizeProvisionedCredentialsUnsafe = async (
     account.passwordHash,
     parsed.data.password,
   );
+  const now = new Date();
   const isLockedByTime =
-    account.lockedUntil !== null && account.lockedUntil > new Date();
+    account.status === "LOCKED" &&
+    account.lockedUntil !== null &&
+    account.lockedUntil > now;
+  const hasExpiredTemporaryLock =
+    account.status === "LOCKED" &&
+    account.lockedUntil !== null &&
+    account.lockedUntil <= now;
+  const isEligibleAccountStatus =
+    account.status === "ACTIVE" || hasExpiredTemporaryLock;
   const roles = account.roles.map(({ role }) => role);
   const hasValidRoles =
     roles.length > 0 &&
     roles.every(isAccessRole) &&
     hasValidRoleCombination(roles);
 
-  if (!passwordMatches || account.status !== "ACTIVE" || isLockedByTime) {
-    if (!passwordMatches && account.status === "ACTIVE") {
-      await registerFailedAttempt(account.id);
+  if (!passwordMatches || !isEligibleAccountStatus || isLockedByTime) {
+    if (!passwordMatches && isEligibleAccountStatus && !isLockedByTime) {
+      await registerFailedAttempt(account.id, hasExpiredTemporaryLock);
     }
+    return null;
+  }
+
+  // Temporary credentials cannot open business areas until the dedicated
+  // password-change flow is available.
+  if (account.mustChangePassword) {
     return null;
   }
 
@@ -122,7 +142,9 @@ const authorizeProvisionedCredentialsUnsafe = async (
     prisma.accessAccount.update({
       where: { id: account.id },
       data: {
+        status: "ACTIVE",
         failedLoginCount: 0,
+        lockedUntil: null,
         lastLoginAt: new Date(),
       },
     }),
@@ -142,6 +164,7 @@ const authorizeProvisionedCredentialsUnsafe = async (
     personId: account.person.id,
     roles,
     sessionId,
+    sessionNonce,
     sessionVersion: account.sessionVersion,
   };
 };

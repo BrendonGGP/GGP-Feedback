@@ -14,6 +14,23 @@ a integração da identidade, também será reforçada por RLS no PostgreSQL.
 | `MANAGER` | Gestor | Consulta a própria equipe e os feedbacks dos quais é o avaliador registrado |
 | `EMPLOYEE` | Colaborador | Consulta somente os próprios feedbacks e, futuramente, o próprio PDI |
 
+## Entrada no portal
+
+Depois da autenticação, o servidor escolhe a área inicial com precedência
+explícita e nunca aceita um destino definido pelo navegador:
+
+| Papel | Área inicial |
+|---|---|
+| `SYSTEM_ADMIN` | `/portal/administracao` |
+| `HR_ADMIN` | `/portal/rh` |
+| `MANAGER` | `/portal/equipe` |
+| `EMPLOYEE` | `/portal/meus-feedbacks` |
+
+Quando papéis funcionais são acumulados, a precedência é RH, Gestor e
+Colaborador. Cada área continua verificando o papel necessário no servidor;
+ausência, papel desconhecido ou combinação inválida redireciona de forma
+fail-closed, sem renderizar conteúdo protegido.
+
 `SYSTEM_ADMIN` é exclusivo e não pode ser combinado com um papel funcional na
 mesma conta. Caso uma pessoa precise exercer as duas responsabilidades, devem
 ser usadas identidades separadas. Isso evita que uma permissão técnica conceda

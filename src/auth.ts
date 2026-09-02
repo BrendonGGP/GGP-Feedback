@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
 import { authorizeProvisionedCredentials, AUTH_SESSION_MAX_AGE_SECONDS } from "@/lib/auth/credentials";
-import { revokeSession } from "@/lib/auth/sessions";
+import { revokeSession, sessionNonceMatches } from "@/lib/auth/sessions";
 import { hasValidRoleCombination, isAccessRole, type AccessRole } from "@/lib/authorization/access-control";
 import { prisma } from "@/lib/prisma";
 
@@ -15,6 +15,7 @@ const invalidToken = (token: Record<string, unknown>) => ({
   personId: undefined,
   roles: [],
   sessionId: undefined,
+  sessionNonce: undefined,
   revoked: true,
 });
 
@@ -46,12 +47,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.personId = user.personId;
         token.roles = user.roles;
         token.sessionId = user.sessionId;
+        token.sessionNonce = user.sessionNonce;
         token.sessionVersion = user.sessionVersion;
       }
 
       if (
         !isNonEmptyString(token.accountId) ||
-        !isNonEmptyString(token.sessionId)
+        !isNonEmptyString(token.sessionId) ||
+        !isNonEmptyString(token.sessionNonce)
       ) {
         return invalidToken(token);
       }
@@ -66,7 +69,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         persistedSession.revokedAt !== null ||
         persistedSession.expiresAt <= new Date() ||
         persistedSession.account.status !== "ACTIVE" ||
-        persistedSession.account.sessionVersion !== token.sessionVersion
+        persistedSession.account.sessionVersion !== token.sessionVersion ||
+        !sessionNonceMatches(
+          persistedSession.tokenHash,
+          token.sessionNonce,
+        )
       ) {
         return invalidToken(token);
       }

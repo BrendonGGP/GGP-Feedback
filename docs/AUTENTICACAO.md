@@ -16,9 +16,11 @@ aplica bloqueio temporário de 15 minutos.
 
 O Auth.js usa um cookie JWT criptografado com `AUTH_SECRET`. Cada login também
 cria uma linha em `user_sessions`; somente o hash SHA-256 de um nonce aleatório
-é persistido. Em cada leitura da sessão, o servidor confirma:
+é persistido, enquanto o nonce permanece apenas dentro do cookie criptografado.
+Em cada leitura da sessão, o servidor confirma:
 
 - existência, expiração e revogação da sessão persistida;
+- correspondência em tempo constante entre o nonce do cookie e o hash persistido;
 - conta ativa e versão de sessão vigente;
 - papéis válidos e compatíveis com a segregação de `SYSTEM_ADMIN`.
 
@@ -38,8 +40,14 @@ inicializa o Auth.js; ele não concede acesso a nenhum ambiente externo.
 
 ## Limites atuais
 
-- A página de login visual será criada após o recebimento dos prints de
-  referência.
+- A página de login está implementada; usuários com sessão válida são enviados
+  diretamente à área inicial correspondente ao seu papel.
+- As áreas internas ainda são páginas provisórias protegidas. O conteúdo e o
+  visual definitivo dependem dos prints de referência e da implementação de
+  cada módulo.
+- Contas com `must_change_password` permanecem bloqueadas de forma fail-closed.
+  A troca obrigatória de senha será implementada antes do provisionamento de
+  usuários; até lá, somente contas com senha definitiva podem iniciar sessão.
 - A proteção de rotas de negócio deve ser adicionada junto com cada rota; a
   existência do handler `/api/auth` não autoriza nenhuma consulta por si só.
 - RLS de negócio permanece fail-closed até a identidade da sessão ser propagada

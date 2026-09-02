@@ -1,32 +1,15 @@
 import { redirect } from "next/navigation";
 
-import { auth, signOut } from "@/auth";
+import { resolvePortalDestination } from "@/lib/auth/portal-routing";
+import { getAuthenticatedActor } from "@/lib/auth/session";
 
 export default async function PortalPage() {
-  const session = await auth();
+  const actor = await getAuthenticatedActor();
 
-  if (!session?.user?.accountId) {
+  if (!actor) {
     redirect("/");
   }
 
-  async function handleSignOut() {
-    "use server";
-    await signOut({ redirectTo: "/" });
-  }
-
-  return (
-    <main className="portal-placeholder">
-      <section className="portal-placeholder__card" aria-labelledby="portal-title">
-        <p className="eyebrow">Portal GGP</p>
-        <h1 id="portal-title">Acesso confirmado.</h1>
-        <p>
-          A estrutura do portal está pronta para receber os próximos módulos de
-          feedback e PDI.
-        </p>
-        <form action={handleSignOut}>
-          <button className="portal-sign-out" type="submit">Encerrar sessão</button>
-        </form>
-      </section>
-    </main>
-  );
+  const destination = resolvePortalDestination(actor.roles);
+  redirect(destination ?? "/");
 }
