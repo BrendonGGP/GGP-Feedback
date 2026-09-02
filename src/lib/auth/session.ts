@@ -28,6 +28,7 @@ export const getAuthenticatedActor = async (): Promise<AuthenticatedActor | null
   if (
     !account ||
     account.status !== "ACTIVE" ||
+    account.mustChangePassword ||
     (account.lockedUntil !== null && account.lockedUntil > new Date())
   ) {
     return null;

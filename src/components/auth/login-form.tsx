@@ -54,7 +54,7 @@ export function LoginForm() {
             type="text"
             autoComplete="username"
             placeholder="nome@ggp.com.br"
-            maxLength={320}
+            maxLength={190}
             disabled={isSubmitting}
             required
           />
