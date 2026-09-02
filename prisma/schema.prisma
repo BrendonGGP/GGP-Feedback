@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum AccessRole {
@@ -71,27 +72,27 @@ model Department {
 }
 
 model Person {
-  id                   String                 @id @default(uuid()) @db.Uuid
-  companyId            String                 @map("company_id") @db.Uuid
-  departmentId         String                 @map("department_id") @db.Uuid
-  managerId            String?                @map("manager_id") @db.Uuid
-  fullName             String                 @map("full_name") @db.VarChar(200)
-  corporateEmail       String?                @map("corporate_email") @db.VarChar(254)
-  jobTitle             String                 @map("job_title") @db.VarChar(160)
-  employmentRegime     String                 @map("employment_regime") @db.VarChar(80)
-  active               Boolean                @default(true)
-  version              Int                    @default(1)
-  createdAt            DateTime               @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt            DateTime               @updatedAt @map("updated_at") @db.Timestamptz(3)
-  company              Company                @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  department           Department             @relation(fields: [departmentId], references: [id], onDelete: Restrict)
-  manager              Person?                @relation("PersonHierarchy", fields: [managerId], references: [id], onDelete: Restrict)
-  directReports        Person[]               @relation("PersonHierarchy")
-  account              AccessAccount?
-  feedbacksReceived    Feedback[]             @relation("FeedbackSubject")
-  feedbacksGiven       Feedback[]             @relation("FeedbackEvaluator")
-  managerHistory       ReportingLineHistory[] @relation("HistoryManager")
-  subordinateHistory   ReportingLineHistory[] @relation("HistorySubordinate")
+  id                 String                 @id @default(uuid()) @db.Uuid
+  companyId          String                 @map("company_id") @db.Uuid
+  departmentId       String                 @map("department_id") @db.Uuid
+  managerId          String?                @map("manager_id") @db.Uuid
+  fullName           String                 @map("full_name") @db.VarChar(200)
+  corporateEmail     String?                @map("corporate_email") @db.VarChar(254)
+  jobTitle           String                 @map("job_title") @db.VarChar(160)
+  employmentRegime   String                 @map("employment_regime") @db.VarChar(80)
+  active             Boolean                @default(true)
+  version            Int                    @default(1)
+  createdAt          DateTime               @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime               @updatedAt @map("updated_at") @db.Timestamptz(3)
+  company            Company                @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  department         Department             @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+  manager            Person?                @relation("PersonHierarchy", fields: [managerId], references: [id], onDelete: Restrict)
+  directReports      Person[]               @relation("PersonHierarchy")
+  account            AccessAccount?
+  feedbacksReceived  Feedback[]             @relation("FeedbackSubject")
+  feedbacksGiven     Feedback[]             @relation("FeedbackEvaluator")
+  managerHistory     ReportingLineHistory[] @relation("HistoryManager")
+  subordinateHistory ReportingLineHistory[] @relation("HistorySubordinate")
 
   @@index([companyId, active])
   @@index([departmentId, active])
@@ -102,24 +103,24 @@ model Person {
 
 // Identidade, papéis e sessões
 model AccessAccount {
-  id                     String                 @id @default(uuid()) @db.Uuid
-  personId               String                 @unique @map("person_id") @db.Uuid
-  loginIdentifier        String                 @map("login_identifier") @db.VarChar(190)
-  passwordHash           String                 @map("password_hash") @db.VarChar(255)
-  status                 AccountStatus          @default(PENDING_ACTIVATION)
-  mustChangePassword     Boolean                @default(true) @map("must_change_password")
-  failedLoginCount       Int                    @default(0) @map("failed_login_count")
-  lockedUntil            DateTime?              @map("locked_until") @db.Timestamptz(3)
-  passwordChangedAt      DateTime?              @map("password_changed_at") @db.Timestamptz(3)
-  lastLoginAt            DateTime?              @map("last_login_at") @db.Timestamptz(3)
-  sessionVersion         Int                    @default(1) @map("session_version")
-  createdAt              DateTime               @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt              DateTime               @updatedAt @map("updated_at") @db.Timestamptz(3)
-  person                 Person                 @relation(fields: [personId], references: [id], onDelete: Restrict)
-  roles                  AccountRoleAssignment[]
-  sessions               UserSession[]
-  auditEvents            AuditEvent[]
-  hierarchyChanges       ReportingLineHistory[] @relation("HistoryChangedBy")
+  id                 String                  @id @default(uuid()) @db.Uuid
+  personId           String                  @unique @map("person_id") @db.Uuid
+  loginIdentifier    String                  @map("login_identifier") @db.VarChar(190)
+  passwordHash       String                  @map("password_hash") @db.VarChar(255)
+  status             AccountStatus           @default(PENDING_ACTIVATION)
+  mustChangePassword Boolean                 @default(true) @map("must_change_password")
+  failedLoginCount   Int                     @default(0) @map("failed_login_count")
+  lockedUntil        DateTime?               @map("locked_until") @db.Timestamptz(3)
+  passwordChangedAt  DateTime?               @map("password_changed_at") @db.Timestamptz(3)
+  lastLoginAt        DateTime?               @map("last_login_at") @db.Timestamptz(3)
+  sessionVersion     Int                     @default(1) @map("session_version")
+  createdAt          DateTime                @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime                @updatedAt @map("updated_at") @db.Timestamptz(3)
+  person             Person                  @relation(fields: [personId], references: [id], onDelete: Restrict)
+  roles              AccountRoleAssignment[]
+  sessions           UserSession[]
+  auditEvents        AuditEvent[]
+  hierarchyChanges   ReportingLineHistory[]  @relation("HistoryChangedBy")
 
   @@index([status])
   @@index([loginIdentifier])
@@ -168,17 +169,17 @@ model ReportingLineHistory {
 
 // Ciclos e formulários
 model Cycle {
-  id                       String      @id @default(uuid()) @db.Uuid
-  name                     String      @db.VarChar(160)
-  startsAt                 DateTime    @map("starts_at") @db.Timestamptz(3)
-  endsAt                   DateTime    @map("ends_at") @db.Timestamptz(3)
-  status                   CycleStatus @default(DRAFT)
-  selfAssessmentEnabled    Boolean     @default(false) @map("self_assessment_enabled")
-  version                  Int         @default(1)
-  createdAt                DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt                DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
-  feedbacks                Feedback[]
-  cycleTemplates           CycleFormTemplate[]
+  id                    String              @id @default(uuid()) @db.Uuid
+  name                  String              @db.VarChar(160)
+  startsAt              DateTime            @map("starts_at") @db.Timestamptz(3)
+  endsAt                DateTime            @map("ends_at") @db.Timestamptz(3)
+  status                CycleStatus         @default(DRAFT)
+  selfAssessmentEnabled Boolean             @default(false) @map("self_assessment_enabled")
+  version               Int                 @default(1)
+  createdAt             DateTime            @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt             DateTime            @updatedAt @map("updated_at") @db.Timestamptz(3)
+  feedbacks             Feedback[]
+  cycleTemplates        CycleFormTemplate[]
 
   @@index([status, startsAt, endsAt])
   @@map("cycles")
@@ -198,16 +199,16 @@ model FormTemplate {
 }
 
 model FormQuestion {
-  id         String         @id @default(uuid()) @db.Uuid
-  templateId String         @map("template_id") @db.Uuid
-  prompt     String         @db.VarChar(1000)
+  id         String           @id @default(uuid()) @db.Uuid
+  templateId String           @map("template_id") @db.Uuid
+  prompt     String           @db.VarChar(1000)
   type       QuestionType
   position   Int
-  required   Boolean        @default(true)
+  required   Boolean          @default(true)
   minimum    Int?
   maximum    Int?
-  active     Boolean        @default(true)
-  template   FormTemplate   @relation(fields: [templateId], references: [id], onDelete: Restrict)
+  active     Boolean          @default(true)
+  template   FormTemplate     @relation(fields: [templateId], references: [id], onDelete: Restrict)
   answers    FeedbackAnswer[]
 
   @@unique([templateId, position])
@@ -226,18 +227,18 @@ model CycleFormTemplate {
 
 // Feedbacks e trilha de auditoria
 model Feedback {
-  id                String         @id @default(uuid()) @db.Uuid
-  cycleId           String         @map("cycle_id") @db.Uuid
-  subjectPersonId   String         @map("subject_person_id") @db.Uuid
-  evaluatorPersonId String         @map("evaluator_person_id") @db.Uuid
-  status            FeedbackStatus @default(DRAFT)
-  submittedAt       DateTime?      @map("submitted_at") @db.Timestamptz(3)
-  version           Int            @default(1)
-  createdAt         DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt         DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
-  cycle             Cycle          @relation(fields: [cycleId], references: [id], onDelete: Restrict)
-  subject           Person         @relation("FeedbackSubject", fields: [subjectPersonId], references: [id], onDelete: Restrict)
-  evaluator         Person         @relation("FeedbackEvaluator", fields: [evaluatorPersonId], references: [id], onDelete: Restrict)
+  id                String           @id @default(uuid()) @db.Uuid
+  cycleId           String           @map("cycle_id") @db.Uuid
+  subjectPersonId   String           @map("subject_person_id") @db.Uuid
+  evaluatorPersonId String           @map("evaluator_person_id") @db.Uuid
+  status            FeedbackStatus   @default(DRAFT)
+  submittedAt       DateTime?        @map("submitted_at") @db.Timestamptz(3)
+  version           Int              @default(1)
+  createdAt         DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
+  cycle             Cycle            @relation(fields: [cycleId], references: [id], onDelete: Restrict)
+  subject           Person           @relation("FeedbackSubject", fields: [subjectPersonId], references: [id], onDelete: Restrict)
+  evaluator         Person           @relation("FeedbackEvaluator", fields: [evaluatorPersonId], references: [id], onDelete: Restrict)
   answers           FeedbackAnswer[]
 
   @@unique([cycleId, subjectPersonId, evaluatorPersonId])

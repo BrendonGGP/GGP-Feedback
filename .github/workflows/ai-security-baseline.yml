@@ -37,15 +37,18 @@ jobs:
         run: npm run build
       - name: Validate Prisma schema
         env:
-          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/ggp_feedback?schema=public
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:6543/ggp_feedback?schema=public
+          DIRECT_URL: postgresql://postgres:postgres@127.0.0.1:5432/ggp_feedback?schema=public
         run: npm run prisma:validate
       - name: Generate Prisma client
         env:
-          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/ggp_feedback?schema=public
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:6543/ggp_feedback?schema=public
+          DIRECT_URL: postgresql://postgres:postgres@127.0.0.1:5432/ggp_feedback?schema=public
         run: npm run prisma:generate
       - name: Verify Prisma schema diff
         env:
-          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/ggp_feedback?schema=public
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:6543/ggp_feedback?schema=public
+          DIRECT_URL: postgresql://postgres:postgres@127.0.0.1:5432/ggp_feedback?schema=public
         run: npm run prisma:migrate:diff
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0

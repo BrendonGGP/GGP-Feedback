@@ -53,6 +53,7 @@ WORKFLOW_CONTROLS = (
     "npm run prisma:validate",
     "npm run prisma:generate",
     "npm run prisma:migrate:diff",
+    "DIRECT_URL: postgresql://postgres:postgres@127.0.0.1:5432/ggp_feedback?schema=public",
     "npm run validate:database",
     "npm run validate:hardening",
     'python-version: "3.14.7"',

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 
 from .core import PROJECT_ROOT, ValidationReport, read_required_text, require_fragments
 
@@ -45,7 +46,7 @@ def validate_database_foundation(root: Path = PROJECT_ROOT) -> ValidationReport:
     report = ValidationReport(
         name="DATABASE FOUNDATION VALIDATION",
         success_messages=(
-            "Prisma schema references DATABASE_URL without embedding a connection string",
+            "Prisma schema separates pooled runtime and direct migration URLs",
             "Initial migration preserves integrity controls and fail-closed RLS",
         ),
     )
@@ -62,8 +63,12 @@ def validate_database_foundation(root: Path = PROJECT_ROOT) -> ValidationReport:
         )
         datasource_block = schema_text[datasource_start:datasource_end]
         report.require(
-            'url      = env("DATABASE_URL")' in datasource_block,
+            re.search(r'\burl\s*=\s*env\("DATABASE_URL"\)', datasource_block) is not None,
             "Prisma schema must reference DATABASE_URL without embedding a connection string",
+        )
+        report.require(
+            re.search(r'\bdirectUrl\s*=\s*env\("DIRECT_URL"\)', datasource_block) is not None,
+            "Prisma schema must reference DIRECT_URL for migrations",
         )
         normalized_schema = schema_text.casefold()
         report.require(
