@@ -25,6 +25,11 @@ jobs:
           cache: npm
       - name: Install application dependencies
         run: npm ci --ignore-scripts --audit=false --fund=false
+      - name: Generate Prisma client for application checks
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:6543/ggp_feedback?schema=public
+          DIRECT_URL: postgresql://postgres:postgres@127.0.0.1:5432/ggp_feedback?schema=public
+        run: npm run prisma:generate
       - name: Lint application
         run: npm run lint
       - name: Type-check application
@@ -40,11 +45,6 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:6543/ggp_feedback?schema=public
           DIRECT_URL: postgresql://postgres:postgres@127.0.0.1:5432/ggp_feedback?schema=public
         run: npm run prisma:validate
-      - name: Generate Prisma client
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:6543/ggp_feedback?schema=public
-          DIRECT_URL: postgresql://postgres:postgres@127.0.0.1:5432/ggp_feedback?schema=public
-        run: npm run prisma:generate
       - name: Verify Prisma schema diff
         env:
           DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:6543/ggp_feedback?schema=public
