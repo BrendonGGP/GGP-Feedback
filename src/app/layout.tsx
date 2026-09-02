@@ -4,8 +4,8 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "GGP Feedback",
-  description: "Gestão interna de ciclos e feedbacks do grupo GGP.",
+  title: "Acesso ao Portal | GGP",
+  description: "Acesso seguro ao portal interno do Grupo Gomes Pires.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {

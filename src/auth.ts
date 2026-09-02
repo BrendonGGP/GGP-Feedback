@@ -19,6 +19,9 @@ const invalidToken = (token: Record<string, unknown>) => ({
 });
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  pages: {
+    signIn: "/",
+  },
   session: {
     strategy: "jwt",
     maxAge: AUTH_SESSION_MAX_AGE_SECONDS,
