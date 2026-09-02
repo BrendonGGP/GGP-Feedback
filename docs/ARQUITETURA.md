@@ -18,7 +18,9 @@ O frontend e as rotas de servidor ficam no mesmo projeto Next.js. O navegador nu
 
 - **Interface:** Next.js, React, TypeScript, Tailwind CSS e componentes locais baseados em shadcn/ui.
 - **Servidor:** rotas e ações do Next.js com validação Zod.
-- **Identidade:** Auth.js com contas provisionadas; sessões revogáveis persistidas por hash.
+- **Identidade:** Auth.js com provider de credenciais e contas provisionadas;
+  o cookie JWT é vinculado a uma sessão persistida por hash, permitindo
+  revogação individual e global.
 - **Dados:** PostgreSQL e Prisma; toda alteração estrutural será uma migration versionada no Git.
 - **Testes:** Vitest para domínio e integração; Playwright para fluxos críticos.
 - **CI:** lint, type check, testes, build, validação de migrations, secret scan e análise de dependências.

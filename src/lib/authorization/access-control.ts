@@ -22,6 +22,9 @@ export type FeedbackScope = Readonly<{
   evaluatorPersonId: string;
 }>;
 
+export const isAccessRole = (value: unknown): value is AccessRole =>
+  typeof value === "string" && ACCESS_ROLES.includes(value as AccessRole);
+
 const hasRole = (actor: AuthorizationActor, role: AccessRole): boolean =>
   actor.roles.includes(role);
 
