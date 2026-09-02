@@ -44,51 +44,74 @@ export function LoginForm() {
   }
 
   return (
-    <form className="login-form" onSubmit={handleSubmit} noValidate>
-      <div className="form-field">
+    <form className="login-form" onSubmit={handleSubmit} aria-busy={isSubmitting}>
+      <div className="form-field" data-entrance="field">
         <label htmlFor={identifierId}>E-mail ou identificador</label>
-        <input
-          id={identifierId}
-          name="loginIdentifier"
-          type="text"
-          autoComplete="username"
-          placeholder="nome@ggp.com.br"
-          maxLength={320}
-          required
-        />
+        <div className="input-frame">
+          <input
+            id={identifierId}
+            name="loginIdentifier"
+            type="text"
+            autoComplete="username"
+            placeholder="nome@ggp.com.br"
+            maxLength={320}
+            disabled={isSubmitting}
+            required
+          />
+        </div>
       </div>
 
-      <div className="form-field">
-        <div className="field-label-row">
-          <label htmlFor={passwordId}>Senha</label>
+      <div className="form-field" data-entrance="field">
+        <label htmlFor={passwordId}>Senha</label>
+        <div className="input-frame input-frame--password">
+          <input
+            id={passwordId}
+            name="password"
+            type={showPassword ? "text" : "password"}
+            autoComplete="current-password"
+            placeholder="Digite sua senha"
+            maxLength={256}
+            disabled={isSubmitting}
+            required
+          />
           <button
             className="password-toggle"
             type="button"
             onClick={() => setShowPassword((visible) => !visible)}
             aria-controls={passwordId}
             aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+            aria-pressed={showPassword}
+            disabled={isSubmitting}
           >
-            {showPassword ? "Ocultar" : "Mostrar"}
+            {showPassword ? (
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m3 3 18 18" />
+                <path d="M10.6 10.7a2 2 0 0 0 2.7 2.7" />
+                <path d="M9.9 4.3A10.8 10.8 0 0 1 12 4c5.5 0 9 5.2 9 5.2a15.3 15.3 0 0 1-2.4 2.8" />
+                <path d="M6.6 6.6A15.8 15.8 0 0 0 3 9.2S6.5 14.5 12 14.5c1 0 2-.2 2.8-.5" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 12s3.5-5.2 9-5.2 9 5.2 9 5.2-3.5 5.2-9 5.2S3 12 3 12Z" />
+                <circle cx="12" cy="12" r="2.4" />
+              </svg>
+            )}
           </button>
         </div>
-        <input
-          id={passwordId}
-          name="password"
-          type={showPassword ? "text" : "password"}
-          autoComplete="current-password"
-          placeholder="Digite sua senha"
-          maxLength={256}
-          required
-        />
       </div>
 
-      <div className="login-feedback" aria-live="polite" role="status">
-        {errorMessage}
-      </div>
+      {errorMessage ? (
+        <p className="login-feedback" role="alert" data-entrance="field">
+          {errorMessage}
+        </p>
+      ) : null}
 
-      <button className="submit-button" type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Validando..." : "Entrar"}
-        <span className="submit-arrow" aria-hidden="true">→</span>
+      <button className="submit-button" type="submit" disabled={isSubmitting} data-entrance="field">
+        <span>{isSubmitting ? "Validando acesso..." : "Entrar no portal"}</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12h13" />
+          <path d="m14 7 5 5-5 5" />
+        </svg>
       </button>
     </form>
   );
