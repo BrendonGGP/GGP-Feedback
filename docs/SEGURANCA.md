@@ -57,6 +57,8 @@ Para dados pessoais, o alvo é combinar níveis 2 e 3 do baseline local: control
 
 - Supabase foi selecionado na região de São Paulo; contratos, privacidade e aprovação corporativa ainda precisam de confirmação formal;
 - SSO/MFA ainda não foram definidos;
+- `AUTH_SECRET` deve ser configurado por ambiente e nunca versionado;
+- autenticação base, bloqueio progressivo e revogação de sessões estão implementados;
 - dependências são fixadas e auditadas no CI; a atualização de ESLint depende de compatibilidade futura do ecossistema Next.js;
 - migration inicial e RLS fail-closed foram aplicadas ao Supabase de desenvolvimento;
 - políticas RLS de negócio aguardam a integração de uma identidade de runtime de menor privilégio;

@@ -6,8 +6,9 @@ Plataforma interna para gestão de ciclos e feedbacks dos colaboradores do grupo
 
 O repositório contém a fundação Next.js, o esquema Prisma e a migration inicial
 aplicada ao Supabase de desenvolvimento. Os perfis e limites de autorização já
-estão definidos; autenticação, políticas RLS de negócio, dados reais e deploy
-permanecem pendentes.
+estão definidos, e a base de autenticação com sessões revogáveis está
+implementada. A configuração de `AUTH_SECRET`, as políticas RLS de negócio,
+dados reais e deploy permanecem pendentes.
 
 ## Escopo do MVP
 
@@ -28,6 +29,7 @@ PDI e geração de PDF ficam fora do MVP e serão tratados na fase 2.
 - [Especificação do MVP](docs/ESPECIFICACAO_MVP.md)
 - [Arquitetura](docs/ARQUITETURA.md)
 - [Perfis e limites de autorização](docs/AUTORIZACAO.md)
+- [Autenticação e sessões](docs/AUTENTICACAO.md)
 - [Modelo de dados](docs/MODELO_DADOS.md)
 - [Segurança e ameaças](docs/SEGURANCA.md)
 - [Dados e privacidade](docs/DADOS_E_PRIVACIDADE.md)

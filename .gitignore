@@ -4,6 +4,7 @@
 *.pem
 *.key
 credentials*
+!src/lib/auth/credentials.ts
 .ssh/
 .aws/
 .azure/
