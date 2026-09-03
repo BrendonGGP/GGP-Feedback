@@ -19,6 +19,7 @@
     "prisma:migrate:diff": "prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script",
     "prisma:migrate:status": "prisma migrate status",
     "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:seed:dev": "prisma db seed",
     "validate:database": "python -B -m ggp_guardrails database",
     "validate:hardening": "python -B -m ggp_guardrails hardening"
   },
@@ -33,6 +34,9 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "zod": "4.5.4"
+  },
+  "prisma": {
+    "seed": "node scripts/seed-dev-accounts.mjs"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.3.3",
