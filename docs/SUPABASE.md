@@ -40,3 +40,24 @@ npm.cmd run prisma:migrate:deploy
 ```
 
 Esse comando altera o banco apontado por `DIRECT_URL`. Banco com dados exige backup, janela de mudança e rollback testado.
+
+## Contas sintéticas de desenvolvimento
+
+Depois que a migration inicial estiver aplicada, o conjunto sintético pode ser
+provisionado no banco de desenvolvimento com o seed idempotente:
+
+```powershell
+npm.cmd run prisma:seed:dev
+npm.cmd run prisma:seed:dev -- -- --apply
+npm.cmd run prisma:seed:dev -- -- --verify
+```
+
+O primeiro comando é apenas um dry-run. O segundo cria ou atualiza somente a
+empresa, departamentos, pessoas, contas e papéis sintéticos definidos em
+`scripts/seed-dev-accounts.mjs`. O terceiro faz uma conferência somente leitura.
+
+As quatro contas são marcadas com troca obrigatória de senha e recebem os
+papéis `SYSTEM_ADMIN`, `HR_ADMIN`, `MANAGER`/`EMPLOYEE` e `EMPLOYEE`. As senhas
+temporárias são geradas localmente e gravadas apenas em
+`dados-privados/contas-sinteticas-dev.txt`, que é ignorado pelo Git. Nunca
+copie esse arquivo para o repositório, PR, chat ou logs.
