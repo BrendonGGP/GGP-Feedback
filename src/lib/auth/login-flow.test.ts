@@ -125,7 +125,7 @@ describe("fluxo de login provisionado", () => {
     });
   });
 
-  it("nega acesso com senha temporaria mesmo quando a credencial confere", async () => {
+  it("cria sessao restrita para conta com senha temporaria", async () => {
     findFirstMock.mockResolvedValue({
       ...expiredLockedAccount(),
       status: "ACTIVE",
@@ -139,8 +139,11 @@ describe("fluxo de login provisionado", () => {
         loginIdentifier: "usuario.teste",
         password: "senha-temporaria-sintetica",
       }),
-    ).resolves.toBeNull();
+    ).resolves.toMatchObject({
+      accountId: "account-1",
+      mustChangePassword: true,
+    });
 
-    expect(createSessionMock).not.toHaveBeenCalled();
+    expect(createSessionMock).toHaveBeenCalled();
   });
 });

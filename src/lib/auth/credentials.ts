@@ -30,6 +30,7 @@ export type AuthenticatedUser = Readonly<{
   sessionId: string;
   sessionNonce: string;
   sessionVersion: number;
+  mustChangePassword: boolean;
 }>;
 
 const verifyInvalidAttempt = async (password: unknown): Promise<void> => {
@@ -121,12 +122,6 @@ const authorizeProvisionedCredentialsUnsafe = async (
     return null;
   }
 
-  // Temporary credentials cannot open business areas until the dedicated
-  // password-change flow is available.
-  if (account.mustChangePassword) {
-    return null;
-  }
-
   // An account without a valid role must never receive a usable session.
   if (!hasValidRoles) {
     return null;
@@ -166,6 +161,7 @@ const authorizeProvisionedCredentialsUnsafe = async (
     sessionId,
     sessionNonce,
     sessionVersion: account.sessionVersion,
+    mustChangePassword: account.mustChangePassword,
   };
 };
 

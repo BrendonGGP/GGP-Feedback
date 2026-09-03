@@ -43,7 +43,31 @@ describe("ator autenticado", () => {
     await expect(getAuthenticatedActor()).resolves.toEqual({
       accountId: "account-1",
       personId: "person-1",
+      mustChangePassword: false,
       roles: ["MANAGER", "EMPLOYEE"],
+    });
+  });
+
+  it("permite identificar uma conta temporaria somente para a troca de senha", async () => {
+    authMock.mockResolvedValue({
+      user: { accountId: "account-1", personId: "person-1" },
+    });
+    findUniqueMock.mockResolvedValue({
+      id: "account-1",
+      personId: "person-1",
+      status: "ACTIVE",
+      mustChangePassword: true,
+      lockedUntil: null,
+      roles: [{ role: "EMPLOYEE" }],
+    });
+
+    await expect(
+      getAuthenticatedActor({ allowPasswordChange: true }),
+    ).resolves.toEqual({
+      accountId: "account-1",
+      personId: "person-1",
+      mustChangePassword: true,
+      roles: ["EMPLOYEE"],
     });
   });
 

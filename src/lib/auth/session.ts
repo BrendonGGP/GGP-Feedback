@@ -10,9 +10,16 @@ import { prisma } from "@/lib/prisma";
 export type AuthenticatedActor = AuthorizationActor &
   Readonly<{
     accountId: string;
+    mustChangePassword: boolean;
   }>;
 
-export const getAuthenticatedActor = async (): Promise<AuthenticatedActor | null> => {
+type SessionReadOptions = Readonly<{
+  allowPasswordChange?: boolean;
+}>;
+
+export const getAuthenticatedActor = async (
+  options: SessionReadOptions = {},
+): Promise<AuthenticatedActor | null> => {
   const session = await auth();
   const accountId = session?.user?.accountId;
 
@@ -28,7 +35,7 @@ export const getAuthenticatedActor = async (): Promise<AuthenticatedActor | null
   if (
     !account ||
     account.status !== "ACTIVE" ||
-    account.mustChangePassword ||
+    (account.mustChangePassword && !options.allowPasswordChange) ||
     (account.lockedUntil !== null && account.lockedUntil > new Date())
   ) {
     return null;
@@ -46,6 +53,7 @@ export const getAuthenticatedActor = async (): Promise<AuthenticatedActor | null
   return {
     accountId: account.id,
     personId: account.personId,
+    mustChangePassword: account.mustChangePassword,
     roles: roles as AccessRole[],
   };
 };
