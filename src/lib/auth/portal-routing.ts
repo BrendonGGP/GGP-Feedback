@@ -11,6 +11,8 @@ export const PORTAL_ROUTES = {
   EMPLOYEE: "/portal/meus-feedbacks",
 } as const satisfies Record<AccessRole, string>;
 
+export const PORTAL_HOME_ROUTE = "/portal/dashboard";
+
 const DESTINATION_PRECEDENCE: readonly AccessRole[] = [
   "SYSTEM_ADMIN",
   "HR_ADMIN",
@@ -23,6 +25,23 @@ const hasUsableRoles = (roles: readonly unknown[]): roles is AccessRole[] =>
   roles.every(isAccessRole) &&
   hasValidRoleCombination(roles);
 
+export const resolvePortalHome = (
+  roles: readonly unknown[],
+): typeof PORTAL_HOME_ROUTE | null =>
+  hasUsableRoles(roles) ? PORTAL_HOME_ROUTE : null;
+
+export const resolvePrimaryPortalRole = (
+  roles: readonly unknown[],
+): AccessRole | null => {
+  if (!hasUsableRoles(roles)) {
+    return null;
+  }
+
+  return (
+    DESTINATION_PRECEDENCE.find((role) => roles.includes(role)) ?? null
+  );
+};
+
 export const resolvePortalDestination = (
   roles: readonly unknown[],
 ): string | null => {
@@ -30,9 +49,7 @@ export const resolvePortalDestination = (
     return null;
   }
 
-  const primaryRole = DESTINATION_PRECEDENCE.find((role) =>
-    roles.includes(role),
-  );
+  const primaryRole = resolvePrimaryPortalRole(roles);
 
   return primaryRole ? PORTAL_ROUTES[primaryRole] : null;
 };
