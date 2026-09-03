@@ -45,9 +45,10 @@ inicializa o Auth.js; ele não concede acesso a nenhum ambiente externo.
 - As áreas internas ainda são páginas provisórias protegidas. O conteúdo e o
   visual definitivo dependem dos prints de referência e da implementação de
   cada módulo.
-- Contas com `must_change_password` permanecem bloqueadas de forma fail-closed.
-  A troca obrigatória de senha será implementada antes do provisionamento de
-  usuários; até lá, somente contas com senha definitiva podem iniciar sessão.
+- Contas com `must_change_password` têm acesso exclusivo à tela de troca
+  obrigatória. A nova senha precisa ter 12–128 caracteres, não pode reutilizar
+  a senha temporária e, após a alteração, todas as sessões anteriores são
+  revogadas.
 - A proteção de rotas de negócio deve ser adicionada junto com cada rota; a
   existência do handler `/api/auth` não autoriza nenhuma consulta por si só.
 - RLS de negócio permanece fail-closed até a identidade da sessão ser propagada

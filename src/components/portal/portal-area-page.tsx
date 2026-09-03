@@ -21,10 +21,14 @@ export async function PortalAreaPage({
   description,
   requiredRole,
 }: PortalAreaPageProps) {
-  const actor = await getAuthenticatedActor();
+  const actor = await getAuthenticatedActor({ allowPasswordChange: true });
 
   if (!actor) {
     redirect("/");
+  }
+
+  if (actor.mustChangePassword) {
+    redirect("/portal/alterar-senha");
   }
 
   if (!canAccessPortalArea(actor.roles, requiredRole)) {

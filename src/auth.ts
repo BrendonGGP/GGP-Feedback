@@ -16,6 +16,7 @@ const invalidToken = (token: Record<string, unknown>) => ({
   roles: [],
   sessionId: undefined,
   sessionNonce: undefined,
+  mustChangePassword: false,
   revoked: true,
 });
 
@@ -49,6 +50,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.sessionId = user.sessionId;
         token.sessionNonce = user.sessionNonce;
         token.sessionVersion = user.sessionVersion;
+        token.mustChangePassword = user.mustChangePassword;
       }
 
       if (
@@ -92,6 +94,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         accountId: persistedSession.account.id,
         personId: persistedSession.account.personId,
         roles: roles as AccessRole[],
+        mustChangePassword: persistedSession.account.mustChangePassword,
         revoked: false,
       };
     },
@@ -100,11 +103,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.revoked ||
         !isNonEmptyString(token.accountId) ||
         !isNonEmptyString(token.personId) ||
-        !Array.isArray(token.roles)
+        !Array.isArray(token.roles) ||
+        typeof token.mustChangePassword !== "boolean"
       ) {
         return {
           ...session,
-          user: { ...session.user, id: "", accountId: "", personId: "", roles: [] },
+          user: {
+            ...session.user,
+            id: "",
+            accountId: "",
+            personId: "",
+            roles: [],
+            mustChangePassword: false,
+          },
         };
       }
 
@@ -116,6 +127,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           accountId: token.accountId,
           personId: token.personId,
           roles: token.roles as AccessRole[],
+          mustChangePassword: token.mustChangePassword,
         },
       };
     },
