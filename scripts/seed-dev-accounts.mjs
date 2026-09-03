@@ -115,8 +115,21 @@ const readStoredPasswords = () => {
     return Object.fromEntries(
       content
         .split(/\r?\n/)
-        .filter((line) => line.includes("="))
-        .map((line) => line.split("=", 2).map((value) => value.trim())),
+        .map((line) => {
+          const separatorIndex = line.indexOf("=");
+          if (separatorIndex <= 0) {
+            return null;
+          }
+
+          const key = line.slice(0, separatorIndex).trim();
+          const password = line
+            .slice(separatorIndex + 1)
+            .trim()
+            .replace(/\s+#.*$/, "");
+
+          return key && password ? [key, password] : null;
+        })
+        .filter(Boolean),
     );
   } catch {
     return {};
@@ -244,9 +257,12 @@ const writeCredentialsFile = (passwords) => {
   const content = [
     "# Credenciais sintéticas locais — não versionar nem compartilhar",
     "# As contas estão marcadas para troca obrigatória de senha.",
+    "# Formato: CHAVE=senha (não adicione comentários na mesma linha)",
     ...accounts.map(
-      ({ key, loginIdentifier }) => `${key}=${passwords[key]} # ${loginIdentifier}`,
+      ({ key }) => `${key}=${passwords[key]}`,
     ),
+    "# Mapeamento das chaves:",
+    ...accounts.map(({ key, loginIdentifier }) => `# ${key} -> ${loginIdentifier}`),
     "",
   ].join("\n");
   writeFileSync(credentialsFile, content, { encoding: "utf8", mode: 0o600 });
@@ -273,6 +289,7 @@ const verifySyntheticData = async () => {
           where: { id: { in: accounts.map(({ id }) => id) } },
           select: {
             id: true,
+            passwordHash: true,
             status: true,
             mustChangePassword: true,
             roles: { select: { role: true } },
@@ -298,13 +315,20 @@ const verifySyntheticData = async () => {
     }
 
     const accountsById = new Map(storedAccounts.map((account) => [account.id, account]));
+    const storedPasswords = readStoredPasswords();
     for (const expectedAccount of accounts) {
       const storedAccount = accountsById.get(expectedAccount.id);
       const storedRoles = storedAccount?.roles.map(({ role }) => role).sort();
       const expectedRoles = [...expectedAccount.roles].sort();
+      const storedPassword = storedPasswords[expectedAccount.key];
+      const passwordMatches =
+        storedAccount && storedPassword
+          ? await argon2.verify(storedAccount.passwordHash, storedPassword)
+          : false;
 
       if (
         !storedAccount ||
+        !passwordMatches ||
         storedAccount.status !== "ACTIVE" ||
         !storedAccount.mustChangePassword ||
         JSON.stringify(storedRoles) !== JSON.stringify(expectedRoles)
