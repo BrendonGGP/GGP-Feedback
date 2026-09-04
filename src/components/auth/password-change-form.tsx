@@ -21,7 +21,7 @@ export function PasswordChangeForm() {
     <form className="login-form password-change-form" action={formAction} aria-busy={isPending}>
       <div className="password-policy" role="note">
         <strong>Requisitos da nova senha</strong>
-        <span>Use pelo menos 12 caracteres e não reutilize a senha temporária.</span>
+        <span>Use pelo menos 9 caracteres, incluindo um número e um caractere especial. Não reutilize a senha temporária.</span>
       </div>
 
       <div className="form-field">
@@ -32,7 +32,7 @@ export function PasswordChangeForm() {
             name="newPassword"
             type="password"
             autoComplete="new-password"
-            minLength={12}
+            minLength={9}
             maxLength={128}
             required
             disabled={isPending}
@@ -48,7 +48,7 @@ export function PasswordChangeForm() {
             name="confirmPassword"
             type="password"
             autoComplete="new-password"
-            minLength={12}
+            minLength={9}
             maxLength={128}
             required
             disabled={isPending}

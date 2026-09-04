@@ -1,18 +1,23 @@
 import { z } from "zod";
 
-import { hashPassword, verifyPassword } from "@/lib/auth/password";
+import {
+  getPasswordPolicyError,
+  hashPassword,
+  PASSWORD_MAX_LENGTH,
+  verifyPassword,
+} from "@/lib/auth/password";
 import { prisma } from "@/lib/prisma";
+
+const passwordField = (label: string) =>
+  z.string().max(PASSWORD_MAX_LENGTH, `${label} pode ter no máximo ${PASSWORD_MAX_LENGTH} caracteres.`).superRefine((value, context) => {
+    const error = getPasswordPolicyError(value, label);
+    if (error) context.addIssue({ code: "custom", message: error });
+  });
 
 export const passwordChangeSchema = z
   .object({
-    newPassword: z
-      .string()
-      .min(12, "A nova senha precisa ter pelo menos 12 caracteres.")
-      .max(128, "A nova senha pode ter no máximo 128 caracteres."),
-    confirmPassword: z
-      .string()
-      .min(12, "A confirmação precisa ter pelo menos 12 caracteres.")
-      .max(128, "A confirmação pode ter no máximo 128 caracteres."),
+    newPassword: passwordField("A nova senha"),
+    confirmPassword: passwordField("A confirmação"),
   })
   .refine((value) => value.newPassword === value.confirmPassword, {
     message: "As senhas precisam ser iguais.",
@@ -25,6 +30,10 @@ export const changeTemporaryPassword = async (
   accountId: string,
   newPassword: string,
 ): Promise<void> => {
+  if (getPasswordPolicyError(newPassword, "A nova senha")) {
+    throw new Error("PASSWORD_POLICY_INVALID");
+  }
+
   const account = await prisma.accessAccount.findUnique({
     where: { id: accountId },
     select: {

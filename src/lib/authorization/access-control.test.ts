@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   canAdministerHrDomain,
   canAdministerSystem,
+  canCreateFeedbackForPerson,
   canReadFeedbackContent,
   canReadPdiContent,
   canViewPerson,
@@ -87,6 +88,18 @@ describe("limites dos perfis de acesso", () => {
         evaluatorPersonId: "previous-manager",
       }),
     ).toBe(false);
+    expect(
+      canCreateFeedbackForPerson(manager, {
+        personId: "direct-report",
+        managerId: "manager",
+      }),
+    ).toBe(true);
+    expect(
+      canCreateFeedbackForPerson(manager, {
+        personId: "other-person",
+        managerId: "other-manager",
+      }),
+    ).toBe(false);
   });
 
   it("limita o colaborador aos proprios conteudos", () => {
@@ -108,6 +121,12 @@ describe("limites dos perfis de acesso", () => {
       canReadPdiContent(employee, {
         personId: "another-employee",
         managerId: "manager",
+      }),
+    ).toBe(false);
+    expect(
+      canCreateFeedbackForPerson(employee, {
+        personId: "another-employee",
+        managerId: "employee",
       }),
     ).toBe(false);
   });

@@ -38,7 +38,10 @@ const buildNavigation = (roles: readonly AccessRole[]): NavigationGroup[] => {
     },
   ];
 
-  if (roles.includes("EMPLOYEE")) {
+  if (
+    !roles.includes("SYSTEM_ADMIN") &&
+    roles.some((role) => ["HR_ADMIN", "MANAGER", "EMPLOYEE"].includes(role))
+  ) {
     overview.push({
       label: "Feedback",
       icon: "feedback",
