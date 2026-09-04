@@ -1,0 +1,592 @@
+.dashboard {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.welcome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--brand-aqua);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.welcome h1 {
+  margin: 0;
+  max-width: 28ch;
+  font-size: clamp(2rem, 3vw, 2.75rem);
+  font-variation-settings: "wght" 770;
+  letter-spacing: -0.045em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.profileLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.75rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.55;
+}
+
+.profileLine > span[aria-hidden="true"] {
+  color: var(--brand-blue);
+}
+
+.today::first-letter {
+  text-transform: uppercase;
+}
+
+.roleCard {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: min(100%, 18rem);
+  padding: 0.9rem 1rem;
+  border: 1px solid rgb(101 231 222 / 16%);
+  border-radius: 0.875rem;
+  background: rgb(255 255 255 / 3%);
+}
+
+.roleIcon,
+.quickIcon {
+  display: grid;
+  flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  place-items: center;
+  color: var(--brand-aqua);
+  background: rgb(101 231 222 / 9%);
+}
+
+.roleIcon svg,
+.quickIcon svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.roleCard > span:last-child {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.roleCard small {
+  color: var(--text-tertiary);
+  font-size: 0.6875rem;
+}
+
+.roleCard strong {
+  font-size: 0.75rem;
+}
+
+.companyPill {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 0.7rem;
+  min-height: 2.5rem;
+  padding: 0.4rem 0.9rem 0.4rem 0.45rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  background: rgb(255 255 255 / 3%);
+  font-size: 0.75rem;
+}
+
+.companyPill strong {
+  color: var(--text-primary);
+}
+
+.companyMark {
+  display: grid;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  place-items: center;
+  color: var(--brand-aqua);
+  background: rgb(0 129 156 / 18%);
+  font-size: 0.5rem;
+  font-weight: 850;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.875rem;
+}
+
+.metricCard,
+.mainPanel,
+.cycleCard,
+.scopeCard,
+.quickSection,
+.pdiNotice {
+  border: 1px solid rgb(255 255 255 / 9%);
+  background:
+    linear-gradient(145deg, rgb(255 255 255 / 3%), transparent 52%),
+    rgb(9 48 58 / 90%);
+  box-shadow: 0 0.85rem 2.4rem rgb(0 0 0 / 10%);
+}
+
+.metricCard {
+  position: relative;
+  display: grid;
+  min-height: 8.5rem;
+  padding: 1.1rem 1.2rem;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.metricAccent {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--brand-aqua);
+  opacity: 0.78;
+}
+
+.metricCard[data-tone="green"] .metricAccent {
+  background: #73d997;
+}
+
+.metricCard[data-tone="amber"] .metricAccent {
+  background: #f0c36a;
+}
+
+.metricCard[data-tone="neutral"] .metricAccent {
+  background: var(--text-tertiary);
+}
+
+.metricCard p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+
+.metricCard strong {
+  align-self: end;
+  margin-top: 0.75rem;
+  overflow-wrap: anywhere;
+  font-size: clamp(1.65rem, 2.4vw, 2.15rem);
+  font-variation-settings: "wght" 650;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+
+.metricCard small {
+  align-self: end;
+  margin-top: 0.55rem;
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+}
+
+.contentGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(18rem, 0.8fr);
+  gap: 1rem;
+}
+
+.mainPanel,
+.cycleCard,
+.scopeCard,
+.quickSection {
+  border-radius: 1rem;
+}
+
+.mainPanel {
+  min-height: 18rem;
+  padding: 1.5rem;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgb(255 255 255 / 8%);
+}
+
+.panelHeader h2,
+.cycleCard h2,
+.scopeCard h2,
+.pdiNotice h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-variation-settings: "wght" 740;
+  letter-spacing: -0.025em;
+}
+
+.statusChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid rgb(101 231 222 / 15%);
+  border-radius: 999px;
+  color: var(--brand-aqua);
+  background: rgb(101 231 222 / 6%);
+  font-size: 0.6875rem;
+  font-weight: 750;
+}
+
+.statusChip svg {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+.feedbackOverview {
+  display: grid;
+  align-content: center;
+  min-height: 15rem;
+  padding-top: 1.5rem;
+}
+
+.progressSummary {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.progressSummary > span:first-child {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.progressSummary strong {
+  font-size: clamp(2.8rem, 6vw, 4.6rem);
+  font-variation-settings: "wght" 650;
+  letter-spacing: -0.07em;
+  line-height: 1;
+}
+
+.progressSummary small,
+.totalLabel {
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+}
+
+.progressTrack {
+  height: 0.55rem;
+  margin-top: 1.25rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 8%);
+  overflow: hidden;
+}
+
+.progressTrack span {
+  display: block;
+  width: var(--progress);
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--brand-blue), var(--brand-aqua));
+}
+
+.feedbackStats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1.5rem 0 0;
+}
+
+.feedbackStats div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgb(255 255 255 / 7%);
+  border-radius: 0.75rem;
+  background: rgb(255 255 255 / 2%);
+}
+
+.feedbackStats dt {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+
+.feedbackStats dd {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 750;
+}
+
+.restrictedState {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1.25rem;
+  min-height: 11.5rem;
+  padding-top: 1rem;
+}
+
+.restrictedState > span {
+  display: grid;
+  width: 4.5rem;
+  height: 4.5rem;
+  border: 1px solid rgb(240 195 106 / 22%);
+  border-radius: 1.25rem;
+  place-items: center;
+  color: #f0c36a;
+  background: rgb(240 195 106 / 7%);
+}
+
+.restrictedState svg {
+  width: 2rem;
+  height: 2rem;
+}
+
+.restrictedState h3 {
+  margin: 0 0 0.65rem;
+  font-size: 1rem;
+}
+
+.restrictedState p,
+.scopeCard > p:not(.eyebrow),
+.pdiNotice p:not(.eyebrow) {
+  max-width: 48rem;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+}
+
+.sideColumn {
+  display: grid;
+  gap: 1rem;
+}
+
+.cycleCard,
+.scopeCard {
+  min-height: 10rem;
+  padding: 1.25rem;
+}
+
+.cycleCard header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.cycleCard header > span {
+  display: grid;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 0.75rem;
+  place-items: center;
+  color: var(--brand-aqua);
+  background: rgb(101 231 222 / 8%);
+}
+
+.cycleCard header svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.cycleDetails {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 1.5rem;
+}
+
+.cycleDetails strong {
+  font-size: 0.875rem;
+}
+
+.cycleDetails span,
+.scopeCard > span {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--text-tertiary);
+  font-size: 0.6875rem;
+}
+
+.cycleDetails svg,
+.scopeCard > span svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  color: var(--brand-aqua);
+}
+
+.emptyMessage {
+  margin: 1.35rem 0 0;
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+.scopeCard > p:not(.eyebrow) {
+  margin-block: 0.85rem 1.25rem;
+}
+
+.quickSection {
+  padding: 1.5rem;
+}
+
+.quickGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.quickGrid a {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.85rem;
+  min-height: 4.75rem;
+  padding: 0.8rem;
+  border: 1px solid rgb(255 255 255 / 8%);
+  border-radius: 0.875rem;
+  color: var(--text-primary);
+  background: rgb(255 255 255 / 2%);
+  text-decoration: none;
+  transition: border-color 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+
+.quickGrid a:hover {
+  border-color: var(--border-accent);
+  background: rgb(101 231 222 / 5%);
+  transform: translateY(-1px);
+}
+
+.quickGrid a > span:nth-child(2) {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.quickGrid strong {
+  font-size: 0.75rem;
+}
+
+.quickGrid small {
+  color: var(--text-tertiary);
+  font-size: 0.6875rem;
+}
+
+.quickGrid a > svg {
+  width: 1rem;
+  height: 1rem;
+  color: var(--text-tertiary);
+}
+
+.pdiNotice {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 1rem;
+}
+
+.pdiNotice > span {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.8rem;
+  place-items: center;
+  color: var(--brand-aqua);
+  background: rgb(101 231 222 / 8%);
+}
+
+.pdiNotice > span svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.pdiNotice h2 {
+  margin-bottom: 0.45rem;
+}
+
+@media (max-width: 75rem) {
+  .metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .contentGrid {
+    grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 0.8fr);
+  }
+}
+
+@media (max-width: 48rem) {
+  .welcome {
+    display: grid;
+    align-items: start;
+  }
+
+  .roleCard {
+    width: 100%;
+  }
+
+  .contentGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sideColumn {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 36rem) {
+  .dashboard {
+    gap: 1rem;
+  }
+
+  .profileLine {
+    align-items: flex-start;
+  }
+
+  .profileLine > span[aria-hidden="true"] {
+    display: none;
+  }
+
+  .profileLine > span:not([aria-hidden="true"]) {
+    flex-basis: 100%;
+  }
+
+  .metrics,
+  .sideColumn,
+  .quickGrid,
+  .feedbackStats {
+    grid-template-columns: 1fr;
+  }
+
+  .metricCard {
+    min-height: 7.75rem;
+  }
+
+  .mainPanel,
+  .quickSection {
+    padding: 1.15rem;
+  }
+
+  .panelHeader,
+  .progressSummary {
+    align-items: flex-start;
+  }
+
+  .totalLabel {
+    text-align: right;
+  }
+
+  .restrictedState,
+  .pdiNotice {
+    grid-template-columns: 1fr;
+  }
+}

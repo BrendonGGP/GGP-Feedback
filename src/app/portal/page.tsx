@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { resolvePortalDestination } from "@/lib/auth/portal-routing";
+import { resolvePortalHome } from "@/lib/auth/portal-routing";
 import { getAuthenticatedActor } from "@/lib/auth/session";
 
 export default async function PortalPage() {
@@ -14,6 +14,6 @@ export default async function PortalPage() {
     redirect("/portal/alterar-senha");
   }
 
-  const destination = resolvePortalDestination(actor.roles);
+  const destination = resolvePortalHome(actor.roles);
   redirect(destination ?? "/");
 }
