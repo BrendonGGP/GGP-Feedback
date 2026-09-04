@@ -108,7 +108,7 @@ function Brand() {
             src="/brand/ggp-logo-white-blue.png"
             alt=""
             fill
-            sizes="132px"
+            sizes="106px"
             priority
           />
         </span>

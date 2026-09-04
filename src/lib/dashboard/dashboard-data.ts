@@ -113,8 +113,8 @@ const getSystemAdministratorMetrics = async (): Promise<
     },
     {
       label: "Conteúdo funcional",
-      value: "Bloqueado",
-      helper: "segregação de acesso ativa",
+      value: "Protegido",
+      helper: "acesso segregado por perfil",
       tone: "amber",
     },
   ];

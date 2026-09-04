@@ -218,11 +218,10 @@ export default async function DashboardPage() {
                 <div className={styles.restrictedState}>
                   <span aria-hidden="true"><PortalIcon name="admin" /></span>
                   <div>
-                    <h3>Conteúdo funcional indisponível</h3>
+                    <h3>Acesso funcional protegido</h3>
                     <p>
-                      O Administrador do Sistema gerencia somente configurações,
-                      contas e papéis. Feedbacks e dados de desenvolvimento não
-                      são consultados por este perfil.
+                      Este perfil gerencia configurações, contas e papéis. Feedbacks
+                      e dados de desenvolvimento permanecem fora do seu escopo.
                     </p>
                   </div>
                 </div>
