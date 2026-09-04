@@ -8,6 +8,7 @@ import {
   canReadPdiContent,
   canViewPerson,
   hasValidRoleCombination,
+  resolveFeedbackReadScope,
   type AuthorizationActor,
 } from "./access-control";
 
@@ -151,5 +152,12 @@ describe("limites dos perfis de acesso", () => {
         evaluatorPersonId: "manager",
       }),
     ).toBe(false);
+  });
+
+  it("resolve o escopo de leitura usado pelas consultas de feedback", () => {
+    expect(resolveFeedbackReadScope(actor("system", ["SYSTEM_ADMIN"]))).toBe("NONE");
+    expect(resolveFeedbackReadScope(actor("rh", ["HR_ADMIN"]))).toBe("ALL");
+    expect(resolveFeedbackReadScope(actor("manager", ["MANAGER", "EMPLOYEE"]))).toBe("SELF_AND_AUTHORED");
+    expect(resolveFeedbackReadScope(actor("employee", ["EMPLOYEE"]))).toBe("SELF");
   });
 });

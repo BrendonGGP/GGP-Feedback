@@ -84,7 +84,7 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
           ) : (
             <div className={styles.table} role="table">
               <div className={styles.tableHeader} role="row">
-                <span role="columnheader">Avaliado</span><span role="columnheader">Avaliador</span><span role="columnheader">Empresa</span><span role="columnheader">Ciclo</span><span role="columnheader">Status</span><span role="columnheader">Data</span>
+                <span role="columnheader">Avaliado</span><span role="columnheader">Avaliador</span><span role="columnheader">Empresa</span><span role="columnheader">Ciclo</span><span role="columnheader">Status</span><span role="columnheader">Data</span><span role="columnheader">Ações</span>
               </div>
               {rows.map((row) => (
                 <div className={styles.tableRow} role="row" key={row.id}>
@@ -94,6 +94,7 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
                   <span role="cell" data-label="Ciclo">{row.cycleName}</span>
                   <span role="cell" data-label="Status"><mark data-status={row.status}>{row.status === "DRAFT" ? "Rascunho" : "Enviado"}</mark></span>
                   <span role="cell" data-label="Data">{formatDate(row.date)}</span>
+                  <span role="cell" data-label="Ações"><Link className={styles.openLink} href={`/portal/meus-feedbacks/${row.id}`}>Abrir</Link></span>
                 </div>
               ))}
             </div>

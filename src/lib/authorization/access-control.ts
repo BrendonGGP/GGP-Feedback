@@ -22,6 +22,8 @@ export type FeedbackScope = Readonly<{
   evaluatorPersonId: string;
 }>;
 
+export type FeedbackReadScope = "NONE" | "ALL" | "SELF_AND_AUTHORED" | "SELF";
+
 export const isAccessRole = (value: unknown): value is AccessRole =>
   typeof value === "string" && ACCESS_ROLES.includes(value as AccessRole);
 
@@ -86,6 +88,21 @@ export const canReadFeedbackContent = (
     hasRole(actor, "MANAGER") &&
     feedback.evaluatorPersonId === actor.personId
   );
+};
+
+export const resolveFeedbackReadScope = (
+  actor: AuthorizationActor,
+): FeedbackReadScope => {
+  if (!hasUsableRoles(actor) || hasRole(actor, "SYSTEM_ADMIN")) {
+    return "NONE";
+  }
+  if (hasRole(actor, "HR_ADMIN")) {
+    return "ALL";
+  }
+  if (hasRole(actor, "MANAGER")) {
+    return "SELF_AND_AUTHORED";
+  }
+  return hasRole(actor, "EMPLOYEE") ? "SELF" : "NONE";
 };
 
 export const canCreateFeedbackForPerson = (
