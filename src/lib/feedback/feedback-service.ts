@@ -1,7 +1,11 @@
 import type { Prisma } from "@prisma/client";
+import { z } from "zod";
 
 import type { AuthenticatedActor } from "@/lib/auth/session";
-import { canCreateFeedbackForPerson } from "@/lib/authorization/access-control";
+import {
+  canCreateFeedbackForPerson,
+  resolveFeedbackReadScope,
+} from "@/lib/authorization/access-control";
 import {
   validateFeedbackAnswers,
   type FeedbackIntent,
@@ -13,10 +17,9 @@ const isFunctionalActor = (actor: AuthenticatedActor): boolean =>
   actor.roles.some((role) => ["HR_ADMIN", "MANAGER", "EMPLOYEE"].includes(role));
 
 const visibilityWhere = (actor: AuthenticatedActor): Prisma.FeedbackWhereInput => {
-  if (actor.roles.includes("HR_ADMIN")) {
-    return {};
-  }
-  if (actor.roles.includes("MANAGER")) {
+  const scope = resolveFeedbackReadScope(actor);
+  if (scope === "ALL") return {};
+  if (scope === "SELF_AND_AUTHORED") {
     return {
       OR: [
         { evaluatorPersonId: actor.personId },
@@ -24,7 +27,8 @@ const visibilityWhere = (actor: AuthenticatedActor): Prisma.FeedbackWhereInput =
       ],
     };
   }
-  return { subjectPersonId: actor.personId };
+  if (scope === "SELF") return { subjectPersonId: actor.personId };
+  return { id: "00000000-0000-0000-0000-000000000000" };
 };
 
 export const getFeedbackOverview = async (actor: AuthenticatedActor) => {
@@ -78,14 +82,18 @@ export const getFeedbackOverview = async (actor: AuthenticatedActor) => {
   };
 };
 
-export const getNewFeedbackContext = async (actor: AuthenticatedActor) => {
+export const getNewFeedbackContext = async (
+  actor: AuthenticatedActor,
+  draftId?: string,
+) => {
   if (!isFunctionalActor(actor) || !actor.roles.includes("MANAGER")) {
     return null;
   }
 
   const now = new Date();
-  const [cycle, directReports] = await prisma.$transaction([
-    prisma.cycle.findFirst({
+  const parsedDraftId = z.string().uuid().safeParse(draftId);
+  const [cycle, directReports, draft] = await prisma.$transaction(async (transaction) => {
+    const cycle = await transaction.cycle.findFirst({
       where: {
         status: "OPEN",
         startsAt: { lte: now },
@@ -117,8 +125,8 @@ export const getNewFeedbackContext = async (actor: AuthenticatedActor) => {
           },
         },
       },
-    }),
-    prisma.person.findMany({
+    });
+    const directReports = await transaction.person.findMany({
       where: { managerId: actor.personId, active: true },
       orderBy: { fullName: "asc" },
       select: {
@@ -129,10 +137,35 @@ export const getNewFeedbackContext = async (actor: AuthenticatedActor) => {
         company: { select: { name: true } },
         department: { select: { name: true } },
       },
-    }),
-  ]);
+    });
+    const draft = parsedDraftId.success
+      ? await transaction.feedback.findFirst({
+          where: {
+            id: draftId,
+            status: "DRAFT",
+            evaluatorPersonId: actor.personId,
+          },
+          select: {
+            cycleId: true,
+            subjectPersonId: true,
+            subject: { select: { managerId: true } },
+            answers: { select: { questionId: true, rating: true, text: true } },
+          },
+        })
+      : null;
+    return [cycle, directReports, draft] as const;
+  });
 
   const questions = cycle?.cycleTemplates[0]?.template.questions ?? [];
+  const draftMatchesCurrentCycle = Boolean(draft && cycle && draft.cycleId === cycle.id);
+  const draftIsAuthorized = Boolean(
+    draftMatchesCurrentCycle &&
+      draft &&
+      canCreateFeedbackForPerson(actor, {
+        personId: draft.subjectPersonId,
+        managerId: draft.subject.managerId,
+      }),
+  );
   return {
     cycle: cycle ? { id: cycle.id, name: cycle.name } : null,
     people: directReports.filter((person) => canCreateFeedbackForPerson(actor, {
@@ -146,6 +179,82 @@ export const getNewFeedbackContext = async (actor: AuthenticatedActor) => {
       departmentName: person.department.name,
     })),
     questions,
+    draft: draftIsAuthorized && draft
+      ? { subjectPersonId: draft.subjectPersonId, answers: draft.answers }
+      : null,
+  };
+};
+
+export const getFeedbackDetail = async (
+  actor: AuthenticatedActor,
+  feedbackId: string,
+) => {
+  if (!isFunctionalActor(actor) || !z.string().uuid().safeParse(feedbackId).success) {
+    return null;
+  }
+
+  const feedback = await prisma.feedback.findFirst({
+    where: { AND: [{ id: feedbackId }, visibilityWhere(actor)] },
+    select: {
+      id: true,
+      status: true,
+      createdAt: true,
+      submittedAt: true,
+      cycle: { select: { name: true } },
+      subject: {
+        select: {
+          id: true,
+          fullName: true,
+          jobTitle: true,
+          managerId: true,
+          company: { select: { name: true } },
+          department: { select: { name: true } },
+        },
+      },
+      evaluator: { select: { id: true, fullName: true } },
+      answers: {
+        orderBy: { question: { position: "asc" } },
+        select: {
+          rating: true,
+          text: true,
+          question: { select: { id: true, prompt: true, type: true } },
+        },
+      },
+    },
+  });
+
+  if (!feedback) return null;
+
+  const canEdit =
+    feedback.status === "DRAFT" &&
+    feedback.evaluator.id === actor.personId &&
+    canCreateFeedbackForPerson(actor, {
+      personId: feedback.subject.id,
+      managerId: feedback.subject.managerId,
+    });
+
+  return {
+    id: feedback.id,
+    status: feedback.status,
+    createdAt: feedback.createdAt.toISOString(),
+    submittedAt: feedback.submittedAt?.toISOString() ?? null,
+    cycleName: feedback.cycle.name,
+    subject: {
+      id: feedback.subject.id,
+      fullName: feedback.subject.fullName,
+      jobTitle: feedback.subject.jobTitle,
+      companyName: feedback.subject.company.name,
+      departmentName: feedback.subject.department.name,
+    },
+    evaluatorName: feedback.evaluator.id === actor.personId ? "Você" : feedback.evaluator.fullName,
+    canEdit,
+    answers: feedback.answers.map((answer) => ({
+      questionId: answer.question.id,
+      prompt: answer.question.prompt,
+      type: answer.question.type,
+      rating: answer.rating,
+      text: answer.text,
+    })),
   };
 };
 
