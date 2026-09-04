@@ -46,9 +46,9 @@ inicializa o Auth.js; ele não concede acesso a nenhum ambiente externo.
   visual definitivo dependem dos prints de referência e da implementação de
   cada módulo.
 - Contas com `must_change_password` têm acesso exclusivo à tela de troca
-  obrigatória. A nova senha precisa ter 12–128 caracteres, não pode reutilizar
-  a senha temporária e, após a alteração, todas as sessões anteriores são
-  revogadas.
+  obrigatória. A nova senha precisa ter 9–128 caracteres, conter ao menos um
+  número e um caractere especial, não pode reutilizar a senha temporária e,
+  após a alteração, todas as sessões anteriores são revogadas.
 - A proteção de rotas de negócio deve ser adicionada junto com cada rota; a
   existência do handler `/api/auth` não autoriza nenhuma consulta por si só.
 - RLS de negócio permanece fail-closed até a identidade da sessão ser propagada

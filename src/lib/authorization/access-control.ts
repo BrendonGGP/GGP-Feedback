@@ -88,6 +88,21 @@ export const canReadFeedbackContent = (
   );
 };
 
+export const canCreateFeedbackForPerson = (
+  actor: AuthorizationActor,
+  subject: PersonScope,
+): boolean => {
+  if (!hasUsableRoles(actor) || hasRole(actor, "SYSTEM_ADMIN")) {
+    return false;
+  }
+
+  return (
+    hasRole(actor, "MANAGER") &&
+    subject.personId !== actor.personId &&
+    subject.managerId === actor.personId
+  );
+};
+
 /**
  * PDI is outside the current MVP. This policy records the approved boundary
  * for the future feature without claiming that PDI persistence exists today.

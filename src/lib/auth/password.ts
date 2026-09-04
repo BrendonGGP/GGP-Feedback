@@ -4,6 +4,28 @@ const ARGON2_OPTIONS = {
   type: argon2.argon2id,
 } as const;
 
+export const PASSWORD_MIN_LENGTH = 9;
+export const PASSWORD_MAX_LENGTH = 128;
+
+const NUMBER_PATTERN = /\p{N}/u;
+const SPECIAL_PATTERN = /[^\p{L}\p{N}\s]/u;
+
+export const getPasswordPolicyError = (
+  password: string,
+  label = "A senha",
+): string | null => {
+  if (password.length < PASSWORD_MIN_LENGTH) {
+    return `${label} precisa ter pelo menos ${PASSWORD_MIN_LENGTH} caracteres.`;
+  }
+  if (!NUMBER_PATTERN.test(password)) {
+    return `${label} precisa conter pelo menos um número.`;
+  }
+  if (!SPECIAL_PATTERN.test(password)) {
+    return `${label} precisa conter pelo menos um caractere especial.`;
+  }
+  return null;
+};
+
 // A fixed hash keeps invalid-account attempts on the same password-verification
 // path without storing or logging a real password.
 export const DUMMY_PASSWORD_HASH =

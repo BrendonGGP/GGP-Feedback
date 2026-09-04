@@ -23,10 +23,14 @@ vi.mock("@/lib/prisma", () => ({
   },
 }));
 
-vi.mock("@/lib/auth/password", () => ({
-  hashPassword: hashPasswordMock,
-  verifyPassword: verifyPasswordMock,
-}));
+vi.mock("@/lib/auth/password", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/auth/password")>("@/lib/auth/password");
+  return {
+    ...actual,
+    hashPassword: hashPasswordMock,
+    verifyPassword: verifyPasswordMock,
+  };
+});
 
 import {
   changeTemporaryPassword,
@@ -54,7 +58,7 @@ describe("troca obrigatoria de senha", () => {
     );
   });
 
-  it("exige tamanho minimo e confirmacao igual", () => {
+  it("exige tamanho, numero, caractere especial e confirmacao igual", () => {
     expect(
       passwordChangeSchema.safeParse({
         newPassword: "curta",
@@ -63,8 +67,32 @@ describe("troca obrigatoria de senha", () => {
     ).toBe(false);
     expect(
       passwordChangeSchema.safeParse({
-        newPassword: "senha-nova-sintetica",
-        confirmPassword: "senha-diferente-sintetica",
+        newPassword: "NovaSenha9!",
+        confirmPassword: "NovaSenha9!",
+      }).success,
+    ).toBe(true);
+    expect(
+      passwordChangeSchema.safeParse({
+        newPassword: "NovaSenha!",
+        confirmPassword: "NovaSenha!",
+      }).success,
+    ).toBe(false);
+    expect(
+      passwordChangeSchema.safeParse({
+        newPassword: "NovaSenha9",
+        confirmPassword: "NovaSenha9",
+      }).success,
+    ).toBe(false);
+    expect(
+      passwordChangeSchema.safeParse({
+        newPassword: "Senha9!x",
+        confirmPassword: "Senha9!x",
+      }).success,
+    ).toBe(false);
+    expect(
+      passwordChangeSchema.safeParse({
+        newPassword: "NovaSenha9!",
+        confirmPassword: "SenhaDiferente9!",
       }).success,
     ).toBe(false);
   });
@@ -77,7 +105,7 @@ describe("troca obrigatoria de senha", () => {
     });
 
     await expect(
-      changeTemporaryPassword("account-1", "senha-nova-sintetica"),
+      changeTemporaryPassword("account-1", "SenhaNova9!"),
     ).resolves.toBeUndefined();
 
     expect(updateAccountMock).toHaveBeenCalledWith(
@@ -100,6 +128,13 @@ describe("troca obrigatoria de senha", () => {
     });
   });
 
+  it("rejeita uma senha fraca tambem no servico", async () => {
+    await expect(
+      changeTemporaryPassword("account-1", "senha-fraca"),
+    ).rejects.toThrow("PASSWORD_POLICY_INVALID");
+    expect(findUniqueMock).not.toHaveBeenCalled();
+  });
+
   it("nao permite reutilizar a senha temporaria", async () => {
     findUniqueMock.mockResolvedValue({
       passwordHash: "$argon2id$temporary-hash",
@@ -109,7 +144,7 @@ describe("troca obrigatoria de senha", () => {
     verifyPasswordMock.mockResolvedValue(true);
 
     await expect(
-      changeTemporaryPassword("account-1", "senha-temporaria-sintetica"),
+      changeTemporaryPassword("account-1", "SenhaTemporaria9!"),
     ).rejects.toThrow("PASSWORD_REUSE_NOT_ALLOWED");
     expect(transactionMock).not.toHaveBeenCalled();
   });
@@ -123,7 +158,7 @@ describe("troca obrigatoria de senha", () => {
     updateAccountMock.mockResolvedValue({ count: 0 });
 
     await expect(
-      changeTemporaryPassword("account-1", "senha-nova-sintetica"),
+      changeTemporaryPassword("account-1", "SenhaNova9!"),
     ).rejects.toThrow("PASSWORD_CHANGE_CONFLICT");
     expect(updateSessionsMock).not.toHaveBeenCalled();
   });
