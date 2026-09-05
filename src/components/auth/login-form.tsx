@@ -1,7 +1,7 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { FormEvent, useId, useState } from "react";
+import { FormEvent, KeyboardEvent, useId, useState } from "react";
 
 const GENERIC_LOGIN_ERROR =
   "Não foi possível entrar. Confira seus dados ou tente novamente mais tarde.";
@@ -12,6 +12,22 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  function submitOnEnter(event: KeyboardEvent<HTMLInputElement>) {
+    if (
+      event.key !== "Enter" ||
+      event.nativeEvent.isComposing ||
+      event.repeat ||
+      isSubmitting
+    ) {
+      return;
+    }
+
+    // Handle the keyboard path explicitly while preserving the form's
+    // normal submit lifecycle (validation, loading state and errors).
+    event.preventDefault();
+    event.currentTarget.form?.requestSubmit();
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -56,6 +72,8 @@ export function LoginForm() {
             placeholder="nome@ggp.com.br"
             maxLength={190}
             disabled={isSubmitting}
+            enterKeyHint="go"
+            onKeyDown={submitOnEnter}
             required
           />
         </div>
@@ -72,6 +90,8 @@ export function LoginForm() {
             placeholder="Digite sua senha"
             maxLength={256}
             disabled={isSubmitting}
+            enterKeyHint="go"
+            onKeyDown={submitOnEnter}
             required
           />
           <button
