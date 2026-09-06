@@ -14,6 +14,14 @@ a integração da identidade, também será reforçada por RLS no PostgreSQL.
 | `MANAGER` | Gestor | Consulta a própria equipe e os feedbacks dos quais é o avaliador registrado |
 | `EMPLOYEE` | Colaborador | Consulta somente os próprios feedbacks e, futuramente, o próprio PDI |
 
+## Administração técnica de contas
+
+Alterações de status ou papéis feitas pelo Administrador do Sistema revogam as
+sessões existentes da conta afetada e geram evento de auditoria sem conteúdo
+funcional. A conta do administrador autenticado não pode alterar os próprios
+papéis ou status, evitando bloqueio acidental e preservando a segregação de
+funções.
+
 ## Entrada no portal
 
 Depois da autenticação, o servidor escolhe a área inicial com precedência
