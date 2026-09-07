@@ -76,13 +76,23 @@ select {
 }
 
 select option {
-  color: var(--text-primary);
-  background-color: #12343d;
+  color: var(--text-primary) !important;
+  background-color: #12343d !important;
 }
 
 select option:checked {
-  color: var(--brand-black);
-  background-color: var(--brand-aqua);
+  color: var(--text-primary) !important;
+  background-color: #0b5d69 !important;
+  font-weight: 700;
+}
+
+select option:disabled {
+  color: var(--text-secondary) !important;
+}
+
+select:open {
+  border-color: var(--brand-aqua);
+  background-color: #0d4651;
 }
 
 .login-page {

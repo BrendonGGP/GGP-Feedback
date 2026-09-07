@@ -75,9 +75,14 @@ const buildNavigation = (roles: readonly AccessRole[]): NavigationGroup[] => {
   }
   if (roles.includes("HR_ADMIN")) {
     administration.push({
-      label: "Gestão de pessoas",
+      label: "Ciclos e formulários",
       icon: "admin",
       href: "/portal/rh",
+    });
+    administration.push({
+      label: "Estrutura organizacional",
+      icon: "team",
+      href: "/portal/rh/organizacao",
     });
   }
 
