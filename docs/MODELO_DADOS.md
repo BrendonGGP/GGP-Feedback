@@ -34,7 +34,17 @@ Nem todas as regras são representáveis apenas no arquivo Prisma. A migration i
 - políticas de Row-Level Security como defesa adicional;
 - índices para gestor, ciclo, pessoa avaliada e status;
 
-A trilha de alterações relevantes será gravada pelo serviço transacional quando autenticação e autorização forem implementadas. Isso evita registrar texto de feedback ou atributos pessoais além do necessário.
+A trilha de alterações relevantes é gravada pelos serviços transacionais depois da validação de autenticação e autorização. Os eventos registram identificadores técnicos e mudanças de estado, sem texto de feedback ou atributos pessoais além do necessário.
+
+## Gestão da estrutura organizacional
+
+- O RH cadastra empresas, departamentos e pessoas; a conta de acesso continua separada e sob administração técnica.
+- Todo departamento selecionado para uma pessoa deve pertencer à empresa selecionada e ambos precisam estar ativos.
+- Gestores são referenciados por `Person.id`; autoâncora, ciclos e referências desconhecidas são rejeitados.
+- Cada cadastro de pessoa inicia uma linha no histórico de liderança. A troca de gestor encerra a linha vigente e cria outra na mesma transação.
+- Uma pessoa com liderados ativos não pode ser desativada antes da realocação da equipe.
+- Uma pessoa com conta ainda habilitada não pode ser desativada; a conta deve ser desabilitada antes pelo Administrador do Sistema.
+- Atualizações usam o campo `version` para detectar edições concorrentes.
 
 ## Importação
 

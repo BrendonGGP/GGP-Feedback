@@ -1,0 +1,892 @@
+.page {
+  display: grid;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 90rem;
+  margin: 0 auto;
+}
+
+.hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--brand-aqua);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(2rem, 3.4vw, 2.75rem);
+  font-variation-settings: "wght" 760;
+  letter-spacing: -0.045em;
+  line-height: 1.1;
+}
+
+.hero > div > p:last-child {
+  max-width: 46rem;
+  margin: 0.65rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.scopeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 2.75rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--border-accent);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  background: rgb(101 231 222 / 6%);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.scopeBadge svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  color: var(--brand-aqua);
+}
+
+.successMessage,
+.errorMessage {
+  margin: 0;
+  padding: 0.875rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.successMessage {
+  border: 1px solid rgb(115 217 151 / 28%);
+  color: #9be7b7;
+  background: rgb(115 217 151 / 8%);
+}
+
+.errorMessage {
+  border: 1px solid rgb(255 180 180 / 28%);
+  color: var(--danger);
+  background: rgb(255 180 180 / 7%);
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.metrics article {
+  display: grid;
+  min-height: 8rem;
+  padding: 1.25rem;
+  border: 1px solid rgb(255 255 255 / 9%);
+  border-radius: 1rem;
+  background:
+    linear-gradient(145deg, rgb(255 255 255 / 4%), transparent 55%),
+    rgb(9 48 58 / 90%);
+}
+
+.metrics span {
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+}
+
+.metrics strong {
+  align-self: end;
+  margin-top: 0.75rem;
+  color: var(--text-primary);
+  font-size: 2rem;
+  font-variation-settings: "wght" 680;
+  line-height: 1;
+}
+
+.metrics small {
+  margin-top: 0.4rem;
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+}
+
+.creationPanel,
+.peoplePanel,
+.companyCard {
+  border: 1px solid rgb(255 255 255 / 9%);
+  border-radius: 1rem;
+  background:
+    linear-gradient(145deg, rgb(255 255 255 / 3%), transparent 55%),
+    rgb(9 48 58 / 90%);
+  box-shadow: 0 0.85rem 2.4rem rgb(0 0 0 / 10%);
+}
+
+.creationPanel,
+.peoplePanel {
+  overflow: hidden;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.4rem 1.5rem;
+  border-bottom: 1px solid rgb(255 255 255 / 8%);
+}
+
+.panelHeader .eyebrow {
+  margin-bottom: 0.35rem;
+}
+
+.panelHeader h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-variation-settings: "wght" 700;
+  line-height: 1.25;
+}
+
+.panelHeader > span {
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  text-align: right;
+}
+
+.creationGrid {
+  display: grid;
+  grid-template-columns: minmax(18rem, 0.8fr) minmax(28rem, 1.2fr);
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.stepCard {
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 0.875rem;
+  background: rgb(255 255 255 / 2%);
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.stepCard[open] {
+  border-color: rgb(101 231 222 / 25%);
+  background: rgb(101 231 222 / 2.5%);
+  box-shadow: inset 0 1px 0 rgb(101 231 222 / 8%);
+}
+
+.stepCard summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 4.75rem;
+  padding: 1rem 1.125rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  list-style: none;
+}
+
+.stepCard summary::-webkit-details-marker {
+  display: none;
+}
+
+.stepCard summary::after {
+  flex: 0 0 auto;
+  content: "+";
+  color: var(--brand-aqua);
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.stepCard[open] > summary {
+  border-bottom: 1px solid rgb(101 231 222 / 11%);
+  background: rgb(101 231 222 / 3%);
+}
+
+.stepCard[open] > summary::after {
+  content: "\2212";
+}
+
+.stepCard summary:focus-visible {
+  outline: 2px solid var(--brand-aqua);
+  outline-offset: -3px;
+}
+
+.stepHeading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.stepHeading > span:last-child {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.stepHeading strong {
+  font-size: 0.9375rem;
+  font-weight: 750;
+  line-height: 1.25;
+}
+
+.stepHeading small {
+  overflow: hidden;
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stepNumber {
+  display: grid;
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid rgb(101 231 222 / 24%);
+  border-radius: 0.625rem;
+  place-items: center;
+  color: var(--brand-aqua);
+  background: rgb(101 231 222 / 8%);
+  font-size: 0.8125rem;
+  font-weight: 800;
+}
+
+.disclosureText {
+  margin-left: auto;
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.personCreation {
+  grid-column: 1 / -1;
+}
+
+.form,
+.personForm,
+.editForm {
+  color-scheme: dark;
+}
+
+.form {
+  display: grid;
+  gap: 1rem;
+  padding: 1.125rem;
+}
+
+.companyForm {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+}
+
+.departmentForm {
+  grid-template-columns: minmax(11rem, 0.9fr) minmax(13rem, 1.1fr) auto;
+  align-items: end;
+}
+
+.personForm {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.25rem;
+  padding: 1.25rem;
+}
+
+.form label,
+.personForm label,
+.editForm label {
+  display: grid;
+  align-content: start;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.form label > span,
+.personForm label > span,
+.editForm label > span {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.055em;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+.form label small,
+.personForm label small,
+.editForm label small {
+  color: var(--text-tertiary);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.form label:has(input:required, select:required) > span::after,
+.personForm label:has(input:required, select:required) > span::after,
+.editForm label:has(input:required, select:required) > span::after {
+  content: " *";
+  color: var(--brand-aqua);
+}
+
+.form input,
+.form select,
+.personForm input,
+.personForm select,
+.editForm input,
+.editForm select {
+  width: 100%;
+  min-width: 0;
+  min-height: 3rem;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid rgb(194 210 213 / 18%);
+  border-radius: 0.75rem;
+  color: var(--text-primary);
+  background: #103b45;
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.form input:hover,
+.form select:hover,
+.personForm input:hover,
+.personForm select:hover,
+.editForm input:hover,
+.editForm select:hover {
+  border-color: rgb(101 231 222 / 34%);
+  background: #12424c;
+}
+
+.form option,
+.personForm option,
+.editForm option {
+  color: var(--text-primary);
+  background: #12343d;
+}
+
+.form input::placeholder,
+.personForm input::placeholder,
+.editForm input::placeholder {
+  color: #9bb2b7;
+  opacity: 1;
+}
+
+.form input:focus,
+.form select:focus,
+.personForm input:focus,
+.personForm select:focus,
+.editForm input:focus,
+.editForm select:focus {
+  border-color: var(--brand-aqua);
+  outline: 2px solid rgb(101 231 222 / 30%);
+  outline-offset: 2px;
+  background: #124650;
+  box-shadow: 0 0 0 4px rgb(101 231 222 / 7%);
+}
+
+.form button,
+.personForm button,
+.editForm button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 10.5rem;
+  min-height: 3rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--brand-aqua);
+  border-radius: 0.75rem;
+  color: var(--brand-black);
+  background: var(--brand-aqua);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  line-height: 1.25;
+  white-space: nowrap;
+  transition:
+    filter 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.form button:hover:not(:disabled),
+.personForm button:hover:not(:disabled),
+.editForm button:hover:not(:disabled) {
+  filter: brightness(1.06);
+  box-shadow: 0 0.5rem 1.25rem rgb(101 231 222 / 13%);
+}
+
+.form button:focus-visible,
+.personForm button:focus-visible,
+.editForm button:focus-visible {
+  outline: 2px solid var(--brand-white);
+  outline-offset: 3px;
+}
+
+.form button:disabled,
+.personForm button:disabled,
+.editForm button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.personSubmit {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding-top: 0.25rem;
+}
+
+.personSubmit p {
+  max-width: 42rem;
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.formNotice {
+  margin: 1rem 1.25rem 0;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid rgb(240 195 106 / 22%);
+  border-radius: 0.625rem;
+  color: #f0c36a;
+  background: rgb(240 195 106 / 7%);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.structureGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.companyCard {
+  overflow: hidden;
+  padding: 1.25rem;
+}
+
+.companyCard header {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.companyCard header > span {
+  display: grid;
+  flex: 0 0 auto;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  place-items: center;
+  color: var(--brand-aqua);
+  background: rgb(101 231 222 / 9%);
+}
+
+.companyCard svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.companyCard header > div {
+  min-width: 0;
+}
+
+.companyCard h2 {
+  overflow: hidden;
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 750;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.companyCard header p {
+  margin: 0.25rem 0 0;
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+}
+
+.companyCard ul {
+  display: grid;
+  gap: 0.65rem;
+  margin: 1rem 0 0;
+  padding: 1rem 0 0;
+  border-top: 1px solid rgb(255 255 255 / 8%);
+  list-style: none;
+}
+
+.companyCard li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.companyCard li > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.companyCard li small,
+.status {
+  flex: 0 0 auto;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid rgb(115 217 151 / 25%);
+  border-radius: 999px;
+  color: #9be7b7;
+  background: rgb(75 185 116 / 10%);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.companyCard li small[data-active="false"],
+.status[data-active="false"] {
+  border-color: rgb(145 168 173 / 24%);
+  color: var(--text-secondary);
+  background: rgb(255 255 255 / 4%);
+}
+
+.companyCard .emptyItem {
+  justify-content: center;
+  color: var(--text-tertiary);
+}
+
+.peopleList {
+  display: grid;
+}
+
+.personRow {
+  border-top: 1px solid rgb(255 255 255 / 7%);
+}
+
+.personRow:first-child {
+  border-top: 0;
+}
+
+.personRow summary {
+  display: grid;
+  grid-template-columns: auto minmax(12rem, 1.3fr) minmax(10rem, 0.8fr) auto auto;
+  align-items: center;
+  gap: 1rem;
+  min-height: 4.75rem;
+  padding: 0.9rem 1.25rem;
+  cursor: pointer;
+  list-style: none;
+  transition: background-color 160ms ease;
+}
+
+.personRow summary::-webkit-details-marker {
+  display: none;
+}
+
+.personRow summary:hover,
+.personRow[open] summary {
+  background: rgb(101 231 222 / 3%);
+}
+
+.personRow summary::after {
+  content: "+";
+  color: var(--brand-aqua);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.personRow[open] summary::after {
+  content: "\2212";
+}
+
+.personRow summary:focus-visible {
+  outline: 2px solid var(--brand-aqua);
+  outline-offset: -3px;
+}
+
+.avatar {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--border-accent);
+  border-radius: 0.75rem;
+  place-items: center;
+  color: var(--brand-aqua);
+  background: rgb(101 231 222 / 8%);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.personIdentity,
+.personManager {
+  display: grid;
+  min-width: 0;
+  gap: 0.25rem;
+}
+
+.personIdentity strong,
+.personManager strong {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.personIdentity small,
+.personManager small {
+  overflow: hidden;
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editForm {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 1.25rem;
+  border-top: 1px solid rgb(255 255 255 / 7%);
+  background: rgb(0 0 0 / 8%);
+}
+
+.reasonField {
+  grid-column: span 2;
+}
+
+.personMeta {
+  display: flex;
+  grid-column: 1 / -2;
+  align-items: center;
+  gap: 0.875rem;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.personMeta span {
+  padding-right: 0.875rem;
+  border-right: 1px solid rgb(255 255 255 / 9%);
+  white-space: nowrap;
+}
+
+.personMeta span:last-child {
+  padding-right: 0;
+  border: 0;
+}
+
+.emptyState {
+  margin: 0;
+  padding: 2rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+@media (max-width: 78rem) {
+  .creationGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .personCreation {
+    grid-column: auto;
+  }
+
+  .structureGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .editForm {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .personMeta {
+    grid-column: 1 / -1;
+  }
+
+  .editForm button {
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
+}
+
+@media (max-width: 64rem) {
+  .metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .companyForm,
+  .departmentForm {
+    grid-template-columns: 1fr;
+  }
+
+  .form button {
+    justify-self: end;
+  }
+
+  .personRow summary {
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+  }
+
+  .personManager {
+    display: none;
+  }
+}
+
+@media (max-width: 48rem) {
+  .page {
+    gap: 1rem;
+  }
+
+  .hero,
+  .panelHeader {
+    display: grid;
+  }
+
+  .hero {
+    gap: 1rem;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .scopeBadge {
+    justify-self: start;
+    white-space: normal;
+  }
+
+  .metrics,
+  .structureGrid,
+  .personForm,
+  .editForm {
+    grid-template-columns: 1fr;
+  }
+
+  .panelHeader {
+    gap: 0.5rem;
+    padding: 1.125rem;
+  }
+
+  .panelHeader > span {
+    text-align: left;
+  }
+
+  .creationGrid {
+    min-width: 0;
+    padding: 0.75rem;
+  }
+
+  .stepCard summary {
+    min-height: 4.5rem;
+    padding: 0.875rem;
+  }
+
+  .disclosureText {
+    display: none;
+  }
+
+  .form,
+  .personForm,
+  .editForm {
+    padding: 1rem;
+  }
+
+  .form input,
+  .form select,
+  .personForm input,
+  .personForm select,
+  .editForm input,
+  .editForm select {
+    font-size: 1rem;
+  }
+
+  .form button,
+  .personForm button,
+  .editForm button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .personSubmit {
+    display: grid;
+    grid-column: auto;
+    justify-content: stretch;
+  }
+
+  .reasonField,
+  .personMeta,
+  .editForm button {
+    grid-column: auto;
+  }
+
+  .personRow summary {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    padding: 0.875rem;
+  }
+
+  .status {
+    display: none;
+  }
+
+  .personMeta {
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  .personMeta span {
+    padding: 0;
+    border: 0;
+    white-space: normal;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stepCard,
+  .form input,
+  .form select,
+  .personForm input,
+  .personForm select,
+  .editForm input,
+  .editForm select,
+  .form button,
+  .personForm button,
+  .editForm button,
+  .personRow summary {
+    transition: none;
+  }
+}
