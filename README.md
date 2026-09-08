@@ -34,6 +34,7 @@ PDI e geração de PDF ficam fora do MVP e serão tratados na fase 2.
 - [Segurança e ameaças](docs/SEGURANCA.md)
 - [Dados e privacidade](docs/DADOS_E_PRIVACIDADE.md)
 - [Supabase e migrations](docs/SUPABASE.md)
+- [Runbook de entrega do MVP](docs/ENTREGA_MVP.md)
 
 ## Stack aprovada
 
