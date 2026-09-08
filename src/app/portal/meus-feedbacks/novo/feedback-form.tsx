@@ -5,7 +5,14 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { saveFeedbackAction, type FeedbackActionState } from "./actions";
 import styles from "../feedback.module.css";
 
-type PersonOption = Readonly<{ id: string; fullName: string; jobTitle: string; companyName: string; departmentName: string }>;
+type PersonOption = Readonly<{
+  id: string;
+  fullName: string;
+  jobTitle: string;
+  companyName: string;
+  departmentName: string;
+  assessmentType: "SELF" | "MANAGER";
+}>;
 type QuestionOption = Readonly<{ id: string; prompt: string; type: "RATING" | "LONG_TEXT" | "SHORT_TEXT"; required: boolean; minimum: number | null; maximum: number | null }>;
 type InitialAnswer = Readonly<{ questionId: string; rating: number | null; text: string | null }>;
 
@@ -28,6 +35,7 @@ export function FeedbackForm({ cycle, people, questions, initialPersonId = "", i
   });
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const selectedPerson = people.find(({ id }) => id === selectedPersonId);
+  const isSelfAssessment = selectedPerson?.assessmentType === "SELF";
   const ratingQuestions = questions.filter(({ type }) => type === "RATING");
   const textQuestions = questions.filter(({ type }) => type !== "RATING");
 
@@ -51,13 +59,14 @@ export function FeedbackForm({ cycle, people, questions, initialPersonId = "", i
       {state.message ? <div className={styles.errorSummary} role="alert" tabIndex={-1} ref={errorSummaryRef}><strong>Não foi possível continuar</strong><p>{state.message}</p></div> : null}
 
       <section className={styles.formSection} aria-labelledby="cycle-person-title">
-        <header><h2 id="cycle-person-title">Ciclo e colaborador</h2></header>
+        <header><h2 id="cycle-person-title">Ciclo e pessoa avaliada</h2></header>
         <div className={styles.formGrid}>
           <label><span>Ciclo</span><input value={`${cycle.name} (aberto)`} readOnly aria-readonly="true" /></label>
-          <label><span>Liderado</span><select name="subjectPersonId" required value={selectedPersonId} onChange={(event) => setSelectedPersonId(event.target.value)}><option value="">Selecione um colaborador</option>{people.map((person) => <option value={person.id} key={person.id}>{person.fullName}</option>)}</select></label>
-          <label><span>Empresa</span><input value={selectedPerson?.companyName ?? "Selecione um colaborador"} readOnly /></label>
-          <label><span>Área</span><input value={selectedPerson?.departmentName ?? "Selecione um colaborador"} readOnly /></label>
+          <label><span>Pessoa avaliada</span><select name="subjectPersonId" required value={selectedPersonId} onChange={(event) => setSelectedPersonId(event.target.value)}><option value="">Selecione uma pessoa</option>{people.map((person) => <option value={person.id} key={person.id}>{person.assessmentType === "SELF" ? "Você (autoavaliação)" : person.fullName}</option>)}</select></label>
+          <label><span>Empresa</span><input value={selectedPerson?.companyName ?? "Selecione uma pessoa"} readOnly /></label>
+          <label><span>Área</span><input value={selectedPerson?.departmentName ?? "Selecione uma pessoa"} readOnly /></label>
         </div>
+        {selectedPerson ? <p className={styles.assessmentHint} role="status">{isSelfAssessment ? "Você está preenchendo sua autoavaliação." : `Você está avaliando ${selectedPerson.fullName} como gestor direto.`}</p> : null}
       </section>
 
       <section className={styles.formSection} aria-labelledby="competencies-title">
@@ -116,7 +125,7 @@ export function FeedbackForm({ cycle, people, questions, initialPersonId = "", i
 
       {textQuestions.length > 0 ? <section className={styles.formSection} aria-labelledby="comments-title"><header><h2 id="comments-title">Comentários</h2></header><div className={styles.commentsGrid}>{textQuestions.map((question) => { const [title, description] = splitPrompt(question.prompt); const initialText = initialAnswers.find((answer) => answer.questionId === question.id)?.text ?? ""; return <label key={question.id} htmlFor={`answer-${question.id}`}><span>{title}{question.required ? " *" : ""}</span>{description ? <small>{description}</small> : null}<textarea id={`answer-${question.id}`} name={`answer.${question.id}`} rows={5} defaultValue={initialText} aria-invalid={Boolean(state.fieldErrors[question.id])} aria-describedby={state.fieldErrors[question.id] ? `error-${question.id}` : undefined} />{state.fieldErrors[question.id] ? <small className={styles.fieldError} id={`error-${question.id}`}>{state.fieldErrors[question.id]}</small> : null}</label>; })}</div></section> : null}
 
-      <footer className={styles.formActions}><button type="submit" name="intent" value="draft" disabled={pending}>Salvar rascunho</button><button className={styles.primaryButton} type="submit" name="intent" value="submit" disabled={pending}>{pending ? "Salvando..." : "Concluir feedback"}</button></footer>
+      <footer className={styles.formActions}><button type="submit" name="intent" value="draft" disabled={pending}>Salvar rascunho</button><button className={styles.primaryButton} type="submit" name="intent" value="submit" disabled={pending}>{pending ? "Salvando..." : isSelfAssessment ? "Concluir autoavaliação" : "Concluir feedback"}</button></footer>
     </form>
   );
 }

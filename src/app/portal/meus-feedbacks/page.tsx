@@ -42,7 +42,7 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
 
   const metrics = [
     ["Total de feedbacks", overview.metrics.total],
-    ["Realizados", overview.metrics.submitted],
+    ["Concluídos", overview.metrics.submitted],
     ["Rascunhos", overview.metrics.drafts],
     ["Recebidos", overview.metrics.received],
   ] as const;
@@ -53,7 +53,7 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
         {saved === "enviado" || saved === "rascunho" ? (
           <div className={styles.successMessage} role="status">
             {saved === "enviado"
-              ? "Feedback concluído e protegido contra alterações."
+              ? "Avaliação concluída e protegida contra alterações."
               : "Rascunho salvo com sucesso."}
           </div>
         ) : null}
@@ -61,9 +61,12 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
           <div>
             <p className={styles.eyebrow}>Desenvolvimento</p>
             <h1>Feedback</h1>
-            <p>Acompanhe os feedbacks que você deu e recebeu durante os ciclos.</p>
+            <p>Acompanhe feedbacks de liderança e autoavaliações durante os ciclos.</p>
           </div>
-          {overview.canStart ? <Link className={styles.primaryButton} href="/portal/meus-feedbacks/novo">Novo feedback</Link> : null}
+          <div className={styles.heroActions}>
+            {actor.roles.includes("HR_ADMIN") ? <a className={styles.secondaryButton} href="/api/portal/meus-feedbacks/export">Exportar CSV</a> : null}
+            {overview.canStart ? <Link className={styles.primaryButton} href="/portal/meus-feedbacks/novo">Nova avaliação</Link> : null}
+          </div>
         </header>
 
         <section className={styles.metrics} aria-label="Resumo de feedbacks">
@@ -88,7 +91,7 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
               </div>
               {rows.map((row) => (
                 <div className={styles.tableRow} role="row" key={row.id}>
-                  <span role="cell" data-label="Avaliado">{row.subjectName}</span>
+                  <span role="cell" data-label="Avaliado" className={styles.subjectCell}>{row.subjectName}{row.assessmentType === "SELF" ? <small>Autoavaliação</small> : null}</span>
                   <span role="cell" data-label="Avaliador">{row.evaluatorName}</span>
                   <span role="cell" data-label="Empresa">{row.companyName}</span>
                   <span role="cell" data-label="Ciclo">{row.cycleName}</span>

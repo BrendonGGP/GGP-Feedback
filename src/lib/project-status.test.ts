@@ -3,10 +3,10 @@ import { describe, expect, it } from "vitest";
 import { CURRENT_PROJECT_STATUS } from "./project-status";
 
 describe("CURRENT_PROJECT_STATUS", () => {
-  it("descreve a etapa inicial sem prometer funcionalidade pronta", () => {
+  it("descreve a etapa funcional e o próximo marco do MVP", () => {
     expect(CURRENT_PROJECT_STATUS).toEqual({
-      phase: "Fundação técnica",
-      nextMilestone: "Autenticação e autorização",
+      phase: "Implementação funcional do MVP",
+      nextMilestone: "Homologação funcional do MVP",
     });
   });
 });
