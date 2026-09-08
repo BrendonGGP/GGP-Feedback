@@ -4,6 +4,7 @@ import {
   canAdministerHrDomain,
   canAdministerSystem,
   canCreateFeedbackForPerson,
+  canCreateSelfAssessment,
   canReadFeedbackContent,
   canReadPdiContent,
   canViewPerson,
@@ -130,6 +131,36 @@ describe("limites dos perfis de acesso", () => {
         managerId: "employee",
       }),
     ).toBe(false);
+    expect(
+      canCreateSelfAssessment(employee, {
+        subjectPersonId: "employee",
+        selfAssessmentEnabled: true,
+      }),
+    ).toBe(true);
+    expect(
+      canCreateSelfAssessment(employee, {
+        subjectPersonId: "another-employee",
+        selfAssessmentEnabled: true,
+      }),
+    ).toBe(false);
+    expect(
+      canCreateSelfAssessment(employee, {
+        subjectPersonId: "employee",
+        selfAssessmentEnabled: false,
+      }),
+    ).toBe(false);
+    expect(
+      canCreateSelfAssessment(actor("manager", ["MANAGER"]), {
+        subjectPersonId: "manager",
+        selfAssessmentEnabled: true,
+      }),
+    ).toBe(false);
+    expect(
+      canCreateSelfAssessment(actor("manager-employee", ["MANAGER", "EMPLOYEE"]), {
+        subjectPersonId: "manager-employee",
+        selfAssessmentEnabled: true,
+      }),
+    ).toBe(true);
   });
 
   it("falha fechado para papeis ausentes ou combinacao tecnica mista", () => {
@@ -150,6 +181,24 @@ describe("limites dos perfis de acesso", () => {
       canReadFeedbackContent(actor("mixed", ["SYSTEM_ADMIN", "HR_ADMIN"]), {
         subjectPersonId: "employee",
         evaluatorPersonId: "manager",
+      }),
+    ).toBe(false);
+    expect(
+      canCreateSelfAssessment(actor("system", ["SYSTEM_ADMIN"]), {
+        subjectPersonId: "system",
+        selfAssessmentEnabled: true,
+      }),
+    ).toBe(false);
+    expect(
+      canCreateSelfAssessment(actor("rh", ["HR_ADMIN"]), {
+        subjectPersonId: "rh",
+        selfAssessmentEnabled: true,
+      }),
+    ).toBe(false);
+    expect(
+      canCreateSelfAssessment(actor("mixed", ["SYSTEM_ADMIN", "EMPLOYEE"]), {
+        subjectPersonId: "mixed",
+        selfAssessmentEnabled: true,
       }),
     ).toBe(false);
   });

@@ -53,3 +53,8 @@ inicializa o Auth.js; ele não concede acesso a nenhum ambiente externo.
   existência do handler `/api/auth` não autoriza nenhuma consulta por si só.
 - RLS de negócio permanece fail-closed até a identidade da sessão ser propagada
   ao PostgreSQL por uma conexão de runtime de menor privilégio.
+- A recuperação de senha usa token aleatório de uso único, armazenado somente
+  por hash, com expiração de 30 minutos e revogação das sessões após a troca.
+- A solicitação sempre responde de forma genérica. Em desenvolvimento, o link
+  é exibido apenas para validação local; produção exige um transportador de
+  e-mail configurado antes da liberação.

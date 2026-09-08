@@ -4,6 +4,8 @@ import { z } from "zod";
 import type { AuthenticatedActor } from "@/lib/auth/session";
 import {
   canCreateFeedbackForPerson,
+  canCreateSelfAssessment,
+  canAdministerHrDomain,
   resolveFeedbackReadScope,
 } from "@/lib/authorization/access-control";
 import {
@@ -11,6 +13,9 @@ import {
   type FeedbackIntent,
 } from "@/lib/feedback/feedback-validation";
 import { prisma } from "@/lib/prisma";
+import { serializeCsv } from "@/lib/feedback/csv";
+
+const MAX_EXPORT_ROWS = 5000;
 
 const isFunctionalActor = (actor: AuthenticatedActor): boolean =>
   !actor.roles.includes("SYSTEM_ADMIN") &&
@@ -37,13 +42,31 @@ export const getFeedbackOverview = async (actor: AuthenticatedActor) => {
   }
 
   const where = visibilityWhere(actor);
-  const [total, drafts, submitted, received, rows, canStart] = await prisma.$transaction([
+  const now = new Date();
+  const [
+    total,
+    drafts,
+    submitted,
+    received,
+    rows,
+    directReportCount,
+    openCycleCount,
+    selfAssessmentCycleCount,
+    activeSelfCount,
+  ] = await prisma.$transaction([
     prisma.feedback.count({ where }),
     prisma.feedback.count({ where: { AND: [where, { status: "DRAFT" }] } }),
     prisma.feedback.count({ where: { AND: [where, { status: "SUBMITTED" }] } }),
     prisma.feedback.count({
       where: {
-        AND: [where, { subjectPersonId: actor.personId, status: "SUBMITTED" }],
+        AND: [
+          where,
+          {
+            subjectPersonId: actor.personId,
+            evaluatorPersonId: { not: actor.personId },
+            status: "SUBMITTED",
+          },
+        ],
       },
     }),
     prisma.feedback.findMany({
@@ -63,17 +86,47 @@ export const getFeedbackOverview = async (actor: AuthenticatedActor) => {
       },
     }),
     prisma.person.count({ where: { managerId: actor.personId, active: true } }),
+    prisma.cycle.count({
+      where: {
+        status: "OPEN",
+        startsAt: { lte: now },
+        endsAt: { gte: now },
+        cycleTemplates: {
+          some: {
+            template: { active: true, questions: { some: { active: true } } },
+          },
+        },
+      },
+    }),
+    prisma.cycle.count({
+      where: {
+        status: "OPEN",
+        startsAt: { lte: now },
+        endsAt: { gte: now },
+        selfAssessmentEnabled: true,
+        cycleTemplates: {
+          some: {
+            template: { active: true, questions: { some: { active: true } } },
+          },
+        },
+      },
+    }),
+    prisma.person.count({ where: { id: actor.personId, active: true } }),
   ]);
 
   return {
     metrics: { total, drafts, submitted, received },
-    canStart: actor.roles.includes("MANAGER") && canStart > 0,
+    canStart:
+      (actor.roles.includes("MANAGER") && directReportCount > 0 && openCycleCount > 0) ||
+      (actor.roles.includes("EMPLOYEE") && activeSelfCount > 0 && selfAssessmentCycleCount > 0),
     rows: rows.map((feedback) => ({
       id: feedback.id,
       subjectName:
         feedback.subject.id === actor.personId ? "Você" : feedback.subject.fullName,
       evaluatorName:
         feedback.evaluator.id === actor.personId ? "Você" : feedback.evaluator.fullName,
+      assessmentType:
+        feedback.subject.id === feedback.evaluator.id ? "SELF" as const : "MANAGER" as const,
       companyName: feedback.subject.company.name,
       cycleName: feedback.cycle.name,
       status: feedback.status,
@@ -82,28 +135,134 @@ export const getFeedbackOverview = async (actor: AuthenticatedActor) => {
   };
 };
 
+export type FeedbackExportResult =
+  | Readonly<{ ok: true; csv: string }>
+  | Readonly<{ ok: false; status: 403 | 422; message: string }>;
+
+export const getFeedbackExportCsv = async (
+  actor: AuthenticatedActor,
+): Promise<FeedbackExportResult> => {
+  if (!canAdministerHrDomain(actor)) {
+    return { ok: false, status: 403, message: "Exportação não autorizada." };
+  }
+
+  const where = visibilityWhere(actor);
+  try {
+    return await prisma.$transaction(async (transaction) => {
+      const total = await transaction.feedback.count({ where });
+      if (total > MAX_EXPORT_ROWS) {
+        return {
+          ok: false as const,
+          status: 422 as const,
+          message: "A exportação excede o limite permitido. Aplique filtros e tente novamente.",
+        };
+      }
+
+      const feedbacks = await transaction.feedback.findMany({
+        where,
+        orderBy: [{ cycle: { endsAt: "desc" } }, { createdAt: "desc" }],
+        select: {
+          status: true,
+          createdAt: true,
+          submittedAt: true,
+          cycle: { select: { name: true } },
+          subject: {
+            select: {
+              id: true,
+              fullName: true,
+              company: { select: { name: true } },
+              department: { select: { name: true } },
+            },
+          },
+          evaluator: { select: { id: true, fullName: true } },
+          answers: {
+            orderBy: { question: { position: "asc" } },
+            select: {
+              rating: true,
+              text: true,
+              question: { select: { prompt: true } },
+            },
+          },
+        },
+      });
+
+      const csv = serializeCsv(
+        [
+          "Avaliado",
+          "Avaliador",
+          "Empresa",
+          "Departamento",
+          "Ciclo",
+          "Tipo",
+          "Status",
+          "Data",
+          "Respostas",
+        ],
+        feedbacks.map((feedback) => [
+          feedback.subject.fullName,
+          feedback.evaluator.fullName,
+          feedback.subject.company.name,
+          feedback.subject.department.name,
+          feedback.cycle.name,
+          feedback.subject.id === feedback.evaluator.id ? "Autoavaliação" : "Feedback",
+          feedback.status === "DRAFT" ? "Rascunho" : "Enviado",
+          (feedback.submittedAt ?? feedback.createdAt).toISOString(),
+          feedback.answers
+            .map((answer) => `${answer.question.prompt}: ${answer.rating ?? answer.text ?? ""}`)
+            .join("\n"),
+        ]),
+      );
+
+      await transaction.auditEvent.create({
+        data: {
+          actorAccountId: actor.accountId,
+          requestId: crypto.randomUUID(),
+          action: "EXPORT_FEEDBACK_CSV",
+          entityType: "Feedback",
+          entityId: null,
+          result: "SUCCESS",
+          metadata: { rowCount: feedbacks.length, scope: "HR_ADMIN" },
+        },
+      });
+
+      return { ok: true as const, csv };
+    });
+  } catch {
+    return { ok: false, status: 422, message: "Não foi possível gerar a exportação." };
+  }
+};
+
 export const getNewFeedbackContext = async (
   actor: AuthenticatedActor,
   draftId?: string,
 ) => {
-  if (!isFunctionalActor(actor) || !actor.roles.includes("MANAGER")) {
+  const canEvaluateDirectReports = actor.roles.includes("MANAGER");
+  const canAssessSelf = actor.roles.includes("EMPLOYEE");
+  if (!isFunctionalActor(actor) || (!canEvaluateDirectReports && !canAssessSelf)) {
     return null;
   }
 
   const now = new Date();
   const parsedDraftId = z.string().uuid().safeParse(draftId);
-  const [cycle, directReports, draft] = await prisma.$transaction(async (transaction) => {
-    const cycle = await transaction.cycle.findFirst({
+  const [cycles, directReports, self, draft] = await prisma.$transaction(async (transaction) => {
+    const cycles = await transaction.cycle.findMany({
       where: {
         status: "OPEN",
         startsAt: { lte: now },
         endsAt: { gte: now },
+        cycleTemplates: {
+          some: {
+            template: { active: true, questions: { some: { active: true } } },
+          },
+        },
       },
       orderBy: { endsAt: "asc" },
       select: {
         id: true,
         name: true,
+        selfAssessmentEnabled: true,
         cycleTemplates: {
+          where: { template: { active: true } },
           take: 1,
           select: {
             template: {
@@ -126,18 +285,27 @@ export const getNewFeedbackContext = async (
         },
       },
     });
-    const directReports = await transaction.person.findMany({
-      where: { managerId: actor.personId, active: true },
-      orderBy: { fullName: "asc" },
-      select: {
-        id: true,
-        fullName: true,
-        jobTitle: true,
-        managerId: true,
-        company: { select: { name: true } },
-        department: { select: { name: true } },
-      },
-    });
+    const personSelection = {
+      id: true,
+      fullName: true,
+      jobTitle: true,
+      managerId: true,
+      company: { select: { name: true } },
+      department: { select: { name: true } },
+    } satisfies Prisma.PersonSelect;
+    const directReports = canEvaluateDirectReports
+      ? await transaction.person.findMany({
+          where: { managerId: actor.personId, active: true },
+          orderBy: { fullName: "asc" },
+          select: personSelection,
+        })
+      : [];
+    const self = canAssessSelf
+      ? await transaction.person.findFirst({
+          where: { id: actor.personId, active: true },
+          select: personSelection,
+        })
+      : null;
     const draft = parsedDraftId.success
       ? await transaction.feedback.findFirst({
           where: {
@@ -153,31 +321,76 @@ export const getNewFeedbackContext = async (
           },
         })
       : null;
-    return [cycle, directReports, draft] as const;
+    return [cycles, directReports, self, draft] as const;
   });
 
+  const eligibleCycles = cycles.filter(
+    (cycle) =>
+      (cycle.cycleTemplates[0]?.template.questions.length ?? 0) > 0 &&
+      (directReports.length > 0 || Boolean(self && cycle.selfAssessmentEnabled)),
+  );
+  const cycle = draft
+    ? eligibleCycles.find((candidate) => candidate.id === draft.cycleId) ?? null
+    : eligibleCycles[0] ?? null;
   const questions = cycle?.cycleTemplates[0]?.template.questions ?? [];
-  const draftMatchesCurrentCycle = Boolean(draft && cycle && draft.cycleId === cycle.id);
+  const draftMatchesCurrentCycle = Boolean(draft && cycle);
   const draftIsAuthorized = Boolean(
     draftMatchesCurrentCycle &&
       draft &&
-      canCreateFeedbackForPerson(actor, {
-        personId: draft.subjectPersonId,
-        managerId: draft.subject.managerId,
-      }),
+      (
+        canCreateFeedbackForPerson(actor, {
+          personId: draft.subjectPersonId,
+          managerId: draft.subject.managerId,
+        }) ||
+        canCreateSelfAssessment(actor, {
+          subjectPersonId: draft.subjectPersonId,
+          selfAssessmentEnabled: cycle?.selfAssessmentEnabled ?? false,
+        })
+      ),
   );
-  return {
-    cycle: cycle ? { id: cycle.id, name: cycle.name } : null,
-    people: directReports.filter((person) => canCreateFeedbackForPerson(actor, {
+  const people: Array<{
+    id: string;
+    fullName: string;
+    jobTitle: string;
+    companyName: string;
+    departmentName: string;
+    assessmentType: "SELF" | "MANAGER";
+  }> = directReports
+    .filter((person) => canCreateFeedbackForPerson(actor, {
       personId: person.id,
       managerId: person.managerId,
-    })).map((person) => ({
+    }))
+    .map((person) => ({
       id: person.id,
       fullName: person.fullName,
       jobTitle: person.jobTitle,
       companyName: person.company.name,
       departmentName: person.department.name,
-    })),
+      assessmentType: "MANAGER" as const,
+    }));
+  if (
+    self &&
+    cycle &&
+    canCreateSelfAssessment(actor, {
+      subjectPersonId: self.id,
+      selfAssessmentEnabled: cycle.selfAssessmentEnabled,
+    })
+  ) {
+    people.unshift({
+      id: self.id,
+      fullName: self.fullName,
+      jobTitle: self.jobTitle,
+      companyName: self.company.name,
+      departmentName: self.department.name,
+      assessmentType: "SELF",
+    });
+  }
+
+  return {
+    cycle: cycle
+      ? { id: cycle.id, name: cycle.name, selfAssessmentEnabled: cycle.selfAssessmentEnabled }
+      : null,
+    people,
     questions,
     draft: draftIsAuthorized && draft
       ? { subjectPersonId: draft.subjectPersonId, answers: draft.answers }
@@ -200,7 +413,15 @@ export const getFeedbackDetail = async (
       status: true,
       createdAt: true,
       submittedAt: true,
-      cycle: { select: { name: true } },
+      cycle: {
+        select: {
+          name: true,
+          status: true,
+          startsAt: true,
+          endsAt: true,
+          selfAssessmentEnabled: true,
+        },
+      },
       subject: {
         select: {
           id: true,
@@ -225,13 +446,25 @@ export const getFeedbackDetail = async (
 
   if (!feedback) return null;
 
+  const now = new Date();
+  const cycleIsOpen =
+    feedback.cycle.status === "OPEN" &&
+    feedback.cycle.startsAt <= now &&
+    feedback.cycle.endsAt >= now;
   const canEdit =
     feedback.status === "DRAFT" &&
+    cycleIsOpen &&
     feedback.evaluator.id === actor.personId &&
-    canCreateFeedbackForPerson(actor, {
-      personId: feedback.subject.id,
-      managerId: feedback.subject.managerId,
-    });
+    (
+      canCreateFeedbackForPerson(actor, {
+        personId: feedback.subject.id,
+        managerId: feedback.subject.managerId,
+      }) ||
+      canCreateSelfAssessment(actor, {
+        subjectPersonId: feedback.subject.id,
+        selfAssessmentEnabled: feedback.cycle.selfAssessmentEnabled,
+      })
+    );
 
   return {
     id: feedback.id,
@@ -247,6 +480,8 @@ export const getFeedbackDetail = async (
       departmentName: feedback.subject.department.name,
     },
     evaluatorName: feedback.evaluator.id === actor.personId ? "Você" : feedback.evaluator.fullName,
+    assessmentType:
+      feedback.subject.id === feedback.evaluator.id ? "SELF" as const : "MANAGER" as const,
     canEdit,
     answers: feedback.answers.map((answer) => ({
       questionId: answer.question.id,
@@ -277,7 +512,7 @@ export const saveFeedback = async (
   actor: AuthenticatedActor,
   input: SaveFeedbackInput,
 ): Promise<SaveFeedbackResult> => {
-  if (!isFunctionalActor(actor) || !actor.roles.includes("MANAGER")) {
+  if (!isFunctionalActor(actor)) {
     return { ok: false, message: "Não foi possível salvar este feedback.", fieldErrors: {} };
   }
 
@@ -297,7 +532,9 @@ export const saveFeedback = async (
             endsAt: { gte: now },
           },
           select: {
+            selfAssessmentEnabled: true,
             cycleTemplates: {
+              where: { template: { active: true } },
               take: 1,
               select: {
                 template: {
@@ -323,10 +560,16 @@ export const saveFeedback = async (
 
       if (
         !subject?.active ||
-        !canCreateFeedbackForPerson(actor, {
-          personId: subject?.id ?? "",
-          managerId: subject?.managerId ?? null,
-        }) ||
+        !(
+          canCreateFeedbackForPerson(actor, {
+            personId: subject?.id ?? "",
+            managerId: subject?.managerId ?? null,
+          }) ||
+          canCreateSelfAssessment(actor, {
+            subjectPersonId: subject?.id ?? "",
+            selfAssessmentEnabled: cycle?.selfAssessmentEnabled ?? false,
+          })
+        ) ||
         !cycle
       ) {
         return { ok: false as const, message: "Não foi possível salvar este feedback.", fieldErrors: {} };
@@ -407,7 +650,11 @@ export const saveFeedback = async (
           entityType: "Feedback",
           entityId: feedbackId,
           result: "SUCCESS",
-          metadata: { answerCount: validation.answers.length, status },
+          metadata: {
+            answerCount: validation.answers.length,
+            status,
+            assessmentType: subject.id === actor.personId ? "SELF" : "MANAGER",
+          },
         },
       });
 

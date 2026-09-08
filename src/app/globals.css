@@ -419,6 +419,13 @@ select:open {
   line-height: 1.5;
 }
 
+.login-success { margin:-0.25rem 0 0; padding:var(--space-3) var(--space-4); border:1px solid rgb(115 217 151 / 25%); border-radius:var(--radius-sm); color:#9be7b7; background:rgb(115 217 151 / 8%); font-size:.8125rem; line-height:1.5; }
+.forgot-password-link,.auth-back-link,.dev-reset-link { color:var(--brand-aqua); font-size:.78rem; font-weight:700; text-align:center; text-decoration:none; }
+.forgot-password-link { justify-self:end; margin-top:-.75rem; }
+.auth-back-link { justify-self:center; color:var(--text-secondary); }
+.dev-reset-link { padding:.7rem .8rem; border:1px solid rgb(101 231 222 / 22%); border-radius:.65rem; background:rgb(101 231 222 / 6%); }
+.password-reset-page .login-card-header { margin-bottom:var(--space-6); }
+
 .submit-button,
 .portal-sign-out {
   display: inline-flex;

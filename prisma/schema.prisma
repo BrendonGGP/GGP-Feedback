@@ -115,6 +115,8 @@ model AccessAccount {
   passwordChangedAt  DateTime?               @map("password_changed_at") @db.Timestamptz(3)
   lastLoginAt        DateTime?               @map("last_login_at") @db.Timestamptz(3)
   sessionVersion     Int                     @default(1) @map("session_version")
+  passwordResetTokenHash String?             @unique @map("password_reset_token_hash") @db.VarChar(128)
+  passwordResetExpiresAt DateTime?           @map("password_reset_expires_at") @db.Timestamptz(3)
   createdAt          DateTime                @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt          DateTime                @updatedAt @map("updated_at") @db.Timestamptz(3)
   person             Person                  @relation(fields: [personId], references: [id], onDelete: Restrict)
@@ -125,6 +127,7 @@ model AccessAccount {
 
   @@index([status])
   @@index([loginIdentifier])
+  @@index([passwordResetExpiresAt])
   @@map("access_accounts")
 }
 

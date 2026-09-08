@@ -51,9 +51,13 @@ gestor também pode receber feedback do próprio gestor.
 ## Regras de conteúdo
 
 - RH acessa o conteúdo funcional no escopo de todas as empresas autorizadas.
+- RH pode exportar os feedbacks autorizados em CSV; a exportação não está
+  disponível para os demais perfis.
 - Gestor enxerga os liderados diretos atuais e lê apenas feedbacks em que consta
   como avaliador; uma troca de gestor não transfere feedbacks históricos.
 - Colaborador lê apenas feedbacks em que consta como pessoa avaliada.
+- Colaborador cria a própria autoavaliação somente quando o ciclo vigente
+  estiver aberto e com autoavaliação habilitada; nunca seleciona outra pessoa.
 - Administrador do Sistema não lê feedbacks nem PDI, mesmo em uma atribuição de
   papéis inválida ou ambígua.
 - Ausência, ambiguidade ou combinação inválida de papéis resulta em bloqueio.

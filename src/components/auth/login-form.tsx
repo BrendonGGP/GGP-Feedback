@@ -1,6 +1,7 @@
 "use client";
 
 import { signIn } from "next-auth/react";
+import Link from "next/link";
 import { FormEvent, KeyboardEvent, useId, useState } from "react";
 
 const GENERIC_LOGIN_ERROR =
@@ -125,6 +126,10 @@ export function LoginForm() {
           {errorMessage}
         </p>
       ) : null}
+
+      <Link className="forgot-password-link" href="/recuperar-senha">
+        Esqueci minha senha
+      </Link>
 
       <button className="submit-button" type="submit" disabled={isSubmitting} data-entrance="field">
         <span>{isSubmitting ? "Validando acesso..." : "Entrar no portal"}</span>

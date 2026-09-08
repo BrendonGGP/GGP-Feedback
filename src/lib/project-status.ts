@@ -4,6 +4,6 @@ export type ProjectStatus = Readonly<{
 }>;
 
 export const CURRENT_PROJECT_STATUS = {
-  phase: "Fundação técnica",
-  nextMilestone: "Autenticação e autorização",
+  phase: "Implementação funcional do MVP",
+  nextMilestone: "Homologação funcional do MVP",
 } as const satisfies ProjectStatus;

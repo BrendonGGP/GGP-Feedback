@@ -22,6 +22,11 @@ export type FeedbackScope = Readonly<{
   evaluatorPersonId: string;
 }>;
 
+export type SelfAssessmentScope = Readonly<{
+  subjectPersonId: string;
+  selfAssessmentEnabled: boolean;
+}>;
+
 export type FeedbackReadScope = "NONE" | "ALL" | "SELF_AND_AUTHORED" | "SELF";
 
 export const isAccessRole = (value: unknown): value is AccessRole =>
@@ -117,6 +122,21 @@ export const canCreateFeedbackForPerson = (
     hasRole(actor, "MANAGER") &&
     subject.personId !== actor.personId &&
     subject.managerId === actor.personId
+  );
+};
+
+export const canCreateSelfAssessment = (
+  actor: AuthorizationActor,
+  assessment: SelfAssessmentScope,
+): boolean => {
+  if (!hasUsableRoles(actor) || hasRole(actor, "SYSTEM_ADMIN")) {
+    return false;
+  }
+
+  return (
+    hasRole(actor, "EMPLOYEE") &&
+    assessment.selfAssessmentEnabled &&
+    assessment.subjectPersonId === actor.personId
   );
 };
 
