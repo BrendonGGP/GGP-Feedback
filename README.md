@@ -12,7 +12,7 @@ dados reais e deploy permanecem pendentes.
 
 ## Escopo do MVP
 
-- autenticação por identificador interno ou e-mail corporativo;
+- autenticação por nome de usuário (formato `nome.sobrenome`);
 - perfis de administrador do sistema, RH, gestor e colaborador;
 - acesso do gestor somente aos liderados diretos;
 - cadastro de empresas, áreas, pessoas e hierarquia;
@@ -33,6 +33,7 @@ PDI e geração de PDF ficam fora do MVP e serão tratados na fase 2.
 - [Modelo de dados](docs/MODELO_DADOS.md)
 - [Segurança e ameaças](docs/SEGURANCA.md)
 - [Dados e privacidade](docs/DADOS_E_PRIVACIDADE.md)
+- [Importação de colaboradores](docs/IMPORTACAO_COLABORADORES.md)
 - [Supabase e migrations](docs/SUPABASE.md)
 - [Runbook de entrega do MVP](docs/ENTREGA_MVP.md)
 

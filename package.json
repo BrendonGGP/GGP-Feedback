@@ -21,6 +21,7 @@
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:seed:dev": "prisma db seed",
     "prisma:seed:feedback-dev": "node --env-file=.env scripts/seed-feedback-dev.mjs",
+    "import:people": "node --env-file=.env scripts/import-people.mjs",
     "validate:database": "python -B -m ggp_guardrails database",
     "validate:hardening": "python -B -m ggp_guardrails hardening"
   },

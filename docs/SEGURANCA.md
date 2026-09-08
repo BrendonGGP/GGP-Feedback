@@ -37,7 +37,7 @@
 ## Requisitos de autenticação
 
 - sem cadastro público;
-- identificador de login único e case-insensitive;
+- nome de usuário de login único, case-insensitive e sem e-mail;
 - senha armazenada somente por hash Argon2id;
 - senha temporária exige troca no primeiro acesso;
 - limitação de tentativas e bloqueio temporário;

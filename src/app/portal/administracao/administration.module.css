@@ -36,76 +36,6 @@
   min-width: 0;
 }
 
-.passwordReset {
-  display: grid;
-  gap: 0.6rem;
-  margin-top: 0.75rem;
-}
-
-.passwordReset summary {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 2.75rem;
-  padding: 0.55rem 0.7rem;
-  border: 1px solid var(--border-subtle);
-  border-radius: 0.65rem;
-  cursor: pointer;
-  color: var(--brand-aqua);
-  background: rgb(101 231 222 / 5%);
-  font-size: 0.68rem;
-  font-weight: 700;
-  text-align: center;
-  transition: border-color 180ms ease, background-color 180ms ease;
-}
-
-.passwordReset summary::-webkit-details-marker {
-  display: none;
-}
-
-.passwordReset summary:hover {
-  border-color: var(--border-accent);
-  background: rgb(101 231 222 / 10%);
-}
-
-.passwordReset summary:focus-visible {
-  outline: 3px solid var(--focus-ring);
-  outline-offset: 2px;
-}
-
-.passwordReset[open] summary {
-  border-color: var(--brand-aqua);
-  color: var(--text-primary);
-  background: rgb(101 231 222 / 13%);
-}
-
-.passwordReset form {
-  display: grid;
-  gap: 0.55rem;
-  min-width: 14rem;
-  margin-top: 0.15rem;
-  padding: 0.75rem;
-  border: 1px solid var(--border-subtle);
-  border-radius: 0.7rem;
-  background: rgb(3 27 33 / 42%);
-}
-
-.passwordReset label {
-  display: grid;
-  gap: 0.25rem;
-  color: var(--text-secondary);
-  font-size: 0.72rem;
-}
-
-.passwordReset input {
-  width: 100%;
-  border: 1px solid var(--border-subtle);
-  border-radius: 0.45rem;
-  padding: 0.5rem;
-  color: var(--text-primary);
-  background: var(--surface-input);
-}
-
 .accountCell strong,
 .accountCell small,
 .roleOptions span {
@@ -200,5 +130,219 @@
   .roleOptions,
   .actions {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.deleteAccountForm {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+}
+
+.dangerButton {
+  display: inline-flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 2.35rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid rgb(255 180 180 / 42%);
+  border-radius: 0.65rem;
+  color: var(--danger);
+  background: rgb(255 180 180 / 7%);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.62rem;
+  font-weight: 800;
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+
+.dangerButton:hover:not(:disabled) {
+  border-color: var(--danger);
+  background: rgb(255 180 180 / 14%);
+}
+
+.dangerButton:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.dangerButton:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+/* Password changes use a modal so the account row keeps its rhythm. The
+   fields remain associated with visible labels and the native dialog keeps
+   Escape/focus behavior predictable for keyboard users. */
+.passwordTrigger {
+  width: 100%;
+  min-height: 2.35rem;
+  padding: 0.5rem 0.65rem;
+  color: var(--brand-aqua);
+  border-color: var(--border-accent);
+  background: rgb(101 231 222 / 5%);
+  font-size: 0.62rem;
+  line-height: 1.25;
+  white-space: normal;
+}
+
+.passwordTrigger:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: var(--brand-aqua);
+  background: rgb(101 231 222 / 12%);
+}
+
+.passwordDialog {
+  width: min(30rem, calc(100vw - 2rem));
+  max-width: calc(100vw - 2rem);
+  max-height: min(90dvh, 42rem);
+  margin: auto;
+  overflow: auto;
+  padding: 1.25rem;
+  border: 1px solid var(--border-accent);
+  border-radius: 1rem;
+  color: var(--text-primary);
+  background:
+    linear-gradient(145deg, rgb(101 231 222 / 8%), transparent 58%),
+    var(--surface-card);
+  box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 38%);
+  color-scheme: dark;
+}
+
+.passwordDialog::backdrop {
+  background: rgb(3 20 25 / 76%);
+  backdrop-filter: blur(3px);
+}
+
+.passwordDialogHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgb(255 255 255 / 9%);
+}
+
+.passwordDialogHeader .eyebrow {
+  margin-bottom: 0.35rem;
+}
+
+.passwordDialogHeader h2 {
+  margin: 0;
+  font-size: clamp(1.15rem, 3vw, 1.45rem);
+  font-variation-settings: "wght" 760;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.dialogCloseButton {
+  flex: 0 0 auto;
+  min-height: 2.75rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.6rem;
+  color: var(--text-secondary);
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.66rem;
+  font-weight: 750;
+  transition: border-color 180ms ease, color 180ms ease, background-color 180ms ease;
+}
+
+.dialogCloseButton:hover {
+  border-color: var(--border-accent);
+  color: var(--brand-aqua);
+  background: rgb(101 231 222 / 7%);
+}
+
+.dialogCloseButton:focus-visible,
+.passwordDialogForm input:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.passwordDialogDescription {
+  margin: 1rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.passwordDialogDescription strong {
+  color: var(--text-primary);
+}
+
+.passwordDialogForm {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.passwordDialogForm label {
+  display: grid;
+  gap: 0.4rem;
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.passwordDialogForm label > span {
+  color: var(--text-primary);
+}
+
+.passwordDialogForm input {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.85rem;
+  box-sizing: border-box;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.65rem;
+  color: var(--text-primary);
+  background: var(--surface-input);
+  font: inherit;
+  font-size: 0.8rem;
+}
+
+.passwordDialogForm input:hover {
+  border-color: var(--border-accent);
+}
+
+.passwordDialogForm small {
+  color: var(--text-tertiary);
+  font-size: 0.65rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.passwordDialogActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  padding-top: 0.25rem;
+}
+
+.passwordDialogActions button {
+  width: 100%;
+}
+
+@media (max-width: 44rem) {
+  .passwordDialog {
+    width: calc(100vw - 1.5rem);
+    max-width: calc(100vw - 1.5rem);
+    padding: 1rem;
+  }
+
+  .passwordDialogActions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialogCloseButton {
+    transition: none;
   }
 }

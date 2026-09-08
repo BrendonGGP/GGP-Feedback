@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import {
+  deleteManagedAccount,
   revokeManagedAccountSessions,
   updateManagedAccount,
 } from "@/lib/administration/account-management";
@@ -47,6 +48,17 @@ export async function revokeAccountSessionsAction(
   finishAction(result);
 }
 
+export async function deleteAccountAction(formData: FormData): Promise<void> {
+  const actor = await getAuthenticatedActor();
+  if (!actor) redirect("/");
+
+  const result = await deleteManagedAccount(
+    actor,
+    getFormString(formData.get("accountId")),
+  );
+  finishAction(result);
+}
+
 export async function changeAccountPasswordAction(formData: FormData): Promise<void> {
   const actor = await getAuthenticatedActor();
   if (!actor) redirect("/");
@@ -65,7 +77,7 @@ export async function changeAccountPasswordAction(formData: FormData): Promise<v
     const message = error instanceof Error && error.message === "PASSWORD_REUSE_NOT_ALLOWED"
       ? "Escolha uma senha diferente da senha atual."
       : "Não foi possível alterar a senha da conta.";
-    finishAction({ ok: false, message });
+    return finishAction({ ok: false, message });
   }
   finishAction({ ok: true, message: "Senha temporária definida. A conta deverá alterá-la no próximo acesso." });
 }

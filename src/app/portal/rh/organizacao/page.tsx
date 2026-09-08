@@ -118,7 +118,7 @@ export default async function HrOrganizationPage({ searchParams }: OrganizationP
               </form>
             </details>
 
-            <details open className={`${styles.stepCard} ${styles.personCreation}`}>
+            <details id="cadastro-pessoa" open className={`${styles.stepCard} ${styles.personCreation}`}>
               <summary>
                 <span className={styles.stepHeading}>
                   <span className={styles.stepNumber}>3</span>

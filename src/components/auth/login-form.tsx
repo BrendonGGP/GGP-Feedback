@@ -62,15 +62,15 @@ export function LoginForm() {
   return (
     <form className="login-form" onSubmit={handleSubmit} aria-busy={isSubmitting}>
       <div className="form-field" data-entrance="field">
-        <label htmlFor={identifierId}>E-mail ou identificador</label>
+        <label htmlFor={identifierId}>Nome de usuário</label>
         <div className="input-frame">
           <input
             id={identifierId}
             name="loginIdentifier"
             type="text"
             autoComplete="username"
-            placeholder="nome@ggp.com.br"
-            maxLength={190}
+            placeholder="nome.sobrenome"
+            maxLength={64}
             disabled={isSubmitting}
             enterKeyHint="go"
             onKeyDown={submitOnEnter}

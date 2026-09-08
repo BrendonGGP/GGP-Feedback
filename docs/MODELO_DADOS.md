@@ -3,7 +3,7 @@
 ## Princípios
 
 - Identidade funcional (`Person`) é separada da conta de acesso (`AccessAccount`).
-- E-mail pode ser nulo e nunca é usado como chave de hierarquia.
+- E-mail pode ser nulo e nunca é usado como chave de autenticação ou hierarquia.
 - Empresa e área são entidades distintas; a unicidade da área é por empresa.
 - O gestor atual é uma relação por ID e o histórico é preservado.
 - Feedback mantém quem avaliou, quem recebeu e em qual ciclo.
@@ -28,7 +28,7 @@ AccessAccount 1 --- N AuditEvent
 Nem todas as regras são representáveis apenas no arquivo Prisma. A migration inicial inclui:
 
 - `CHECK` para impedir que uma pessoa seja gestora de si mesma;
-- unicidade case-insensitive para e-mail e identificador de login;
+- unicidade case-insensitive para e-mail e nome de usuário (identificador de login);
 - apenas uma linha hierárquica vigente por pessoa;
 - limites de nota conforme a pergunta;
 - políticas de Row-Level Security como defesa adicional;
@@ -52,6 +52,6 @@ A trilha de alterações relevantes é gravada pelos serviços transacionais dep
 2. Executar dry-run com contagens, rejeições e amostra sem PII.
 3. Resolver empresas e áreas por nomes normalizados.
 4. Criar pessoas e contas sem armazenar senha em texto puro.
-5. Resolver gestores em uma segunda etapa por identificador interno.
+5. Resolver gestores em uma segunda etapa por `person_key`; provisionar o nome de usuário na conta de acesso.
 6. Executar em transação e reverter tudo se qualquer regra obrigatória falhar.
 7. Registrar apenas métricas e identificadores técnicos no relatório.

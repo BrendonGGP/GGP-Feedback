@@ -2,8 +2,9 @@
 
 ## Método de entrada
 
-O MVP usa o provider `Credentials` do Auth.js para o identificador interno ou
-e-mail corporativo e uma senha provisionada. Não há cadastro público. A conta
+O MVP usa o provider `Credentials` do Auth.js para um nome de usuário e uma senha
+provisionada. O nome de usuário segue o formato `nome.sobrenome`, é exclusivo e
+não contém e-mail. Não há cadastro público. A conta
 precisa estar `ACTIVE`, possuir papel válido e não estar bloqueada.
 
 O segredo nunca é armazenado em texto puro. A senha é verificada com Argon2id;
