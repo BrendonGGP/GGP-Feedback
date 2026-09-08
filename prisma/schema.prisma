@@ -77,6 +77,7 @@ model Person {
   companyId          String                 @map("company_id") @db.Uuid
   departmentId       String                 @map("department_id") @db.Uuid
   managerId          String?                @map("manager_id") @db.Uuid
+  sourceKey          String?                @unique @map("source_key") @db.VarChar(190)
   fullName           String                 @map("full_name") @db.VarChar(200)
   corporateEmail     String?                @map("corporate_email") @db.VarChar(254)
   jobTitle           String                 @map("job_title") @db.VarChar(160)

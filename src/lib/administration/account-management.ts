@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import type { AccountStatus } from "@prisma/client";
 import { z } from "zod";
 
@@ -297,6 +299,75 @@ export const updateManagedAccount = async (
   return {
     ok: true,
     message: "Acesso atualizado e sessões anteriores revogadas.",
+  };
+};
+
+/**
+ * Removes only the access identity. The functional person and its history are
+ * intentionally preserved so feedback and reporting records remain intact.
+ */
+export const deleteManagedAccount = async (
+  actor: AuthenticatedActor,
+  accountId: string,
+): Promise<AccountMutationResult> => {
+  if (!canAdministerSystem(actor)) {
+    return mutationError("VocÃª nÃ£o tem permissÃ£o para excluir contas.");
+  }
+
+  const parsedId = z.string().uuid().safeParse(accountId);
+  if (!parsedId.success) return mutationError("Conta invÃ¡lida.");
+  if (parsedId.data === actor.accountId) {
+    return mutationError("Sua prÃ³pria conta Ã© protegida e nÃ£o pode ser excluÃ­da.");
+  }
+
+  try {
+    await prisma.$transaction(async (transaction) => {
+      const account = await transaction.accessAccount.findUnique({
+        where: { id: parsedId.data },
+        select: { id: true, roles: { select: { role: true } } },
+      });
+      if (!account) throw new Error("ACCOUNT_NOT_FOUND");
+
+      const isSystemAdmin = account.roles.some(({ role }) => role === "SYSTEM_ADMIN");
+      if (isSystemAdmin) {
+        // Serialize this check so concurrent deletions cannot remove the last
+        // system administrator.
+        await transaction.$executeRaw`SELECT pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended('system-admin-deletion', 0))`;
+        const systemAdminCount = await transaction.accountRoleAssignment.count({
+          where: { role: "SYSTEM_ADMIN" },
+        });
+        if (systemAdminCount <= 1) throw new Error("LAST_SYSTEM_ADMIN");
+      }
+
+      await transaction.auditEvent.create({
+        data: {
+          actorAccountId: actor.accountId,
+          requestId: randomUUID(),
+          action: "DELETE_ACCESS_ACCOUNT",
+          entityType: "ACCESS_ACCOUNT",
+          entityId: account.id,
+          result: "SUCCESS",
+          metadata: {
+            roles: account.roles.map(({ role }) => role),
+            personRecordPreserved: true,
+            sessionsRevokedByCascade: true,
+          },
+        },
+      });
+      await transaction.accessAccount.delete({ where: { id: account.id } });
+    });
+  } catch (error) {
+    const code = error instanceof Error ? error.message : "";
+    if (code === "ACCOUNT_NOT_FOUND") return mutationError("Conta nÃ£o encontrada.");
+    if (code === "LAST_SYSTEM_ADMIN") {
+      return mutationError("NÃ£o Ã© possÃ­vel excluir o Ãºltimo Administrador do Sistema.");
+    }
+    return mutationError("NÃ£o foi possÃ­vel excluir a conta.");
+  }
+
+  return {
+    ok: true,
+    message: "Acesso excluÃ­do. O cadastro funcional e o histÃ³rico foram preservados.",
   };
 };
 

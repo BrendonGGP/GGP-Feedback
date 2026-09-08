@@ -33,7 +33,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     Credentials({
       credentials: {
         loginIdentifier: {
-          label: "Identificador ou e-mail",
+          label: "Nome de usuário",
           type: "text",
         },
         password: { label: "Senha", type: "password" },

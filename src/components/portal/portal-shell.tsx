@@ -87,6 +87,11 @@ const buildNavigation = (roles: readonly AccessRole[]): NavigationGroup[] => {
       href: "/portal/rh",
     });
     administration.push({
+      label: "Colaboradores",
+      icon: "team",
+      href: "/portal/rh/pessoas",
+    });
+    administration.push({
       label: "Estrutura organizacional",
       icon: "team",
       href: "/portal/rh/organizacao",

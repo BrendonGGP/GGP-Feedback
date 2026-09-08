@@ -14,7 +14,7 @@ Data-alvo informada: 04/09/2026. A data é uma meta de planejamento e não const
 - As duas visões representam o mesmo quadro e não devem ser somadas.
 - Uma pessoa pode ser simultaneamente gestor e liderado.
 - O CEO é a raiz e não possui gestor superior.
-- Há um caso especial sem e-mail corporativo que deverá receber identificador de login interno exclusivo.
+- Toda conta recebe um nome de usuário exclusivo para autenticação; o e-mail corporativo permanece opcional.
 
 ## Papéis
 
@@ -48,7 +48,7 @@ Data-alvo informada: 04/09/2026. A data é uma meta de planejamento e não const
 1. Toda autorização é validada no servidor; ocultar elementos na interface não é controle de acesso.
 2. Ausência ou ambiguidade de identidade, papel, ciclo ou vínculo resulta em bloqueio.
 3. O vínculo hierárquico usa identificadores internos, nunca comparação de nomes.
-4. E-mail é um possível identificador de login, mas não é chave de relacionamento.
+4. Nome de usuário é o único identificador de login; e-mail é apenas um dado corporativo e não é chave de relacionamento.
 5. Contas são provisionadas por administrador; não há cadastro público no MVP.
 6. Um feedback enviado torna-se imutável para o usuário comum; correções administrativas são auditadas.
 7. Exportação CSV aplica as mesmas regras de autorização da consulta em tela.
@@ -62,7 +62,7 @@ Data-alvo informada: 04/09/2026. A data é uma meta de planejamento e não const
 - gestor não acessa pessoa que não seja seu liderado direto;
 - colaborador não acessa feedback de outra pessoa;
 - CEO funciona sem gestor superior;
-- pessoa sem e-mail consegue autenticar por identificador interno;
+- pessoa com ou sem e-mail consegue autenticar pelo nome de usuário;
 - importação rejeita duplicidade de login e vínculo inválido;
 - falhas de autorização retornam resposta genérica, sem confirmar a existência do registro;
 - logs não armazenam texto de feedback, senha, token ou planilha bruta.

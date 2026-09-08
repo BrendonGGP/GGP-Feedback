@@ -16,8 +16,10 @@ import {
 import { getPortalDashboardData } from "@/lib/dashboard/dashboard-data";
 
 import { ActionSubmitButton } from "./action-submit-button";
+import { DeleteAccountButton } from "./delete-account-button";
+import { PasswordResetDialog } from "./password-reset-dialog";
 import {
-  changeAccountPasswordAction,
+  deleteAccountAction,
   revokeAccountSessionsAction,
   updateAccountAction,
 } from "./actions";
@@ -116,7 +118,7 @@ export default async function SystemAdministrationPage({
           <form className={styles.filters} method="get" role="search">
             <label>
               <span>Buscar conta</span>
-              <input type="search" name="busca" defaultValue={management.filters.query} placeholder="Nome, e-mail ou identificador" maxLength={100} />
+              <input type="search" name="busca" defaultValue={management.filters.query} placeholder="Nome, usuário ou e-mail" maxLength={100} />
             </label>
             <label>
               <span>Status</span>
@@ -135,7 +137,7 @@ export default async function SystemAdministrationPage({
             <div className={styles.tableScroller} tabIndex={0}>
               <table>
                 <caption className={styles.srOnly}>Contas provisionadas e controles de acesso</caption>
-                <thead><tr><th scope="col">Pessoa</th><th scope="col">Conta</th><th scope="col">Papéis</th><th scope="col">Status</th><th scope="col">Sessões</th><th scope="col">Ações</th></tr></thead>
+                <thead><tr><th scope="col">Pessoa</th><th scope="col">Nome de usuário</th><th scope="col">Papéis</th><th scope="col">Status</th><th scope="col">Sessões</th><th scope="col">Ações</th></tr></thead>
                 <tbody>
                   {management.accounts.map((account) => {
                     const updateFormId = `account-${account.id}`;
@@ -147,7 +149,7 @@ export default async function SystemAdministrationPage({
                             <div><strong>{account.fullName}</strong><small>{account.jobTitle}</small><small>{account.companyName} · {account.departmentName}</small></div>
                           </div>
                         </td>
-                        <td data-label="Conta"><div className={styles.accountCell}><strong>{account.loginIdentifier}</strong><small>{account.corporateEmail ?? "Sem e-mail corporativo"}</small>{account.mustChangePassword ? <em>Troca de senha pendente</em> : null}</div></td>
+                        <td data-label="Nome de usuário"><div className={styles.accountCell}><strong>{account.loginIdentifier}</strong><small>{account.corporateEmail ?? "Sem e-mail corporativo"}</small>{account.mustChangePassword ? <em>Troca de senha pendente</em> : null}</div></td>
                         <td data-label="Papéis">
                           <fieldset className={styles.roleOptions} disabled={account.isCurrent}>
                             <legend className={styles.srOnly}>Papéis de {account.fullName}</legend>
@@ -179,15 +181,11 @@ export default async function SystemAdministrationPage({
                                 <input type="hidden" name="accountId" value={account.id} />
                                 <ActionSubmitButton label="Revogar sessões" pendingLabel="Revogando..." tone="secondary" disabled={account.activeSessions === 0} />
                               </form>
-                              <details className={styles.passwordReset}>
-                                <summary>Definir senha temporária</summary>
-                                <form action={changeAccountPasswordAction}>
-                                  <input type="hidden" name="accountId" value={account.id} />
-                                  <label><span>Nova senha temporária</span><input name="newPassword" type="password" minLength={9} maxLength={128} required autoComplete="new-password" /></label>
-                                  <label><span>Confirmar senha</span><input name="confirmPassword" type="password" minLength={9} maxLength={128} required autoComplete="new-password" /></label>
-                                  <ActionSubmitButton label="Definir senha" pendingLabel="Atualizando..." tone="secondary" />
-                                </form>
-                              </details>
+                              <PasswordResetDialog accountId={account.id} accountName={account.fullName} />
+                              <form action={deleteAccountAction} className={styles.deleteAccountForm}>
+                                <input type="hidden" name="accountId" value={account.id} />
+                                <DeleteAccountButton accountName={account.fullName} />
+                              </form>
                             </div>
                           )}
                         </td>

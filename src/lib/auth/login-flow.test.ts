@@ -66,6 +66,23 @@ describe("fluxo de login provisionado", () => {
     });
   });
 
+  it("recusa e-mail como identificador de acesso", async () => {
+    verifyPasswordMock.mockResolvedValue(true);
+
+    await expect(
+      authorizeProvisionedCredentials({
+        loginIdentifier: "brendon.nakagawa@empresa.com.br",
+        password: "senha-segura-sintetica",
+      }),
+    ).resolves.toBeNull();
+
+    expect(findFirstMock).not.toHaveBeenCalled();
+    expect(verifyPasswordMock).toHaveBeenCalledWith(
+      "$argon2id$dummy",
+      "senha-segura-sintetica",
+    );
+  });
+
   it("reativa bloqueio temporario expirado depois de uma senha valida", async () => {
     findFirstMock.mockResolvedValue(expiredLockedAccount());
     verifyPasswordMock.mockResolvedValue(true);

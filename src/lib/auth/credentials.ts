@@ -10,9 +10,10 @@ import {
 import { prisma } from "@/lib/prisma";
 import { DUMMY_PASSWORD_HASH, verifyPassword } from "@/lib/auth/password";
 import { hashSessionNonce } from "@/lib/auth/sessions";
+import { usernameSchema } from "@/lib/auth/username";
 
 export const loginCredentialsSchema = z.object({
-  loginIdentifier: z.string().trim().min(1).max(190),
+  loginIdentifier: usernameSchema,
   password: z.string().min(8).max(256),
 });
 
