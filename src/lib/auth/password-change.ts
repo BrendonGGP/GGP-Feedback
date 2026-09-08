@@ -7,6 +7,8 @@ import {
   verifyPassword,
 } from "@/lib/auth/password";
 import { prisma } from "@/lib/prisma";
+import { canAdministerSystem } from "@/lib/authorization/access-control";
+import type { AuthenticatedActor } from "@/lib/auth/session";
 
 const passwordField = (label: string) =>
   z.string().max(PASSWORD_MAX_LENGTH, `${label} pode ter no máximo ${PASSWORD_MAX_LENGTH} caracteres.`).superRefine((value, context) => {
@@ -25,6 +27,58 @@ export const passwordChangeSchema = z
   });
 
 export type PasswordChangeInput = z.infer<typeof passwordChangeSchema>;
+
+export const managedPasswordSchema = passwordChangeSchema.extend({
+  accountId: z.string().uuid(),
+});
+
+export const changeManagedAccountPassword = async (
+  actor: AuthenticatedActor,
+  input: z.infer<typeof managedPasswordSchema>,
+): Promise<void> => {
+  if (!canAdministerSystem(actor) || input.accountId === actor.accountId) {
+    throw new Error("PASSWORD_ADMIN_NOT_ALLOWED");
+  }
+  const account = await prisma.accessAccount.findUnique({
+    where: { id: input.accountId },
+    select: { id: true, passwordHash: true },
+  });
+  if (!account) throw new Error("PASSWORD_ACCOUNT_NOT_FOUND");
+  if (await verifyPassword(account.passwordHash, input.newPassword)) {
+    throw new Error("PASSWORD_REUSE_NOT_ALLOWED");
+  }
+  const passwordHash = await hashPassword(input.newPassword);
+  const changedAt = new Date();
+  await prisma.$transaction(async (transaction) => {
+    await transaction.accessAccount.update({
+      where: { id: account.id },
+      data: {
+        passwordHash,
+        mustChangePassword: true,
+        passwordChangedAt: changedAt,
+        status: "ACTIVE",
+        failedLoginCount: 0,
+        lockedUntil: null,
+        sessionVersion: { increment: 1 },
+      },
+    });
+    await transaction.userSession.updateMany({
+      where: { accountId: account.id, revokedAt: null },
+      data: { revokedAt: changedAt },
+    });
+    await transaction.auditEvent.create({
+      data: {
+        actorAccountId: actor.accountId,
+        requestId: crypto.randomUUID(),
+        action: "RESET_ACCOUNT_PASSWORD",
+        entityType: "ACCESS_ACCOUNT",
+        entityId: account.id,
+        result: "SUCCESS",
+        metadata: { mustChangePassword: true, sessionsRevoked: true },
+      },
+    });
+  });
+};
 
 export const changeTemporaryPassword = async (
   accountId: string,

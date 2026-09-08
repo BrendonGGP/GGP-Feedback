@@ -36,6 +36,76 @@
   min-width: 0;
 }
 
+.passwordReset {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.passwordReset summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.65rem;
+  cursor: pointer;
+  color: var(--brand-aqua);
+  background: rgb(101 231 222 / 5%);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-align: center;
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+
+.passwordReset summary::-webkit-details-marker {
+  display: none;
+}
+
+.passwordReset summary:hover {
+  border-color: var(--border-accent);
+  background: rgb(101 231 222 / 10%);
+}
+
+.passwordReset summary:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.passwordReset[open] summary {
+  border-color: var(--brand-aqua);
+  color: var(--text-primary);
+  background: rgb(101 231 222 / 13%);
+}
+
+.passwordReset form {
+  display: grid;
+  gap: 0.55rem;
+  min-width: 14rem;
+  margin-top: 0.15rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.7rem;
+  background: rgb(3 27 33 / 42%);
+}
+
+.passwordReset label {
+  display: grid;
+  gap: 0.25rem;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+}
+
+.passwordReset input {
+  width: 100%;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.45rem;
+  padding: 0.5rem;
+  color: var(--text-primary);
+  background: var(--surface-input);
+}
+
 .accountCell strong,
 .accountCell small,
 .roleOptions span {

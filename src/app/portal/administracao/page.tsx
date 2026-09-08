@@ -17,6 +17,7 @@ import { getPortalDashboardData } from "@/lib/dashboard/dashboard-data";
 
 import { ActionSubmitButton } from "./action-submit-button";
 import {
+  changeAccountPasswordAction,
   revokeAccountSessionsAction,
   updateAccountAction,
 } from "./actions";
@@ -178,6 +179,15 @@ export default async function SystemAdministrationPage({
                                 <input type="hidden" name="accountId" value={account.id} />
                                 <ActionSubmitButton label="Revogar sessões" pendingLabel="Revogando..." tone="secondary" disabled={account.activeSessions === 0} />
                               </form>
+                              <details className={styles.passwordReset}>
+                                <summary>Definir senha temporária</summary>
+                                <form action={changeAccountPasswordAction}>
+                                  <input type="hidden" name="accountId" value={account.id} />
+                                  <label><span>Nova senha temporária</span><input name="newPassword" type="password" minLength={9} maxLength={128} required autoComplete="new-password" /></label>
+                                  <label><span>Confirmar senha</span><input name="confirmPassword" type="password" minLength={9} maxLength={128} required autoComplete="new-password" /></label>
+                                  <ActionSubmitButton label="Definir senha" pendingLabel="Atualizando..." tone="secondary" />
+                                </form>
+                              </details>
                             </div>
                           )}
                         </td>

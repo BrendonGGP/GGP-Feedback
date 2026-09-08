@@ -4,9 +4,7 @@
 
 O MVP usa o provider `Credentials` do Auth.js para o identificador interno ou
 e-mail corporativo e uma senha provisionada. Não há cadastro público. A conta
-precisa estar `ACTIVE`, possuir pelo menos um papel válido e não estar bloqueada.
-Respostas de credenciais inválidas retornam o mesmo resultado genérico,
-independentemente de a conta existir.
+precisa estar `ACTIVE`, possuir papel válido e não estar bloqueada.
 
 O segredo nunca é armazenado em texto puro. A senha é verificada com Argon2id;
 tentativas inválidas incrementam o contador da conta e o quinto erro consecutivo
@@ -16,45 +14,25 @@ aplica bloqueio temporário de 15 minutos.
 
 O Auth.js usa um cookie JWT criptografado com `AUTH_SECRET`. Cada login também
 cria uma linha em `user_sessions`; somente o hash SHA-256 de um nonce aleatório
-é persistido, enquanto o nonce permanece apenas dentro do cookie criptografado.
-Em cada leitura da sessão, o servidor confirma:
+é persistido. O servidor valida existência, expiração, revogação, conta ativa,
+versão da sessão e papéis em cada leitura.
 
-- existência, expiração e revogação da sessão persistida;
-- correspondência em tempo constante entre o nonce do cookie e o hash persistido;
-- conta ativa e versão de sessão vigente;
-- papéis válidos e compatíveis com a segregação de `SYSTEM_ADMIN`.
+## Troca de senha
 
-O logout revoga a sessão persistida. A revogação de todas as sessões incrementa
-`session_version` e invalida cookies existentes. Rotas de negócio devem chamar
-`getAuthenticatedActor` ou `requireAuthenticatedActor` próximo à consulta de
-dados, em vez de confiar no conteúdo do cookie.
+Não existe recuperação pública de senha ou envio por e-mail. O Administrador do
+Sistema é responsável por provisionar uma nova senha temporária para uma conta.
+No primeiro acesso após esse provisionamento, a conta é direcionada à tela de
+troca obrigatória. A nova senha precisa ter 9–128 caracteres, conter ao menos um
+número e um caractere especial, não reutilizar a senha temporária e, após a
+alteração, revogar as sessões anteriores.
 
 ## Configuração local
 
 Defina `AUTH_SECRET` somente no `.env` local ou no gerenciador de segredos do
-ambiente. Gere um valor aleatório forte com o comando oficial `npx auth secret`
-ou equivalente seguro. Nunca envie o valor ao GitHub, PR, chat ou logs.
-
-O CI usa apenas um segredo efêmero de teste quando precisar executar código que
-inicializa o Auth.js; ele não concede acesso a nenhum ambiente externo.
+ambiente. Nunca envie o valor ao GitHub, PR, chat ou logs.
 
 ## Limites atuais
 
-- A página de login está implementada; usuários com sessão válida são enviados
-  diretamente à área inicial correspondente ao seu papel.
-- As áreas internas ainda são páginas provisórias protegidas. O conteúdo e o
-  visual definitivo dependem dos prints de referência e da implementação de
-  cada módulo.
-- Contas com `must_change_password` têm acesso exclusivo à tela de troca
-  obrigatória. A nova senha precisa ter 9–128 caracteres, conter ao menos um
-  número e um caractere especial, não pode reutilizar a senha temporária e,
-  após a alteração, todas as sessões anteriores são revogadas.
-- A proteção de rotas de negócio deve ser adicionada junto com cada rota; a
-  existência do handler `/api/auth` não autoriza nenhuma consulta por si só.
+- A proteção de rotas de negócio deve ser adicionada junto com cada rota.
 - RLS de negócio permanece fail-closed até a identidade da sessão ser propagada
   ao PostgreSQL por uma conexão de runtime de menor privilégio.
-- A recuperação de senha usa token aleatório de uso único, armazenado somente
-  por hash, com expiração de 30 minutos e revogação das sessões após a troca.
-- A solicitação sempre responde de forma genérica. Em desenvolvimento, o link
-  é exibido apenas para validação local; produção exige um transportador de
-  e-mail configurado antes da liberação.
