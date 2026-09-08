@@ -65,6 +65,7 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
           </div>
           <div className={styles.heroActions}>
             {actor.roles.includes("HR_ADMIN") ? <a className={styles.secondaryButton} href="/api/portal/meus-feedbacks/export">Exportar CSV</a> : null}
+            {actor.roles.includes("HR_ADMIN") || actor.roles.includes("MANAGER") ? <Link className={styles.secondaryButton} href="/portal/meus-feedbacks/analises">Análises</Link> : null}
             {overview.canStart ? <Link className={styles.primaryButton} href="/portal/meus-feedbacks/novo">Nova avaliação</Link> : null}
           </div>
         </header>

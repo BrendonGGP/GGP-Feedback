@@ -16,6 +16,7 @@ import { prisma } from "@/lib/prisma";
 import { serializeCsv } from "@/lib/feedback/csv";
 
 const MAX_EXPORT_ROWS = 5000;
+const MAX_ANALYTICS_FEEDBACKS = 5000;
 
 const isFunctionalActor = (actor: AuthenticatedActor): boolean =>
   !actor.roles.includes("SYSTEM_ADMIN") &&
@@ -132,6 +133,92 @@ export const getFeedbackOverview = async (actor: AuthenticatedActor) => {
       status: feedback.status,
       date: (feedback.submittedAt ?? feedback.createdAt).toISOString(),
     })),
+  };
+};
+
+type AnalyticsAccumulator = {
+  name: string;
+  count: number;
+  total: number;
+  ratings: number;
+};
+
+const average = (total: number, count: number): number =>
+  count === 0 ? 0 : Math.round((total / count) * 10) / 10;
+
+const promptTitle = (prompt: string): string =>
+  prompt.split(/\s+[-—]\s+/)[0]?.trim() || prompt;
+
+export const getFeedbackAnalytics = async (actor: AuthenticatedActor) => {
+  if (!isFunctionalActor(actor)) return null;
+
+  const feedbacks = await prisma.feedback.findMany({
+    where: { AND: [visibilityWhere(actor), { status: "SUBMITTED" }] },
+    orderBy: { submittedAt: "desc" },
+    take: MAX_ANALYTICS_FEEDBACKS,
+    select: {
+      cycle: { select: { id: true, name: true } },
+      answers: {
+        where: { question: { type: "RATING" }, rating: { not: null } },
+        select: {
+          rating: true,
+          question: { select: { id: true, prompt: true } },
+        },
+      },
+    },
+  });
+
+  const cycles = new Map<string, AnalyticsAccumulator>();
+  const competencies = new Map<string, AnalyticsAccumulator>();
+  let total = 0;
+  let ratings = 0;
+
+  for (const feedback of feedbacks) {
+    const cycle = cycles.get(feedback.cycle.id) ?? {
+      name: feedback.cycle.name,
+      count: 0,
+      total: 0,
+      ratings: 0,
+    };
+    cycle.count += 1;
+
+    for (const answer of feedback.answers) {
+      if (answer.rating === null) continue;
+      const competency = competencies.get(answer.question.id) ?? {
+        name: promptTitle(answer.question.prompt),
+        count: 0,
+        total: 0,
+        ratings: 0,
+      };
+      competency.count += 1;
+      competency.total += answer.rating;
+      competency.ratings += 1;
+      cycle.total += answer.rating;
+      cycle.ratings += 1;
+      total += answer.rating;
+      ratings += 1;
+    }
+
+    cycles.set(feedback.cycle.id, cycle);
+  }
+
+  return {
+    totalFeedbacks: feedbacks.length,
+    limited: feedbacks.length === MAX_ANALYTICS_FEEDBACKS,
+    average: average(total, ratings),
+    cycleCount: cycles.size,
+    cycles: [...cycles.values()].map((cycle) => ({
+      name: cycle.name,
+      count: cycle.count,
+      average: average(cycle.total, cycle.ratings),
+    })),
+    competencies: [...competencies.values()]
+      .sort((left, right) => average(right.total, right.ratings) - average(left.total, left.ratings))
+      .map((competency) => ({
+        name: competency.name,
+        count: competency.count,
+        average: average(competency.total, competency.ratings),
+      })),
   };
 };
 

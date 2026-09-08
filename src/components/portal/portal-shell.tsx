@@ -47,6 +47,13 @@ const buildNavigation = (roles: readonly AccessRole[]): NavigationGroup[] => {
       icon: "feedback",
       href: "/portal/meus-feedbacks",
     });
+    if (roles.includes("HR_ADMIN") || roles.includes("MANAGER")) {
+      overview.push({
+        label: "Análises",
+        icon: "dashboard",
+        href: "/portal/meus-feedbacks/analises",
+      });
+    }
   }
 
   if (roles.includes("MANAGER")) {
