@@ -5,8 +5,8 @@ Este arquivo é o ponto de entrada técnico do projeto. Leia apenas as referênc
 ## Estado e arquitetura
 
 - Next.js e TypeScript concentram interface e servidor.
-- Prisma descreve o domínio; PostgreSQL é fornecido pelo Supabase na região de São Paulo.
-- As migrations versionadas, a role `ggp_runtime` e as policies RLS de negócio foram aplicadas ao Supabase de desenvolvimento; novas migrations exigem aprovação separada.
+- Prisma descreve o domínio; PostgreSQL é executado localmente e administrado pelo DBeaver.
+- As migrations versionadas, a role `ggp_runtime` e as policies RLS de negócio foram aplicadas ao banco local; novas migrations exigem aprovação separada.
 - Os perfis e a política de autorização estão em `docs/AUTORIZACAO.md`; a base de autenticação está em `docs/AUTENTICACAO.md`; o helper de contexto RLS existe, mas o runtime ainda precisa separar autenticação/administração antes de trocar de role.
 - Antes de criar telas, solicite ao responsável os prints de referência visual.
 
@@ -26,7 +26,7 @@ Este arquivo é o ponto de entrada técnico do projeto. Leia apenas as referênc
 ## Leitura por tarefa
 
 - Produto ou regra de negócio: `docs/ESPECIFICACAO_MVP.md` e o módulo afetado.
-- Banco: `docs/MODELO_DADOS.md`, `docs/SUPABASE.md`, `prisma/schema.prisma` e a migration relevante.
+- Banco: `docs/MODELO_DADOS.md`, `docs/DATABASE.md`, `prisma/schema.prisma` e a migration relevante.
 - Interface: print fornecido pelo responsável, rota e componentes relacionados.
 - Segurança: skill aplicável e `docs/SEGURANCA.md`; abra documentos extensos de `guardrails/` somente quando a checklist apontar necessidade.
 - CI/CD: workflow afetado, `package.json` e validadores em `ggp_guardrails/`.

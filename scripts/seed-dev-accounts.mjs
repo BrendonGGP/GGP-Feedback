@@ -353,7 +353,7 @@ const run = async () => {
   }
 
   if (!apply) {
-    console.log("DRY RUN — nenhuma alteração será feita no Supabase.");
+    console.log("DRY RUN — nenhuma alteração será feita no PostgreSQL local.");
     console.log("Escopo: 1 empresa, 3 departamentos, 4 pessoas, 4 contas e 5 papéis.");
     console.log("Contas: SYSTEM_ADMIN, HR_ADMIN, MANAGER+EMPLOYEE e EMPLOYEE.");
     console.log("Use --apply somente após confirmar este escopo.");

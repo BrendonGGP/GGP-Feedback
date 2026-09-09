@@ -55,12 +55,12 @@ Para dados pessoais, o alvo é combinar níveis 2 e 3 do baseline local: control
 
 ## Riscos residuais atuais
 
-- Supabase foi selecionado na região de São Paulo; contratos, privacidade e aprovação corporativa ainda precisam de confirmação formal;
+- o banco local está validado, mas contratos, privacidade e aprovação corporativa do ambiente de hospedagem ainda precisam de confirmação formal;
 - SSO/MFA ainda não foram definidos;
 - `AUTH_SECRET` deve ser configurado por ambiente e nunca versionado;
 - autenticação base, troca obrigatória de senha, bloqueio progressivo e
   revogação de sessões estão implementados;
 - dependências são fixadas e auditadas no CI; a atualização de ESLint depende de compatibilidade futura do ecossistema Next.js;
-- migration inicial, role `ggp_runtime` e policies RLS de negócio foram aplicadas ao Supabase de desenvolvimento;
+- o PostgreSQL local também possui as policies equivalentes no schema `ggp`, com isolamento validado por perfil e sem acesso da role de runtime a contas técnicas;
 - a troca efetiva do runtime administrativo pela role de menor privilégio e a separação da autenticação ainda estão pendentes;
 - retenção e descarte de feedbacks precisam de decisão do responsável pelo negócio.

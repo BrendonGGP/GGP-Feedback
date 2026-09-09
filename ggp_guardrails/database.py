@@ -59,7 +59,7 @@ def validate_database_foundation(root: Path = PROJECT_ROOT) -> ValidationReport:
     report = ValidationReport(
         name="DATABASE FOUNDATION VALIDATION",
         success_messages=(
-            "Prisma schema separates pooled runtime and direct migration URLs",
+            "Prisma schema separates runtime and direct migration URLs",
             "Initial migration preserves integrity controls and fail-closed RLS",
         ),
     )

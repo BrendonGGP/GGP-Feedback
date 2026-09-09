@@ -5,9 +5,9 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 /**
- * Development can point to the local PostgreSQL instance without changing
- * the protected Supabase URL used by other environments. Production and all
- * non-development processes keep using Prisma's DATABASE_URL datasource.
+ * Development can point explicitly to the local PostgreSQL instance. Other
+ * environments use Prisma's DATABASE_URL datasource until their database
+ * connection is provisioned separately.
  */
 const localDevelopmentUrl =
   process.env.NODE_ENV === "development"
