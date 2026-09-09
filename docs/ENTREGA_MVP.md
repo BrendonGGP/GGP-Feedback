@@ -17,9 +17,9 @@ entrega.
 
 - Node.js 20.9 ou superior;
 - npm e Python 3.14;
-- acesso ao Supabase de desenvolvimento ou a um banco separado de homologação;
+- acesso ao PostgreSQL local de desenvolvimento ou a um banco separado de homologação;
 - arquivo `.env` criado localmente, sem versionamento, com as variáveis descritas
-  em `docs/SUPABASE.md` e `docs/AUTENTICACAO.md`;
+  em `docs/DATABASE.md` e `docs/AUTENTICACAO.md`;
 - dependências instaladas com `npm.cmd ci --ignore-scripts --audit=false --fund=false`.
 
 ## Validação local
@@ -61,9 +61,9 @@ validação local.
 
 ## Banco e dados
 
-A migration de desenvolvimento já foi aplicada ao Supabase. Não execute uma
-aplicação de migration em outro ambiente sem revisar o SQL, confirmar o alvo,
-obter aprovação e definir backup e rollback.
+A migration de desenvolvimento já foi aplicada ao PostgreSQL local. Não execute
+uma aplicação de migration em outro ambiente sem revisar o SQL, confirmar o
+alvo, obter aprovação e definir backup e rollback.
 
 O seed sintético é idempotente e deve ser usado somente no desenvolvimento:
 
@@ -96,7 +96,7 @@ O fluxo de entrega de cada alteração é:
 - trocar o runtime administrativo pela identidade de menor privilégio e integrar
   todos os serviços ao contexto transacional das policies RLS;
 - homologar backup, restauração, retenção e descarte de dados;
-- concluir revisão corporativa de privacidade e do Supabase;
+- concluir revisão corporativa de privacidade e do ambiente de hospedagem;
 - definir SSO/MFA, domínio final e responsáveis por incidentes;
 - escolher hospedagem e criar o CD somente após aprovação específica.
 

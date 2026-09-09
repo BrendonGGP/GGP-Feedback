@@ -4,11 +4,10 @@ Plataforma interna para gestão de ciclos e feedbacks dos colaboradores do grupo
 
 ## Estado atual
 
-O repositório contém a fundação Next.js, o esquema Prisma e a migration inicial
-aplicada ao Supabase de desenvolvimento. Os perfis e limites de autorização já
-estão definidos, e a base de autenticação com sessões revogáveis está
-implementada. A configuração de `AUTH_SECRET`, as políticas RLS de negócio,
-dados reais e deploy permanecem pendentes.
+O repositório contém a fundação Next.js, o esquema Prisma e as migrations do
+PostgreSQL local. Os perfis e limites de autorização já estão definidos, e a
+base de autenticação com sessões revogáveis está implementada. A configuração
+de `AUTH_SECRET`, os dados reais e o deploy permanecem pendentes.
 
 ## Escopo do MVP
 
@@ -34,19 +33,19 @@ PDI e geração de PDF ficam fora do MVP e serão tratados na fase 2.
 - [Segurança e ameaças](docs/SEGURANCA.md)
 - [Dados e privacidade](docs/DADOS_E_PRIVACIDADE.md)
 - [Importação de colaboradores](docs/IMPORTACAO_COLABORADORES.md)
-- [Supabase e migrations](docs/SUPABASE.md)
+- [PostgreSQL e migrations](docs/DATABASE.md)
 - [Runbook de entrega do MVP](docs/ENTREGA_MVP.md)
 
 ## Stack aprovada
 
 - Next.js e TypeScript;
 - Tailwind CSS e shadcn/ui;
-- PostgreSQL gerenciado;
+- PostgreSQL;
 - Prisma ORM e migrations versionadas;
 - Auth.js com provisionamento administrativo;
 - Zod, Vitest e Playwright;
 - GitHub Actions;
-- hospedagem proposta em Vercel e Supabase, condicionada à aprovação corporativa de região, privacidade e contratação.
+- hospedagem futura condicionada à aprovação corporativa de segurança, privacidade e contratação.
 
 ## Segurança
 

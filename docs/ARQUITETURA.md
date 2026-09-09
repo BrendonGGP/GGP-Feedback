@@ -48,7 +48,7 @@ Nenhuma migration de desenvolvimento será executada automaticamente em produç�
 
 ## Decisões pendentes
 
-- aprovação corporativa formal do Supabase na região de São Paulo;
+- escolha e aprovação corporativa do ambiente PostgreSQL de homologação e produção;
 - política corporativa de retenção dos feedbacks;
 - responsável formal por segurança, incidentes e administração;
 - exigência futura de SSO/MFA;

@@ -43,7 +43,7 @@ Administrador do Sistema devera provisionar as contas e atribuir os perfis
 2. Salve a copia em `dados-privados/`, fora do GitHub.
 3. Nao envie o arquivo preenchido por chat, PR, e-mail ou ferramenta externa.
 4. Execute o `dry-run` e revise apenas as contagens e os tipos de erro.
-5. So depois autorize a aplicacao transacional no Supabase definido para a carga.
+5. Só depois autorize a aplicação transacional no PostgreSQL definido para a carga.
 
 O `person_key` normalizado sera gravado como nome de usuario na conta de acesso
 (`AccessAccount.loginIdentifier`), enquanto o e-mail permanecera apenas no cadastro

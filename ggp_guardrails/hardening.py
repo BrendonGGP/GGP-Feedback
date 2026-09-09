@@ -29,7 +29,7 @@ REQUIRED_FILES = (
     "package-lock.json",
     "prisma/migrations/migration_lock.toml",
     "prisma/migrations/20260901153000_init_supabase_schema/migration.sql",
-    "docs/SUPABASE.md",
+    "docs/DATABASE.md",
     "ggp_guardrails/__main__.py",
 )
 
@@ -53,7 +53,7 @@ WORKFLOW_CONTROLS = (
     "npm run prisma:validate",
     "npm run prisma:generate",
     "npm run prisma:migrate:diff",
-    "DIRECT_URL: postgresql://postgres:postgres@127.0.0.1:5432/ggp_feedback?schema=public",
+    "DIRECT_URL: postgresql://postgres:postgres@127.0.0.1:5432/ggp_feedback_local?schema=ggp",
     "npm run validate:database",
     "npm run validate:hardening",
     'python-version: "3.14.7"',

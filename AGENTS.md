@@ -2,7 +2,7 @@
 
 ## Contexto rápido
 
-- Aplicação interna de ciclos e feedbacks, em Next.js, TypeScript, Prisma e PostgreSQL/Supabase.
+- Aplicação interna de ciclos e feedbacks, em Next.js, TypeScript, Prisma e PostgreSQL local.
 - Ambiente atual: desenvolvimento local; não há deploy nem acesso autorizado a produção.
 - Dados reais, PII e credenciais não pertencem ao repositório.
 - Leia `docs/AI_CONTEXT.md` antes de implementar. Ele indica somente os arquivos necessários para cada tipo de tarefa.
