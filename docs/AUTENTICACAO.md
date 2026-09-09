@@ -35,5 +35,5 @@ ambiente. Nunca envie o valor ao GitHub, PR, chat ou logs.
 ## Limites atuais
 
 - A proteção de rotas de negócio deve ser adicionada junto com cada rota.
-- RLS de negócio permanece fail-closed até a identidade da sessão ser propagada
-  ao PostgreSQL por uma conexão de runtime de menor privilégio.
+- RLS de negócio permanece bloqueando o runtime sem contexto; a identidade da
+  sessão deve ser propagada ao PostgreSQL por uma conexão de menor privilégio.

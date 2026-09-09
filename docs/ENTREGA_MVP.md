@@ -93,7 +93,8 @@ O fluxo de entrega de cada alteração é:
 ## Pendências antes de produção
 
 - configurar `AUTH_SECRET` e demais segredos no gerenciador do ambiente;
-- integrar a identidade de runtime de menor privilégio às políticas RLS de negócio;
+- trocar o runtime administrativo pela identidade de menor privilégio e integrar
+  todos os serviços ao contexto transacional das policies RLS;
 - homologar backup, restauração, retenção e descarte de dados;
 - concluir revisão corporativa de privacidade e do Supabase;
 - definir SSO/MFA, domínio final e responsáveis por incidentes;

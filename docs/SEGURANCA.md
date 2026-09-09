@@ -61,6 +61,6 @@ Para dados pessoais, o alvo é combinar níveis 2 e 3 do baseline local: control
 - autenticação base, troca obrigatória de senha, bloqueio progressivo e
   revogação de sessões estão implementados;
 - dependências são fixadas e auditadas no CI; a atualização de ESLint depende de compatibilidade futura do ecossistema Next.js;
-- migration inicial e RLS fail-closed foram aplicadas ao Supabase de desenvolvimento;
-- políticas RLS de negócio aguardam a integração de uma identidade de runtime de menor privilégio;
+- migration inicial, role `ggp_runtime` e policies RLS de negócio foram aplicadas ao Supabase de desenvolvimento;
+- a troca efetiva do runtime administrativo pela role de menor privilégio e a separação da autenticação ainda estão pendentes;
 - retenção e descarte de feedbacks precisam de decisão do responsável pelo negócio.

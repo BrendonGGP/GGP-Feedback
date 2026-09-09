@@ -71,7 +71,19 @@ como limite obrigatório para sua implementação futura.
    servidor.
 2. Rotas, ações e exportações devem reutilizar a mesma política, sem confiar em
    identificadores enviados pelo navegador.
-3. RLS permanece sem políticas permissivas até que a sessão autenticada seja
-   propagada ao banco por uma identidade de runtime de menor privilégio.
+3. RLS reforça o escopo por perfil, pessoa e equipe quando a sessão é
+   propagada ao banco pela identidade de runtime de menor privilégio.
 4. Testes de isolamento devem cobrir acesso cruzado entre pessoas, equipes e
    empresas antes de qualquer ambiente produtivo.
+
+## Contexto RLS do runtime
+
+A role `ggp_runtime` foi preparada para as operações funcionais. Ela não possui
+`BYPASSRLS` nem acesso às tabelas de autenticação e administração técnica.
+Durante uma transação, o servidor deve definir `ggp.account_id`,
+`ggp.person_id` e `ggp.roles` e executar todas as consultas usando o cliente de
+transação. Esses valores são apenas um contexto interno do servidor; nunca
+devem ser aceitos diretamente do navegador.
+
+O código ainda precisa migrar os fluxos de autenticação e administração para
+conexões separadas antes de trocar o runtime atual pela role `ggp_runtime`.
