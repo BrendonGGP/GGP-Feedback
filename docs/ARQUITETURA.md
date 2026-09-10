@@ -25,6 +25,20 @@ O frontend e as rotas de servidor ficam no mesmo projeto Next.js. O navegador nu
 - **Testes:** Vitest para domínio e integração; Playwright para fluxos críticos.
 - **CI:** lint, type check, testes, build, validação de migrations, secret scan e análise de dependências.
 
+## Organização física e limites
+
+O mapa completo está em [Estrutura do projeto](ESTRUTURA_PROJETO.md). Em
+resumo, `src/app/` contém apenas composição de rotas do App Router,
+`src/components/` contém apresentação reutilizável e `src/lib/` contém os
+domínios e seus casos de uso. A infraestrutura técnica fica isolada em
+`src/lib/infrastructure/database/`, que é o único lugar responsável por criar
+clientes Prisma e propagar o contexto RLS. Rotinas administrativas e de carga
+ficam em `scripts/database/`, `scripts/import/` e `scripts/seed/`.
+
+Essa separação evita que uma página acesse o banco diretamente, impede que
+componentes visuais dependam de segredos e torna explícito o caminho de uma
+operação: rota → caso de uso → adaptador de infraestrutura → PostgreSQL.
+
 ## Autorização
 
 As consultas recebem a identidade da sessão no servidor e aplicam as regras

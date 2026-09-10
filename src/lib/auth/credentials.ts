@@ -7,7 +7,7 @@ import {
   isAccessRole,
   type AccessRole,
 } from "@/lib/authorization/access-control";
-import { adminPrisma } from "@/lib/prisma";
+import { adminPrisma } from "@/lib/infrastructure/database/prisma";
 import { DUMMY_PASSWORD_HASH, verifyPassword } from "@/lib/auth/password";
 import { hashSessionNonce } from "@/lib/auth/sessions";
 import { usernameSchema } from "@/lib/auth/username";

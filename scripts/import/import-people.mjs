@@ -4,7 +4,7 @@ import { isAbsolute, relative, resolve } from "node:path";
 
 import argon2 from "argon2";
 
-import { createAdminPrismaClient } from "./prisma-admin-client.mjs";
+import { createAdminPrismaClient } from "../database/prisma-admin-client.mjs";
 
 const APPLY_FLAG = "--apply";
 const repoRoot = resolve(process.cwd());

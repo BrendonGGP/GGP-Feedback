@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
-import { resolveDatabaseConnections } from "@/lib/db/connection-config";
-import { getRuntimeTransaction } from "@/lib/db/runtime-context";
+import { resolveDatabaseConnections } from "@/lib/infrastructure/database/connection-config";
+import { getRuntimeTransaction } from "@/lib/infrastructure/database/runtime-context";
 
 const globalForPrisma = globalThis as unknown as {
   runtimePrisma?: PrismaClient;

@@ -3,8 +3,8 @@ import type { Prisma } from "@prisma/client";
 import type { AccessRole } from "@/lib/authorization/access-control";
 import type { AuthenticatedActor } from "@/lib/auth/session";
 import { resolvePrimaryPortalRole } from "@/lib/auth/portal-routing";
-import { withDatabaseActor } from "@/lib/db/actor-context";
-import { adminPrisma } from "@/lib/prisma";
+import { withDatabaseActor } from "@/lib/infrastructure/database/actor-context";
+import { adminPrisma } from "@/lib/infrastructure/database/prisma";
 
 export type DashboardMetric = Readonly<{
   label: string;

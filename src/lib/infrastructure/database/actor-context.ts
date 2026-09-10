@@ -5,8 +5,8 @@ import {
   hasValidRoleCombination,
   isAccessRole,
 } from "@/lib/authorization/access-control";
-import { runtimePrisma } from "@/lib/prisma";
-import { runWithRuntimeTransaction } from "@/lib/db/runtime-context";
+import { runtimePrisma } from "@/lib/infrastructure/database/prisma";
+import { runWithRuntimeTransaction } from "@/lib/infrastructure/database/runtime-context";
 
 /**
  * Runs a unit of business work on one database transaction with the actor

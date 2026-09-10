@@ -3,8 +3,8 @@ import { z } from "zod";
 
 import type { AuthenticatedActor } from "@/lib/auth/session";
 import { canAdministerHrDomain } from "@/lib/authorization/access-control";
-import { withDatabaseActor } from "@/lib/db/actor-context";
-import { runtimePrisma as prisma } from "@/lib/prisma";
+import { withDatabaseActor } from "@/lib/infrastructure/database/actor-context";
+import { runtimePrisma as prisma } from "@/lib/infrastructure/database/prisma";
 
 const DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 

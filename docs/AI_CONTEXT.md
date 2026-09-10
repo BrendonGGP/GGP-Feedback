@@ -16,8 +16,11 @@ Este arquivo é o ponto de entrada técnico do projeto. Leia apenas as referênc
 |---|---|
 | `src/app/` | rotas, layout e estilos globais |
 | `src/components/` | componentes visuais reutilizáveis |
-| `src/lib/` | tipos e regras sem dependência da interface |
+| `src/lib/` | domínios, casos de uso e integrações sem dependência da interface |
+| `src/lib/infrastructure/database/` | clientes Prisma, conexão e contexto RLS |
+| `src/lib/shared/` | valores e contratos puros compartilhados |
 | `prisma/` | esquema e migrations imutáveis do banco |
+| `scripts/` | rotinas operacionais separadas por database, import e seed |
 | `ggp_guardrails/` | biblioteca de validação ativa do projeto |
 | `.agents/skills/` | preflight, revisão segura e hardening sob demanda |
 | `guardrails/` | pacote-base de referência e testes adversariais |

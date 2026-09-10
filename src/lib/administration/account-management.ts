@@ -10,7 +10,7 @@ import {
   hasValidRoleCombination,
   type AccessRole,
 } from "@/lib/authorization/access-control";
-import { adminPrisma } from "@/lib/prisma";
+import { adminPrisma } from "@/lib/infrastructure/database/prisma";
 
 export const MANAGED_ACCOUNT_STATUSES = [
   "PENDING_ACTIVATION",

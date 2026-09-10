@@ -27,6 +27,7 @@ PDI e geração de PDF ficam fora do MVP e serão tratados na fase 2.
 - [Contexto enxuto para desenvolvimento com IA](docs/AI_CONTEXT.md)
 - [Especificação do MVP](docs/ESPECIFICACAO_MVP.md)
 - [Arquitetura](docs/ARQUITETURA.md)
+- [Estrutura do projeto](docs/ESTRUTURA_PROJETO.md)
 - [Perfis e limites de autorização](docs/AUTORIZACAO.md)
 - [Autenticação e sessões](docs/AUTENTICACAO.md)
 - [Modelo de dados](docs/MODELO_DADOS.md)

@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import type { AuthenticatedActor } from "@/lib/auth/session";
 import { canAdministerHrDomain } from "@/lib/authorization/access-control";
-import { withDatabaseActor } from "@/lib/db/actor-context";
+import { withDatabaseActor } from "@/lib/infrastructure/database/actor-context";
 
 export const PEOPLE_DIRECTORY_VIEWS = ["all", "managers"] as const;
 export const PEOPLE_DIRECTORY_STATUSES = ["active", "all"] as const;

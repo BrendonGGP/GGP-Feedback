@@ -1,6 +1,6 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 
-import { adminPrisma } from "@/lib/prisma";
+import { adminPrisma } from "@/lib/infrastructure/database/prisma";
 
 export const hashSessionNonce = (nonce: string): string =>
   createHash("sha256").update(nonce, "utf8").digest("hex");

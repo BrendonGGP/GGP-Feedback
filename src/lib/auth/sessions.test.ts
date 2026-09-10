@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("@/lib/prisma", () => ({ adminPrisma: {} }));
+vi.mock("@/lib/infrastructure/database/prisma", () => ({ adminPrisma: {} }));
 
 import { hashSessionNonce, sessionNonceMatches } from "./sessions";
 

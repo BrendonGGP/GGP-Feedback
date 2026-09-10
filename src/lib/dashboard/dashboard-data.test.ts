@@ -14,7 +14,7 @@ const prismaMock = vi.hoisted(() => ({
   feedback: { count: vi.fn() },
 }));
 
-vi.mock("@/lib/prisma", () => ({
+vi.mock("@/lib/infrastructure/database/prisma", () => ({
   runtimePrisma: prismaMock,
   adminPrisma: prismaMock,
 }));
