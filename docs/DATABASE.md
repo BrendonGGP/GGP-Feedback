@@ -8,7 +8,9 @@ Projeto, URLs, credenciais e dados reais permanecem fora do repositório.
 O Prisma usa duas conexões com responsabilidades diferentes:
 
 - `DATABASE_URL`: conexão usada pelo runtime;
-- `DIRECT_URL`: conexão direta usada pelo Prisma Migrate e comandos administrativos.
+- `DIRECT_URL`: conexão direta usada pelo Prisma Migrate;
+- `ADMIN_DATABASE_URL`: conexão administrativa usada pela autenticação, sessões,
+  troca de senha e administração técnica.
 
 O ambiente local também define `LOCAL_DATABASE_URL` com `schema=ggp`; em
 desenvolvimento, a aplicação usa essa URL para garantir que o runtime aponte
@@ -18,8 +20,12 @@ Crie o `.env` manualmente, sem versioná-lo:
 ```env
 DATABASE_URL="postgresql://postgres:<senha>@127.0.0.1:5432/ggp_feedback_local?schema=ggp"
 DIRECT_URL="postgresql://postgres:<senha>@127.0.0.1:5432/ggp_feedback_local?schema=ggp"
+ADMIN_DATABASE_URL="postgresql://<usuario-admin>:<senha>@127.0.0.1:5432/ggp_feedback_local?schema=ggp"
 ```
 
+No ambiente local atual, `ADMIN_DATABASE_URL` pode ficar ausente: o código usa
+`DIRECT_URL` apenas como fallback compatível. Antes da produção, configure uma
+URL administrativa explícita, com um usuário separado e privilégios mínimos.
 Não envie URLs, senhas ou chaves pelo Git, PR, chat ou logs.
 Se existir uma URL de um provedor anterior no `.env`, substitua-a pelas
 conexões locais antes de executar comandos Prisma; não deixe um fallback remoto.
@@ -73,19 +79,30 @@ nenhum privilégio de autenticação, sessões ou administração técnica.
 
 Como a estrutura local foi inicializada no schema `ggp`, a migration
 `20260909120000_align_local_ggp_rls` instala nesse schema as policies equivalentes
-sem alterar os dados. A role de runtime foi validada sem contexto, com RH,
-gestor, colaborador e administrador do sistema.
+sem alterar os dados. A role de runtime foi validada com contexto transacional
+para RH, gestor, colaborador e administrador do sistema.
 
 As policies usam funções no schema `ggp`, alimentadas por configurações
 transaction-local (`ggp.account_id`, `ggp.person_id` e `ggp.roles`). O helper
 `withDatabaseActor` configura esses valores e entrega o cliente de transação;
-consultas feitas pelo cliente global não herdam o contexto e não devem ser
-usadas nessa fronteira.
+enquanto o helper está ativo, o proxy de compatibilidade de `runtimePrisma`
+encaminha chamadas legadas para essa transação. Fora desse escopo, chamadas do
+cliente global não têm identidade RLS e não devem ser usadas nessa fronteira.
 
-O runtime atual ainda usa a conexão administrativa para autenticação e
-administração. Antes de habilitar `ggp_runtime` em um ambiente implantado, é
-obrigatório separar o cliente de autenticação, configurar a senha da role fora
-do Git e validar novamente os testes de isolamento.
+O cliente de runtime e o cliente administrativo agora são instâncias separadas.
+Autenticação, sessões, troca de senha e administração técnica usam
+`adminPrisma`; as rotinas funcionais usam `runtimePrisma`. No desenvolvimento o
+fallback acima mantém o ambiente atual funcionando, mas não substitui a
+provisão de credenciais distintas.
+
+Os scripts de importação e seed também usam a URL administrativa, seguindo a
+mesma precedência (`ADMIN_DATABASE_URL`, depois `DIRECT_URL`).
+
+As operações funcionais já são executadas por `withDatabaseActor`, que mantém
+as consultas na mesma transação em que os GUCs de identidade são definidos.
+Antes de habilitar `ggp_runtime` em um ambiente implantado, ainda é obrigatório
+configurar a credencial fora do Git e executar probes de isolamento com uma
+conexão que não tenha `BYPASSRLS`.
 
 Concessões de roles são metadados globais e não devem ser tratadas como parte de
 uma transação de dados. Qualquer associação temporária criada para um probe deve

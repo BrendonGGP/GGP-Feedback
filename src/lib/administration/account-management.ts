@@ -10,7 +10,7 @@ import {
   hasValidRoleCombination,
   type AccessRole,
 } from "@/lib/authorization/access-control";
-import { prisma } from "@/lib/prisma";
+import { adminPrisma } from "@/lib/prisma";
 
 export const MANAGED_ACCOUNT_STATUSES = [
   "PENDING_ACTIVATION",
@@ -163,17 +163,17 @@ export const getSystemAccountManagement = async (
     activeSessions,
     filteredTotal,
     accounts,
-  ] = await prisma.$transaction([
-    prisma.accessAccount.count(),
-    prisma.accessAccount.count({ where: { status: "ACTIVE" } }),
-    prisma.accessAccount.count({
+  ] = await adminPrisma.$transaction([
+    adminPrisma.accessAccount.count(),
+    adminPrisma.accessAccount.count({ where: { status: "ACTIVE" } }),
+    adminPrisma.accessAccount.count({
       where: { status: { in: ["PENDING_ACTIVATION", "LOCKED", "DISABLED"] } },
     }),
-    prisma.userSession.count({
+    adminPrisma.userSession.count({
       where: { revokedAt: null, expiresAt: { gt: now } },
     }),
-    prisma.accessAccount.count({ where }),
-    prisma.accessAccount.findMany({
+    adminPrisma.accessAccount.count({ where }),
+    adminPrisma.accessAccount.findMany({
       where,
       take: 100,
       orderBy: { person: { fullName: "asc" } },
@@ -243,7 +243,7 @@ export const updateManagedAccount = async (
     );
   }
 
-  const account = await prisma.accessAccount.findUnique({
+  const account = await adminPrisma.accessAccount.findUnique({
     where: { id: parsed.data.accountId },
     select: { id: true, status: true, roles: { select: { role: true } } },
   });
@@ -258,7 +258,7 @@ export const updateManagedAccount = async (
   }
 
   const now = new Date();
-  await prisma.$transaction(async (transaction) => {
+  await adminPrisma.$transaction(async (transaction) => {
     await transaction.accessAccount.update({
       where: { id: account.id },
       data: {
@@ -321,7 +321,7 @@ export const deleteManagedAccount = async (
   }
 
   try {
-    await prisma.$transaction(async (transaction) => {
+    await adminPrisma.$transaction(async (transaction) => {
       const account = await transaction.accessAccount.findUnique({
         where: { id: parsedId.data },
         select: { id: true, roles: { select: { role: true } } },
@@ -385,14 +385,14 @@ export const revokeManagedAccountSessions = async (
     return mutationError("Use a opção de sair para encerrar sua própria sessão.");
   }
 
-  const account = await prisma.accessAccount.findUnique({
+  const account = await adminPrisma.accessAccount.findUnique({
     where: { id: parsedId.data },
     select: { id: true },
   });
   if (!account) return mutationError("Conta não encontrada.");
 
   const now = new Date();
-  await prisma.$transaction(async (transaction) => {
+  await adminPrisma.$transaction(async (transaction) => {
     await transaction.userSession.updateMany({
       where: { accountId: account.id, revokedAt: null },
       data: { revokedAt: now },

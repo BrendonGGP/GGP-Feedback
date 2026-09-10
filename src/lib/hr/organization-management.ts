@@ -3,7 +3,8 @@ import { z } from "zod";
 
 import type { AuthenticatedActor } from "@/lib/auth/session";
 import { canAdministerHrDomain } from "@/lib/authorization/access-control";
-import { prisma } from "@/lib/prisma";
+import { withDatabaseActor } from "@/lib/db/actor-context";
+import { runtimePrisma as prisma } from "@/lib/prisma";
 
 const uuidSchema = z.string().uuid("Selecione uma opção válida.");
 const requiredName = (label: string, maximum: number) =>
@@ -146,6 +147,7 @@ export const getHrOrganization = async (
 ): Promise<HrOrganizationData | null> => {
   if (!canAdministerHrDomain(actor)) return null;
 
+  return withDatabaseActor(actor, async () => {
   const [activeCompanies, activeDepartments, activePeople, peopleWithoutManager, companies, people] =
     await prisma.$transaction([
       prisma.company.count({ where: { active: true } }),
@@ -206,6 +208,7 @@ export const getHrOrganization = async (
       hasAccount: person.account !== null,
     })),
   };
+  });
 };
 
 export const createHrCompany = async (actor: AuthenticatedActor, input: unknown): Promise<OrganizationMutationResult> => {
@@ -215,6 +218,7 @@ export const createHrCompany = async (actor: AuthenticatedActor, input: unknown)
 
   const baseSlug = slugify(parsed.data.name);
   if (!baseSlug) return mutationError("Informe um nome de empresa válido.");
+  return withDatabaseActor(actor, async () => {
   const duplicate = await prisma.company.findFirst({
     where: { OR: [{ name: { equals: parsed.data.name, mode: "insensitive" } }, { slug: baseSlug }] },
     select: { id: true },
@@ -231,6 +235,7 @@ export const createHrCompany = async (actor: AuthenticatedActor, input: unknown)
     return mutationError("Não foi possível cadastrar a empresa agora.");
   }
   return { ok: true, message: "Empresa cadastrada.", fieldErrors: {} };
+  });
 };
 
 export const createHrDepartment = async (actor: AuthenticatedActor, input: unknown): Promise<OrganizationMutationResult> => {
@@ -238,6 +243,7 @@ export const createHrDepartment = async (actor: AuthenticatedActor, input: unkno
   const parsed = createDepartmentInputSchema.safeParse(input);
   if (!parsed.success) return validationError(parsed.error);
 
+  return withDatabaseActor(actor, async () => {
   const company = await prisma.company.findFirst({ where: { id: parsed.data.companyId, active: true }, select: { id: true } });
   if (!company) return mutationError("Selecione uma empresa ativa.");
   const duplicate = await prisma.department.findFirst({
@@ -256,6 +262,7 @@ export const createHrDepartment = async (actor: AuthenticatedActor, input: unkno
     return mutationError("Não foi possível cadastrar o departamento agora.");
   }
   return { ok: true, message: "Departamento cadastrado.", fieldErrors: {} };
+  });
 };
 
 export const createHrPerson = async (actor: AuthenticatedActor, input: unknown): Promise<OrganizationMutationResult> => {
@@ -264,6 +271,7 @@ export const createHrPerson = async (actor: AuthenticatedActor, input: unknown):
   if (!parsed.success) return validationError(parsed.error);
   const managerId = parsed.data.managerId || null;
 
+  return withDatabaseActor(actor, async () => {
   const [company, department, manager, duplicateEmail] = await Promise.all([
     prisma.company.findFirst({ where: { id: parsed.data.companyId, active: true }, select: { id: true } }),
     prisma.department.findFirst({ where: { id: parsed.data.departmentId, companyId: parsed.data.companyId, active: true }, select: { id: true } }),
@@ -303,6 +311,7 @@ export const createHrPerson = async (actor: AuthenticatedActor, input: unknown):
     return mutationError("Não foi possível cadastrar a pessoa agora.");
   }
   return { ok: true, message: "Pessoa cadastrada. A conta de acesso ainda não foi criada.", fieldErrors: {} };
+  });
 };
 
 export const updateHrPersonOrganization = async (actor: AuthenticatedActor, input: unknown): Promise<OrganizationMutationResult> => {
@@ -312,6 +321,7 @@ export const updateHrPersonOrganization = async (actor: AuthenticatedActor, inpu
   const managerId = parsed.data.managerId || null;
   if (managerId === parsed.data.personId) return mutationError("Uma pessoa não pode liderar a si mesma.");
 
+  return withDatabaseActor(actor, async () => {
   const [person, company, department, manager] = await Promise.all([
     prisma.person.findUnique({
       where: { id: parsed.data.personId },
@@ -394,4 +404,5 @@ export const updateHrPersonOrganization = async (actor: AuthenticatedActor, inpu
 
   if (!updated) return mutationError("O cadastro foi alterado por outra pessoa. Atualize a página e tente novamente.");
   return { ok: true, message: "Estrutura da pessoa atualizada.", fieldErrors: {} };
+  });
 };

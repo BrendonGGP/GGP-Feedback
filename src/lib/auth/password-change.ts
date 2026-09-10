@@ -6,7 +6,7 @@ import {
   PASSWORD_MAX_LENGTH,
   verifyPassword,
 } from "@/lib/auth/password";
-import { prisma } from "@/lib/prisma";
+import { adminPrisma } from "@/lib/prisma";
 import { canAdministerSystem } from "@/lib/authorization/access-control";
 import type { AuthenticatedActor } from "@/lib/auth/session";
 
@@ -39,7 +39,7 @@ export const changeManagedAccountPassword = async (
   if (!canAdministerSystem(actor) || input.accountId === actor.accountId) {
     throw new Error("PASSWORD_ADMIN_NOT_ALLOWED");
   }
-  const account = await prisma.accessAccount.findUnique({
+  const account = await adminPrisma.accessAccount.findUnique({
     where: { id: input.accountId },
     select: { id: true, passwordHash: true },
   });
@@ -49,7 +49,7 @@ export const changeManagedAccountPassword = async (
   }
   const passwordHash = await hashPassword(input.newPassword);
   const changedAt = new Date();
-  await prisma.$transaction(async (transaction) => {
+  await adminPrisma.$transaction(async (transaction) => {
     await transaction.accessAccount.update({
       where: { id: account.id },
       data: {
@@ -88,7 +88,7 @@ export const changeTemporaryPassword = async (
     throw new Error("PASSWORD_POLICY_INVALID");
   }
 
-  const account = await prisma.accessAccount.findUnique({
+  const account = await adminPrisma.accessAccount.findUnique({
     where: { id: accountId },
     select: {
       passwordHash: true,
@@ -112,7 +112,7 @@ export const changeTemporaryPassword = async (
   const passwordHash = await hashPassword(newPassword);
   const changedAt = new Date();
 
-  await prisma.$transaction(async (transaction) => {
+  await adminPrisma.$transaction(async (transaction) => {
     const changedAccount = await transaction.accessAccount.updateMany({
       where: {
         id: accountId,

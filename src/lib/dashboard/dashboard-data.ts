@@ -1,7 +1,10 @@
+import type { Prisma } from "@prisma/client";
+
 import type { AccessRole } from "@/lib/authorization/access-control";
 import type { AuthenticatedActor } from "@/lib/auth/session";
 import { resolvePrimaryPortalRole } from "@/lib/auth/portal-routing";
-import { prisma } from "@/lib/prisma";
+import { withDatabaseActor } from "@/lib/db/actor-context";
+import { adminPrisma } from "@/lib/prisma";
 
 export type DashboardMetric = Readonly<{
   label: string;
@@ -81,10 +84,10 @@ const getSystemAdministratorMetrics = async (): Promise<
 > => {
   const now = new Date();
   const [activeAccounts, assignedRoles, activeSessions] =
-    await prisma.$transaction([
-      prisma.accessAccount.count({ where: { status: "ACTIVE" } }),
-      prisma.accountRoleAssignment.count(),
-      prisma.userSession.count({
+    await adminPrisma.$transaction([
+      adminPrisma.accessAccount.count({ where: { status: "ACTIVE" } }),
+      adminPrisma.accountRoleAssignment.count(),
+      adminPrisma.userSession.count({
         where: {
           revokedAt: null,
           expiresAt: { gt: now },
@@ -120,15 +123,15 @@ const getSystemAdministratorMetrics = async (): Promise<
   ];
 };
 
-const getHrDashboard = async () => {
+const getHrDashboard = async (db: Prisma.TransactionClient) => {
   const [activePeople, activeCompanies, openCycles, drafts, submitted, cycle] =
-    await prisma.$transaction([
-      prisma.person.count({ where: { active: true } }),
-      prisma.company.count({ where: { active: true } }),
-      prisma.cycle.count({ where: { status: "OPEN" } }),
-      prisma.feedback.count({ where: { status: "DRAFT" } }),
-      prisma.feedback.count({ where: { status: "SUBMITTED" } }),
-      prisma.cycle.findFirst({
+    await Promise.all([
+      db.person.count({ where: { active: true } }),
+      db.company.count({ where: { active: true } }),
+      db.cycle.count({ where: { status: "OPEN" } }),
+      db.feedback.count({ where: { status: "DRAFT" } }),
+      db.feedback.count({ where: { status: "SUBMITTED" } }),
+      db.cycle.findFirst({
         where: { status: "OPEN" },
         orderBy: { endsAt: "asc" },
         select: { name: true, endsAt: true },
@@ -167,20 +170,20 @@ const getHrDashboard = async () => {
   };
 };
 
-const getManagerDashboard = async (personId: string) => {
+const getManagerDashboard = async (db: Prisma.TransactionClient, personId: string) => {
   const [directReports, drafts, submitted, received, cycle] =
-    await prisma.$transaction([
-      prisma.person.count({ where: { managerId: personId, active: true } }),
-      prisma.feedback.count({
+    await Promise.all([
+      db.person.count({ where: { managerId: personId, active: true } }),
+      db.feedback.count({
         where: { evaluatorPersonId: personId, status: "DRAFT" },
       }),
-      prisma.feedback.count({
+      db.feedback.count({
         where: { evaluatorPersonId: personId, status: "SUBMITTED" },
       }),
-      prisma.feedback.count({
+      db.feedback.count({
         where: { subjectPersonId: personId, status: "SUBMITTED" },
       }),
-      prisma.cycle.findFirst({
+      db.cycle.findFirst({
         where: { status: "OPEN" },
         orderBy: { endsAt: "asc" },
         select: { name: true, endsAt: true },
@@ -219,26 +222,26 @@ const getManagerDashboard = async (personId: string) => {
   };
 };
 
-const getEmployeeDashboard = async (personId: string) => {
-  const [received, drafts, submitted, cycle] = await prisma.$transaction([
-    prisma.feedback.count({
+const getEmployeeDashboard = async (db: Prisma.TransactionClient, personId: string) => {
+  const [received, drafts, submitted, cycle] = await Promise.all([
+    db.feedback.count({
       where: { subjectPersonId: personId, status: "SUBMITTED" },
     }),
-    prisma.feedback.count({
+    db.feedback.count({
       where: {
         subjectPersonId: personId,
         evaluatorPersonId: personId,
         status: "DRAFT",
       },
     }),
-    prisma.feedback.count({
+    db.feedback.count({
       where: {
         subjectPersonId: personId,
         evaluatorPersonId: personId,
         status: "SUBMITTED",
       },
     }),
-    prisma.cycle.findFirst({
+    db.cycle.findFirst({
       where: { status: "OPEN" },
       orderBy: { endsAt: "asc" },
       select: { name: true, endsAt: true },
@@ -285,52 +288,52 @@ export const getPortalDashboardData = async (
     return null;
   }
 
-  const person = await prisma.person.findUnique({
-    where: { id: actor.personId },
-    select: {
-      fullName: true,
-      jobTitle: true,
-      department: { select: { name: true } },
-      company: { select: { name: true } },
-    },
+  return withDatabaseActor(actor, async (db) => {
+    const person = await db.person.findUnique({
+      where: { id: actor.personId },
+      select: {
+        fullName: true,
+        jobTitle: true,
+        department: { select: { name: true } },
+        company: { select: { name: true } },
+      },
+    });
+
+    if (!person) return null;
+
+    let metrics: readonly DashboardMetric[];
+    let feedbackSummary: DashboardFeedbackSummary | null = null;
+    let cycle: { name: string; endsAt: Date } | null = null;
+
+    if (primaryRole === "SYSTEM_ADMIN") {
+      metrics = await getSystemAdministratorMetrics();
+    } else if (primaryRole === "HR_ADMIN") {
+      const dashboard = await getHrDashboard(db);
+      ({ metrics, feedbackSummary, cycle } = dashboard);
+    } else if (primaryRole === "MANAGER") {
+      const dashboard = await getManagerDashboard(db, actor.personId);
+      ({ metrics, feedbackSummary, cycle } = dashboard);
+    } else {
+      const dashboard = await getEmployeeDashboard(db, actor.personId);
+      ({ metrics, feedbackSummary, cycle } = dashboard);
+    }
+
+    return {
+      profile: {
+        fullName: person.fullName,
+        firstName: person.fullName.trim().split(/\s+/)[0] ?? person.fullName,
+        jobTitle: person.jobTitle,
+        department: person.department.name,
+        company: person.company.name,
+      },
+      primaryRole,
+      roleLabel: roleLabels[primaryRole],
+      roleDescription: roleDescriptions[primaryRole],
+      metrics,
+      feedbackSummary,
+      cycle: cycle
+        ? { name: cycle.name, endsAt: formatCycleDate(cycle.endsAt) }
+        : null,
+    };
   });
-
-  if (!person) {
-    return null;
-  }
-
-  let metrics: readonly DashboardMetric[];
-  let feedbackSummary: DashboardFeedbackSummary | null = null;
-  let cycle: { name: string; endsAt: Date } | null = null;
-
-  if (primaryRole === "SYSTEM_ADMIN") {
-    metrics = await getSystemAdministratorMetrics();
-  } else if (primaryRole === "HR_ADMIN") {
-    const dashboard = await getHrDashboard();
-    ({ metrics, feedbackSummary, cycle } = dashboard);
-  } else if (primaryRole === "MANAGER") {
-    const dashboard = await getManagerDashboard(actor.personId);
-    ({ metrics, feedbackSummary, cycle } = dashboard);
-  } else {
-    const dashboard = await getEmployeeDashboard(actor.personId);
-    ({ metrics, feedbackSummary, cycle } = dashboard);
-  }
-
-  return {
-    profile: {
-      fullName: person.fullName,
-      firstName: person.fullName.trim().split(/\s+/)[0] ?? person.fullName,
-      jobTitle: person.jobTitle,
-      department: person.department.name,
-      company: person.company.name,
-    },
-    primaryRole,
-    roleLabel: roleLabels[primaryRole],
-    roleDescription: roleDescriptions[primaryRole],
-    metrics,
-    feedbackSummary,
-    cycle: cycle
-      ? { name: cycle.name, endsAt: formatCycleDate(cycle.endsAt) }
-      : null,
-  };
 };

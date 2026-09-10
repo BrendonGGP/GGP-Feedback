@@ -32,6 +32,11 @@ alteração, revogar as sessões anteriores.
 Defina `AUTH_SECRET` somente no `.env` local ou no gerenciador de segredos do
 ambiente. Nunca envie o valor ao GitHub, PR, chat ou logs.
 
+As consultas de autenticação, sessões e troca de senha usam uma conexão
+administrativa separada (`ADMIN_DATABASE_URL`). No desenvolvimento, `DIRECT_URL`
+é aceito apenas como fallback temporário; produção deve provisionar um usuário
+administrativo próprio.
+
 ## Limites atuais
 
 - A proteção de rotas de negócio deve ser adicionada junto com cada rota.

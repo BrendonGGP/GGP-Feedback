@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const prismaMock = vi.hoisted(() => ({
-  $transaction: vi.fn(async (operations: Promise<unknown>[]) =>
-    Promise.all(operations),
+  $transaction: vi.fn(async (operations: Promise<unknown>[] | ((transaction: unknown) => Promise<unknown>)) =>
+    typeof operations === "function" ? operations(prismaMock) : Promise.all(operations),
   ),
+  $executeRaw: vi.fn(),
   accessAccount: { count: vi.fn() },
   accountRoleAssignment: { count: vi.fn() },
   userSession: { count: vi.fn() },
@@ -13,7 +14,10 @@ const prismaMock = vi.hoisted(() => ({
   feedback: { count: vi.fn() },
 }));
 
-vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
+vi.mock("@/lib/prisma", () => ({
+  runtimePrisma: prismaMock,
+  adminPrisma: prismaMock,
+}));
 
 import { getPortalDashboardData } from "./dashboard-data";
 

@@ -85,5 +85,9 @@ Durante uma transação, o servidor deve definir `ggp.account_id`,
 transação. Esses valores são apenas um contexto interno do servidor; nunca
 devem ser aceitos diretamente do navegador.
 
-O código ainda precisa migrar os fluxos de autenticação e administração para
-conexões separadas antes de trocar o runtime atual pela role `ggp_runtime`.
+Autenticação, sessões, troca de senha e administração técnica usam o cliente
+administrativo separado; as rotinas funcionais usam o cliente de runtime e já
+propagam o contexto da identidade por `withDatabaseActor`. Antes de trocar a
+URL de runtime pela role `ggp_runtime`, ainda é necessário provisionar a
+credencial fora do Git e executar probes de isolamento com a role sem
+`BYPASSRLS`.

@@ -9,9 +9,10 @@ const { transaction, prismaMock } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
+vi.mock("@/lib/prisma", () => ({ runtimePrisma: prismaMock }));
 
 import { withDatabaseActor } from "./actor-context";
+import { getRuntimeTransaction } from "./runtime-context";
 
 describe("contexto de RLS do ator", () => {
   beforeEach(() => {
@@ -28,7 +29,10 @@ describe("contexto de RLS do ator", () => {
       roles: ["MANAGER", "EMPLOYEE"] as const,
       mustChangePassword: false,
     };
-    const operation = vi.fn().mockResolvedValue("ok");
+    const operation = vi.fn(async () => {
+      expect(getRuntimeTransaction()).toBe(transaction);
+      return "ok";
+    });
 
     await expect(withDatabaseActor(actor, operation)).resolves.toBe("ok");
 

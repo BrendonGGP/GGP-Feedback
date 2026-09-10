@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import type { AuthenticatedActor } from "@/lib/auth/session";
 import { canAdministerHrDomain } from "@/lib/authorization/access-control";
-import { prisma } from "@/lib/prisma";
+import { withDatabaseActor } from "@/lib/db/actor-context";
 
 export const PEOPLE_DIRECTORY_VIEWS = ["all", "managers"] as const;
 export const PEOPLE_DIRECTORY_STATUSES = ["active", "all"] as const;
@@ -79,13 +79,14 @@ export const getHrPeopleDirectory = async (
   const filters = parsePeopleDirectoryFilters(input);
   const where = buildWhere(filters);
   const [activePeople, activeManagers, roots, withoutAccount, filteredTotal, people] =
-    await prisma.$transaction([
-      prisma.person.count({ where: { active: true } }),
-      prisma.person.count({ where: { active: true, directReports: { some: { active: true } } } }),
-      prisma.person.count({ where: { active: true, managerId: null } }),
-      prisma.person.count({ where: { active: true, account: null } }),
-      prisma.person.count({ where }),
-      prisma.person.findMany({
+    await withDatabaseActor(actor, async (db) =>
+      Promise.all([
+        db.person.count({ where: { active: true } }),
+        db.person.count({ where: { active: true, directReports: { some: { active: true } } } }),
+        db.person.count({ where: { active: true, managerId: null } }),
+        db.person.count({ where: { active: true, account: null } }),
+        db.person.count({ where }),
+        db.person.findMany({
         where,
         take: 200,
         orderBy: [{ active: "desc" }, { fullName: "asc" }],
@@ -102,8 +103,9 @@ export const getHrPeopleDirectory = async (
           account: { select: { id: true } },
           _count: { select: { directReports: { where: { active: true } } } },
         },
-      }),
-    ]);
+        }),
+      ]),
+    );
 
   return {
     metrics: { activePeople, activeManagers, roots, withoutAccount },

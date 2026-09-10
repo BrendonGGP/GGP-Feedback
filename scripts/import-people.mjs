@@ -3,7 +3,8 @@ import { readFileSync } from "node:fs";
 import { isAbsolute, relative, resolve } from "node:path";
 
 import argon2 from "argon2";
-import { PrismaClient } from "@prisma/client";
+
+import { createAdminPrismaClient } from "./prisma-admin-client.mjs";
 
 const APPLY_FLAG = "--apply";
 const repoRoot = resolve(process.cwd());
@@ -406,7 +407,7 @@ const run = async () => {
   }
   if (!apply) return;
 
-  const prisma = new PrismaClient();
+  const prisma = createAdminPrismaClient();
   try {
     const result = await prisma.$transaction(
       (transaction) => applyImport(transaction, validation.records),

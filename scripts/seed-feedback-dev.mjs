@@ -1,6 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { createAdminPrismaClient } from "./prisma-admin-client.mjs";
 
-const prisma = new PrismaClient();
+const prisma = createAdminPrismaClient();
 const apply = process.argv.includes("--apply");
 const verify = process.argv.includes("--verify");
 

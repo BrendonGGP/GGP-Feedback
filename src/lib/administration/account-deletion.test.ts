@@ -23,7 +23,7 @@ const mocks = vi.hoisted(() => {
   };
 });
 
-vi.mock("@/lib/prisma", () => ({ prisma: mocks.prisma }));
+vi.mock("@/lib/prisma", () => ({ adminPrisma: mocks.prisma }));
 
 import { deleteManagedAccount } from "./account-management";
 

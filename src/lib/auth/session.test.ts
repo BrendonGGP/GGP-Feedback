@@ -7,7 +7,7 @@ const { authMock, findUniqueMock } = vi.hoisted(() => ({
 
 vi.mock("@/auth", () => ({ auth: authMock }));
 vi.mock("@/lib/prisma", () => ({
-  prisma: {
+  adminPrisma: {
     accessAccount: { findUnique: findUniqueMock },
   },
 }));

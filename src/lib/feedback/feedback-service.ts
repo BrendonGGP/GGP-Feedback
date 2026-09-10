@@ -12,7 +12,8 @@ import {
   validateFeedbackAnswers,
   type FeedbackIntent,
 } from "@/lib/feedback/feedback-validation";
-import { prisma } from "@/lib/prisma";
+import { withDatabaseActor } from "@/lib/db/actor-context";
+import { runtimePrisma as prisma } from "@/lib/prisma";
 import { serializeCsv } from "@/lib/feedback/csv";
 
 const MAX_EXPORT_ROWS = 5000;
@@ -42,6 +43,7 @@ export const getFeedbackOverview = async (actor: AuthenticatedActor) => {
     return null;
   }
 
+  return withDatabaseActor(actor, async () => {
   const where = visibilityWhere(actor);
   const now = new Date();
   const [
@@ -134,6 +136,7 @@ export const getFeedbackOverview = async (actor: AuthenticatedActor) => {
       date: (feedback.submittedAt ?? feedback.createdAt).toISOString(),
     })),
   };
+  });
 };
 
 type AnalyticsAccumulator = {
@@ -152,6 +155,7 @@ const promptTitle = (prompt: string): string =>
 export const getFeedbackAnalytics = async (actor: AuthenticatedActor) => {
   if (!isFunctionalActor(actor)) return null;
 
+  return withDatabaseActor(actor, async () => {
   const feedbacks = await prisma.feedback.findMany({
     where: { AND: [visibilityWhere(actor), { status: "SUBMITTED" }] },
     orderBy: { submittedAt: "desc" },
@@ -220,6 +224,7 @@ export const getFeedbackAnalytics = async (actor: AuthenticatedActor) => {
         average: average(competency.total, competency.ratings),
       })),
   };
+  });
 };
 
 export type FeedbackExportResult =
@@ -233,6 +238,7 @@ export const getFeedbackExportCsv = async (
     return { ok: false, status: 403, message: "Exportação não autorizada." };
   }
 
+  return withDatabaseActor(actor, async () => {
   const where = visibilityWhere(actor);
   try {
     return await prisma.$transaction(async (transaction) => {
@@ -317,6 +323,7 @@ export const getFeedbackExportCsv = async (
   } catch {
     return { ok: false, status: 422, message: "Não foi possível gerar a exportação." };
   }
+  });
 };
 
 export const getNewFeedbackContext = async (
@@ -329,6 +336,7 @@ export const getNewFeedbackContext = async (
     return null;
   }
 
+  return withDatabaseActor(actor, async () => {
   const now = new Date();
   const parsedDraftId = z.string().uuid().safeParse(draftId);
   const [cycles, directReports, self, draft] = await prisma.$transaction(async (transaction) => {
@@ -483,6 +491,7 @@ export const getNewFeedbackContext = async (
       ? { subjectPersonId: draft.subjectPersonId, answers: draft.answers }
       : null,
   };
+  });
 };
 
 export const getFeedbackDetail = async (
@@ -493,6 +502,7 @@ export const getFeedbackDetail = async (
     return null;
   }
 
+  return withDatabaseActor(actor, async () => {
   const feedback = await prisma.feedback.findFirst({
     where: { AND: [{ id: feedbackId }, visibilityWhere(actor)] },
     select: {
@@ -578,6 +588,7 @@ export const getFeedbackDetail = async (
       text: answer.text,
     })),
   };
+  });
 };
 
 export type SaveFeedbackInput = Readonly<{
@@ -603,6 +614,7 @@ export const saveFeedback = async (
     return { ok: false, message: "Não foi possível salvar este feedback.", fieldErrors: {} };
   }
 
+  return withDatabaseActor(actor, async () => {
   const now = new Date();
   try {
     return await prisma.$transaction(async (transaction) => {
@@ -754,4 +766,5 @@ export const saveFeedback = async (
       fieldErrors: {},
     };
   }
+  });
 };

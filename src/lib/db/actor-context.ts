@@ -5,7 +5,8 @@ import {
   hasValidRoleCombination,
   isAccessRole,
 } from "@/lib/authorization/access-control";
-import { prisma } from "@/lib/prisma";
+import { runtimePrisma } from "@/lib/prisma";
+import { runWithRuntimeTransaction } from "@/lib/db/runtime-context";
 
 /**
  * Runs a unit of business work on one database transaction with the actor
@@ -35,7 +36,7 @@ export const withDatabaseActor = async <T>(
     throw new Error("INVALID_DATABASE_ACTOR");
   }
 
-  return prisma.$transaction(async (transaction) => {
+  return runtimePrisma.$transaction(async (transaction) => {
     await transaction.$executeRaw`
       SELECT
         set_config('ggp.account_id', ${actor.accountId}, true),
@@ -43,6 +44,6 @@ export const withDatabaseActor = async <T>(
         set_config('ggp.roles', ${actor.roles.join(",")}, true)
     `;
 
-    return operation(transaction);
+    return runWithRuntimeTransaction(transaction, () => operation(transaction));
   }, options);
 };

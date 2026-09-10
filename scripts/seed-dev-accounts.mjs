@@ -3,7 +3,8 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { isAbsolute, relative, resolve } from "node:path";
 
 import argon2 from "argon2";
-import { PrismaClient } from "@prisma/client";
+
+import { createAdminPrismaClient } from "./prisma-admin-client.mjs";
 
 const APPLY_FLAG = "--apply";
 const VERIFY_FLAG = "--verify";
@@ -269,7 +270,7 @@ const writeCredentialsFile = (passwords) => {
 };
 
 const verifySyntheticData = async () => {
-  const prisma = new PrismaClient();
+  const prisma = createAdminPrismaClient();
   try {
     const [storedCompany, storedDepartments, storedPeople, storedAccounts] =
       await Promise.all([
@@ -361,7 +362,7 @@ const run = async () => {
   }
 
   const passwords = getPasswords();
-  const prisma = new PrismaClient();
+  const prisma = createAdminPrismaClient();
   try {
     await prisma.$transaction((transaction) =>
       upsertSyntheticData(transaction, passwords),
