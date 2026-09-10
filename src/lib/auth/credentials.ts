@@ -7,7 +7,7 @@ import {
   isAccessRole,
   type AccessRole,
 } from "@/lib/authorization/access-control";
-import { prisma } from "@/lib/prisma";
+import { adminPrisma } from "@/lib/prisma";
 import { DUMMY_PASSWORD_HASH, verifyPassword } from "@/lib/auth/password";
 import { hashSessionNonce } from "@/lib/auth/sessions";
 import { usernameSchema } from "@/lib/auth/username";
@@ -45,7 +45,7 @@ const registerFailedAttempt = async (
   accountId: string,
   resetExpiredLock = false,
 ): Promise<void> => {
-  await prisma.$transaction(async (transaction) => {
+  await adminPrisma.$transaction(async (transaction) => {
     const account = await transaction.accessAccount.update({
       where: { id: accountId },
       data: {
@@ -77,7 +77,7 @@ const authorizeProvisionedCredentialsUnsafe = async (
     return null;
   }
 
-  const account = await prisma.accessAccount.findFirst({
+  const account = await adminPrisma.accessAccount.findFirst({
     where: {
       loginIdentifier: {
         equals: parsed.data.loginIdentifier,
@@ -134,8 +134,8 @@ const authorizeProvisionedCredentialsUnsafe = async (
     Date.now() + AUTH_SESSION_MAX_AGE_SECONDS * 1000,
   );
 
-  await prisma.$transaction([
-    prisma.accessAccount.update({
+  await adminPrisma.$transaction([
+    adminPrisma.accessAccount.update({
       where: { id: account.id },
       data: {
         status: "ACTIVE",
@@ -144,7 +144,7 @@ const authorizeProvisionedCredentialsUnsafe = async (
         lastLoginAt: new Date(),
       },
     }),
-    prisma.userSession.create({
+    adminPrisma.userSession.create({
       data: {
         id: sessionId,
         accountId: account.id,

@@ -5,7 +5,7 @@ import {
   type AccessRole,
   type AuthorizationActor,
 } from "@/lib/authorization/access-control";
-import { prisma } from "@/lib/prisma";
+import { adminPrisma } from "@/lib/prisma";
 
 export type AuthenticatedActor = AuthorizationActor &
   Readonly<{
@@ -27,7 +27,7 @@ export const getAuthenticatedActor = async (
     return null;
   }
 
-  const account = await prisma.accessAccount.findUnique({
+  const account = await adminPrisma.accessAccount.findUnique({
     where: { id: accountId },
     include: { roles: { select: { role: true } } },
   });

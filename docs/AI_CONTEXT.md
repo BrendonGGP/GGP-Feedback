@@ -7,7 +7,7 @@ Este arquivo é o ponto de entrada técnico do projeto. Leia apenas as referênc
 - Next.js e TypeScript concentram interface e servidor.
 - Prisma descreve o domínio; PostgreSQL é executado localmente e administrado pelo DBeaver.
 - As migrations versionadas, a role `ggp_runtime` e as policies RLS de negócio foram aplicadas ao banco local; novas migrations exigem aprovação separada.
-- Os perfis e a política de autorização estão em `docs/AUTORIZACAO.md`; a base de autenticação está em `docs/AUTENTICACAO.md`; o helper de contexto RLS existe, mas o runtime ainda precisa separar autenticação/administração antes de trocar de role.
+- Os perfis e a política de autorização estão em `docs/AUTORIZACAO.md`; a base de autenticação está em `docs/AUTENTICACAO.md`; autenticação/administração usam um cliente separado, e as operações funcionais já propagam o contexto RLS com `withDatabaseActor`.
 - Antes de criar telas, solicite ao responsável os prints de referência visual.
 
 ## Mapa do código

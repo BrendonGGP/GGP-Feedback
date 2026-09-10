@@ -1,5 +1,7 @@
+import type { Prisma } from "@prisma/client";
+
 import type { AuthenticatedActor } from "@/lib/auth/session";
-import { prisma } from "@/lib/prisma";
+import { withDatabaseActor } from "@/lib/db/actor-context";
 
 export type ManagerTeamMember = Readonly<{
   id: string;
@@ -52,62 +54,61 @@ export const getManagerTeam = async (
     return null;
   }
 
-  const manager = await prisma.person.findUnique({
-    where: { id: actor.personId },
-    select: {
-      company: { select: { name: true } },
-      department: { select: { name: true } },
-    },
-  });
+  return withDatabaseActor(actor, async (db: Prisma.TransactionClient) => {
+    const manager = await db.person.findUnique({
+      where: { id: actor.personId },
+      select: {
+        company: { select: { name: true } },
+        department: { select: { name: true } },
+      },
+    });
 
-  if (!manager) {
-    return null;
-  }
+    if (!manager) return null;
 
-  const members = await prisma.person.findMany({
-    where: { managerId: actor.personId, active: true },
-    orderBy: { fullName: "asc" },
-    select: {
-      id: true,
-      fullName: true,
-      jobTitle: true,
-      corporateEmail: true,
-      company: { select: { name: true } },
-      department: { select: { name: true } },
-    },
-  });
+    const members = await db.person.findMany({
+      where: { managerId: actor.personId, active: true },
+      orderBy: { fullName: "asc" },
+      select: {
+        id: true,
+        fullName: true,
+        jobTitle: true,
+        corporateEmail: true,
+        company: { select: { name: true } },
+        department: { select: { name: true } },
+      },
+    });
 
-  const memberIds = members.map((member) => member.id);
-  const [feedbacks, cycle] = await Promise.all([
-    memberIds.length === 0
-      ? Promise.resolve([])
-      : prisma.feedback.findMany({
-          where: {
-            evaluatorPersonId: actor.personId,
-            subjectPersonId: { in: memberIds },
-            status: { in: ["DRAFT", "SUBMITTED"] },
-          },
-          orderBy: { updatedAt: "desc" },
-          select: {
-            subjectPersonId: true,
-            status: true,
-            updatedAt: true,
-            submittedAt: true,
-          },
-        }),
-    prisma.cycle.findFirst({
-      where: { status: "OPEN" },
-      orderBy: { endsAt: "asc" },
-      select: { name: true, endsAt: true },
-    }),
-  ]);
+    const memberIds = members.map((member) => member.id);
+    const [feedbacks, cycle] = await Promise.all([
+      memberIds.length === 0
+        ? Promise.resolve([])
+        : db.feedback.findMany({
+            where: {
+              evaluatorPersonId: actor.personId,
+              subjectPersonId: { in: memberIds },
+              status: { in: ["DRAFT", "SUBMITTED"] },
+            },
+            orderBy: { updatedAt: "desc" },
+            select: {
+              subjectPersonId: true,
+              status: true,
+              updatedAt: true,
+              submittedAt: true,
+            },
+          }),
+      db.cycle.findFirst({
+        where: { status: "OPEN" },
+        orderBy: { endsAt: "asc" },
+        select: { name: true, endsAt: true },
+      }),
+    ]);
 
-  const feedbackByMember = new Map<
+    const feedbackByMember = new Map<
     string,
     { submitted: number; drafts: number; lastActivityAt: Date | null }
   >();
 
-  for (const feedback of feedbacks) {
+    for (const feedback of feedbacks) {
     const current = feedbackByMember.get(feedback.subjectPersonId) ?? {
       submitted: 0,
       drafts: 0,
@@ -126,7 +127,7 @@ export const getManagerTeam = async (
     feedbackByMember.set(feedback.subjectPersonId, current);
   }
 
-  const teamMembers = members.map((member) => {
+    const teamMembers = members.map((member) => {
     const feedback = feedbackByMember.get(member.id) ?? {
       submitted: 0,
       drafts: 0,
@@ -148,17 +149,18 @@ export const getManagerTeam = async (
     } satisfies ManagerTeamMember;
   });
 
-  return {
-    manager: {
-      departmentName: manager.department.name,
-      companyName: manager.company.name,
-    },
-    metrics: {
-      activeMembers: teamMembers.length,
-      submittedFeedbacks: teamMembers.reduce((total, member) => total + member.feedback.submitted, 0),
-      draftFeedbacks: teamMembers.reduce((total, member) => total + member.feedback.drafts, 0),
-    },
-    cycle: cycle ? { name: cycle.name, endsAt: formatDate(cycle.endsAt) } : null,
-    members: teamMembers,
-  };
+    return {
+      manager: {
+        departmentName: manager.department.name,
+        companyName: manager.company.name,
+      },
+      metrics: {
+        activeMembers: teamMembers.length,
+        submittedFeedbacks: teamMembers.reduce((total, member) => total + member.feedback.submitted, 0),
+        draftFeedbacks: teamMembers.reduce((total, member) => total + member.feedback.drafts, 0),
+      },
+      cycle: cycle ? { name: cycle.name, endsAt: formatDate(cycle.endsAt) } : null,
+      members: teamMembers,
+    };
+  });
 };

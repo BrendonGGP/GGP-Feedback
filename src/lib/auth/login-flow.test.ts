@@ -17,7 +17,7 @@ const {
 }));
 
 vi.mock("@/lib/prisma", () => ({
-  prisma: {
+  adminPrisma: {
     accessAccount: {
       findFirst: findFirstMock,
       update: updateMock,

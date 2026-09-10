@@ -4,7 +4,7 @@ import Credentials from "next-auth/providers/credentials";
 import { authorizeProvisionedCredentials, AUTH_SESSION_MAX_AGE_SECONDS } from "@/lib/auth/credentials";
 import { revokeSession, sessionNonceMatches } from "@/lib/auth/sessions";
 import { hasValidRoleCombination, isAccessRole, type AccessRole } from "@/lib/authorization/access-control";
-import { prisma } from "@/lib/prisma";
+import { adminPrisma } from "@/lib/prisma";
 
 const isNonEmptyString = (value: unknown): value is string =>
   typeof value === "string" && value.length > 0;
@@ -61,7 +61,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return invalidToken(token);
       }
 
-      const persistedSession = await prisma.userSession.findUnique({
+      const persistedSession = await adminPrisma.userSession.findUnique({
         where: { id: token.sessionId },
         include: { account: { include: { roles: { select: { role: true } } } } },
       });

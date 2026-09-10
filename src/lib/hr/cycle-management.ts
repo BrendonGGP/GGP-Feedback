@@ -3,7 +3,8 @@ import { z } from "zod";
 
 import type { AuthenticatedActor } from "@/lib/auth/session";
 import { canAdministerHrDomain } from "@/lib/authorization/access-control";
-import { prisma } from "@/lib/prisma";
+import { withDatabaseActor } from "@/lib/db/actor-context";
+import { runtimePrisma as prisma } from "@/lib/prisma";
 
 const DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -128,12 +129,13 @@ export const getHrCycleManagement = async (
   if (!canAdministerHrDomain(actor)) return null;
 
   const [activePeople, openCycles, activeTemplates, feedbacks, cycles, templates] =
-    await prisma.$transaction([
-      prisma.person.count({ where: { active: true } }),
-      prisma.cycle.count({ where: { status: "OPEN" } }),
-      prisma.formTemplate.count({ where: { active: true } }),
-      prisma.feedback.count(),
-      prisma.cycle.findMany({
+    await withDatabaseActor(actor, async (db) =>
+      Promise.all([
+      db.person.count({ where: { active: true } }),
+      db.cycle.count({ where: { status: "OPEN" } }),
+      db.formTemplate.count({ where: { active: true } }),
+      db.feedback.count(),
+      db.cycle.findMany({
         orderBy: [{ startsAt: "desc" }, { name: "asc" }],
         select: {
           id: true,
@@ -157,7 +159,7 @@ export const getHrCycleManagement = async (
           },
         },
       }),
-      prisma.formTemplate.findMany({
+      db.formTemplate.findMany({
         where: { active: true },
         orderBy: [{ name: "asc" }, { version: "desc" }],
         select: {
@@ -179,7 +181,8 @@ export const getHrCycleManagement = async (
           },
         },
       }),
-    ]);
+      ]),
+    );
 
   return {
     metrics: { activePeople, openCycles, activeTemplates, feedbacks },
@@ -224,6 +227,7 @@ export const createHrCycle = async (
   const endsAt = parseDateOnly(parsed.data.endsAt);
   if (!startsAt || !endsAt) return mutationError("Informe datas válidas.");
 
+  return withDatabaseActor(actor, async () => {
   const template = await prisma.formTemplate.findFirst({
     where: { id: parsed.data.templateId, active: true },
     select: { id: true, questions: { where: { active: true }, select: { id: true } } },
@@ -272,6 +276,7 @@ export const createHrCycle = async (
     fieldErrors: {},
     cycleId: cycle.id,
   };
+  });
 };
 
 export const updateHrCycleStatus = async (
@@ -289,6 +294,7 @@ export const updateHrCycleStatus = async (
     return mutationError("A alteração solicitada é inválida.");
   }
 
+  return withDatabaseActor(actor, async () => {
   const cycle = await prisma.cycle.findUnique({
     where: { id: cycleId },
     select: {
@@ -333,4 +339,5 @@ export const updateHrCycleStatus = async (
     fieldErrors: {},
     cycleId: cycle.id,
   };
+  });
 };
