@@ -5,7 +5,7 @@ import {
   type AccessRole,
   type AuthorizationActor,
 } from "@/lib/authorization/access-control";
-import { adminPrisma } from "@/lib/prisma";
+import { adminPrisma } from "@/lib/infrastructure/database/prisma";
 
 export type AuthenticatedActor = AuthorizationActor &
   Readonly<{

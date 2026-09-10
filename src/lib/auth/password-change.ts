@@ -6,7 +6,7 @@ import {
   PASSWORD_MAX_LENGTH,
   verifyPassword,
 } from "@/lib/auth/password";
-import { adminPrisma } from "@/lib/prisma";
+import { adminPrisma } from "@/lib/infrastructure/database/prisma";
 import { canAdministerSystem } from "@/lib/authorization/access-control";
 import type { AuthenticatedActor } from "@/lib/auth/session";
 

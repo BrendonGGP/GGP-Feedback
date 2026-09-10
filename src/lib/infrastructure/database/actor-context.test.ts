@@ -9,7 +9,7 @@ const { transaction, prismaMock } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("@/lib/prisma", () => ({ runtimePrisma: prismaMock }));
+vi.mock("@/lib/infrastructure/database/prisma", () => ({ runtimePrisma: prismaMock }));
 
 import { withDatabaseActor } from "./actor-context";
 import { getRuntimeTransaction } from "./runtime-context";

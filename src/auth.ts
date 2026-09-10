@@ -4,7 +4,7 @@ import Credentials from "next-auth/providers/credentials";
 import { authorizeProvisionedCredentials, AUTH_SESSION_MAX_AGE_SECONDS } from "@/lib/auth/credentials";
 import { revokeSession, sessionNonceMatches } from "@/lib/auth/sessions";
 import { hasValidRoleCombination, isAccessRole, type AccessRole } from "@/lib/authorization/access-control";
-import { adminPrisma } from "@/lib/prisma";
+import { adminPrisma } from "@/lib/infrastructure/database/prisma";
 
 const isNonEmptyString = (value: unknown): value is string =>
   typeof value === "string" && value.length > 0;

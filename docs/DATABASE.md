@@ -64,7 +64,7 @@ npm.cmd run prisma:seed:dev -- -- --verify
 
 O primeiro comando é apenas um dry-run. O segundo cria ou atualiza somente a
 empresa, departamentos, pessoas, contas e papéis sintéticos definidos em
-`scripts/seed-dev-accounts.mjs`. O terceiro faz uma conferência somente leitura.
+`scripts/seed/seed-dev-accounts.mjs`. O terceiro faz uma conferência somente leitura.
 
 As senhas temporárias são geradas localmente e gravadas apenas em
 `dados-privados/contas-sinteticas-dev.txt`, que é ignorado pelo Git. Nunca copie

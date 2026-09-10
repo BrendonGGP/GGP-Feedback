@@ -1,4 +1,4 @@
-import { createAdminPrismaClient } from "./prisma-admin-client.mjs";
+import { createAdminPrismaClient } from "../database/prisma-admin-client.mjs";
 
 const prisma = createAdminPrismaClient();
 const apply = process.argv.includes("--apply");

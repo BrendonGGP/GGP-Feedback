@@ -16,7 +16,7 @@ const {
   verifyPasswordMock: vi.fn(),
 }));
 
-vi.mock("@/lib/prisma", () => ({
+vi.mock("@/lib/infrastructure/database/prisma", () => ({
   adminPrisma: {
     accessAccount: { findUnique: findUniqueMock },
     $transaction: transactionMock,

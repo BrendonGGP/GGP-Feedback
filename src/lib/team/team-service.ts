@@ -1,7 +1,7 @@
 import type { Prisma } from "@prisma/client";
 
 import type { AuthenticatedActor } from "@/lib/auth/session";
-import { withDatabaseActor } from "@/lib/db/actor-context";
+import { withDatabaseActor } from "@/lib/infrastructure/database/actor-context";
 
 export type ManagerTeamMember = Readonly<{
   id: string;

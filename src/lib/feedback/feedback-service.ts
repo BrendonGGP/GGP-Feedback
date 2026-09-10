@@ -12,8 +12,8 @@ import {
   validateFeedbackAnswers,
   type FeedbackIntent,
 } from "@/lib/feedback/feedback-validation";
-import { withDatabaseActor } from "@/lib/db/actor-context";
-import { runtimePrisma as prisma } from "@/lib/prisma";
+import { withDatabaseActor } from "@/lib/infrastructure/database/actor-context";
+import { runtimePrisma as prisma } from "@/lib/infrastructure/database/prisma";
 import { serializeCsv } from "@/lib/feedback/csv";
 
 const MAX_EXPORT_ROWS = 5000;
