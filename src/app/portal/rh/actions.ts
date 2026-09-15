@@ -8,6 +8,11 @@ import {
   createHrCycle,
   updateHrCycleStatus,
 } from "@/lib/hr/cycle-management";
+import {
+  createHrFormTemplate,
+  deleteHrFormTemplate,
+  updateHrFormTemplate,
+} from "@/lib/hr/form-management";
 
 export type HrCycleActionState = Readonly<{
   message: string;
@@ -64,4 +69,62 @@ export async function updateCycleStatusAction(formData: FormData): Promise<void>
 
   revalidatePath("/portal/rh");
   redirect("/portal/rh?atualizado=1");
+}
+
+const formTemplateInputFromFormData = (formData: FormData) => ({
+  name: getFormString(formData.get("name")),
+  audience: getFormString(formData.get("audience")),
+  questions: getFormString(formData.get("questions")),
+});
+
+export async function createFormTemplateAction(
+  _previousState: HrCycleActionState,
+  formData: FormData,
+): Promise<HrCycleActionState> {
+  const actor = await getAuthenticatedActor();
+  if (!actor) return { ...initialActionState, message: "Sua sessão expirou. Entre novamente." };
+
+  const result = await createHrFormTemplate(actor, formTemplateInputFromFormData(formData));
+  if (!result.ok) {
+    return { message: result.message, fieldErrors: result.fieldErrors, success: false };
+  }
+
+  revalidatePath("/portal/rh");
+  return { message: result.message, fieldErrors: {}, success: true };
+}
+
+export async function updateFormTemplateAction(
+  _previousState: HrCycleActionState,
+  formData: FormData,
+): Promise<HrCycleActionState> {
+  const actor = await getAuthenticatedActor();
+  if (!actor) return { ...initialActionState, message: "Sua sessão expirou. Entre novamente." };
+
+  const result = await updateHrFormTemplate(
+    actor,
+    getFormString(formData.get("templateId")),
+    formTemplateInputFromFormData(formData),
+  );
+  if (!result.ok) {
+    return { message: result.message, fieldErrors: result.fieldErrors, success: false };
+  }
+
+  revalidatePath("/portal/rh");
+  return { message: result.message, fieldErrors: {}, success: true };
+}
+
+export async function deleteFormTemplateAction(
+  _previousState: HrCycleActionState,
+  formData: FormData,
+): Promise<HrCycleActionState> {
+  const actor = await getAuthenticatedActor();
+  if (!actor) return { ...initialActionState, message: "Sua sessão expirou. Entre novamente." };
+
+  const result = await deleteHrFormTemplate(actor, getFormString(formData.get("templateId")));
+  if (!result.ok) {
+    return { message: result.message, fieldErrors: result.fieldErrors, success: false };
+  }
+
+  revalidatePath("/portal/rh");
+  return { message: result.message, fieldErrors: {}, success: true };
 }

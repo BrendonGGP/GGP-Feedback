@@ -1,4 +1,4 @@
-import type { CycleStatus, QuestionType } from "@prisma/client";
+import type { CycleStatus, FormAudience, QuestionType } from "@prisma/client";
 import { z } from "zod";
 
 import type { AuthenticatedActor } from "@/lib/auth/session";
@@ -63,6 +63,7 @@ export type HrCycleManagementData = Readonly<{
       id: string;
       name: string;
       version: number;
+      audience: FormAudience;
       questionCount: number;
     }[];
   }[];
@@ -70,6 +71,7 @@ export type HrCycleManagementData = Readonly<{
     id: string;
     name: string;
     version: number;
+    audience: FormAudience;
     questions: readonly {
       id: string;
       prompt: string;
@@ -128,12 +130,11 @@ export const getHrCycleManagement = async (
 ): Promise<HrCycleManagementData | null> => {
   if (!canAdministerHrDomain(actor)) return null;
 
-  const [activePeople, openCycles, activeTemplates, feedbacks, cycles, templates] =
+  const [activePeople, openCycles, feedbacks, cycles, templates] =
     await withDatabaseActor(actor, async (db) =>
       Promise.all([
       db.person.count({ where: { active: true } }),
       db.cycle.count({ where: { status: "OPEN" } }),
-      db.formTemplate.count({ where: { active: true } }),
       db.feedback.count(),
       db.cycle.findMany({
         orderBy: [{ startsAt: "desc" }, { name: "asc" }],
@@ -152,6 +153,7 @@ export const getHrCycleManagement = async (
                   id: true,
                   name: true,
                   version: true,
+                  audience: true,
                   _count: { select: { questions: true } },
                 },
               },
@@ -166,6 +168,7 @@ export const getHrCycleManagement = async (
           id: true,
           name: true,
           version: true,
+          audience: true,
           questions: {
             where: { active: true },
             orderBy: { position: "asc" },
@@ -184,8 +187,18 @@ export const getHrCycleManagement = async (
       ]),
     );
 
+  // A form edit creates a new version. Only the latest active version for a
+  // given name is offered for new cycles; older versions remain queryable by
+  // cycles already in progress and preserve their historical answers.
+  const latestTemplates = new Map<string, (typeof templates)[number]>();
+  for (const template of templates) {
+    const key = template.name.trim().toLocaleLowerCase("pt-BR");
+    const previous = latestTemplates.get(key);
+    if (!previous || template.version > previous.version) latestTemplates.set(key, template);
+  }
+
   return {
-    metrics: { activePeople, openCycles, activeTemplates, feedbacks },
+    metrics: { activePeople, openCycles, activeTemplates: latestTemplates.size, feedbacks },
     cycles: cycles.map((cycle) => ({
       id: cycle.id,
       name: cycle.name,
@@ -198,10 +211,11 @@ export const getHrCycleManagement = async (
         id: template.id,
         name: template.name,
         version: template.version,
+        audience: template.audience,
         questionCount: template._count.questions,
       })),
     })),
-    templates,
+    templates: [...latestTemplates.values()],
   };
 };
 

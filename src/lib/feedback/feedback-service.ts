@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client";
+import type { FormAudience, Prisma } from "@prisma/client";
 import { z } from "zod";
 
 import type { AuthenticatedActor } from "@/lib/auth/session";
@@ -22,6 +22,9 @@ const MAX_ANALYTICS_FEEDBACKS = 5000;
 const isFunctionalActor = (actor: AuthenticatedActor): boolean =>
   !actor.roles.includes("SYSTEM_ADMIN") &&
   actor.roles.some((role) => ["HR_ADMIN", "MANAGER", "EMPLOYEE"].includes(role));
+
+const audienceAllows = (audience: FormAudience | undefined, role: "MANAGER" | "EMPLOYEE"): boolean =>
+  audience === "BOTH" || audience === role;
 
 const visibilityWhere = (actor: AuthenticatedActor): Prisma.FeedbackWhereInput => {
   const scope = resolveFeedbackReadScope(actor);
@@ -96,7 +99,10 @@ export const getFeedbackOverview = async (actor: AuthenticatedActor) => {
         endsAt: { gte: now },
         cycleTemplates: {
           some: {
-            template: { active: true, questions: { some: { active: true } } },
+            template: {
+              questions: { some: { active: true } },
+              audience: { in: ["MANAGER", "BOTH"] },
+            },
           },
         },
       },
@@ -109,7 +115,10 @@ export const getFeedbackOverview = async (actor: AuthenticatedActor) => {
         selfAssessmentEnabled: true,
         cycleTemplates: {
           some: {
-            template: { active: true, questions: { some: { active: true } } },
+            template: {
+              questions: { some: { active: true } },
+              audience: { in: ["EMPLOYEE", "BOTH"] },
+            },
           },
         },
       },
@@ -347,7 +356,7 @@ export const getNewFeedbackContext = async (
         endsAt: { gte: now },
         cycleTemplates: {
           some: {
-            template: { active: true, questions: { some: { active: true } } },
+            template: { questions: { some: { active: true } } },
           },
         },
       },
@@ -357,11 +366,12 @@ export const getNewFeedbackContext = async (
         name: true,
         selfAssessmentEnabled: true,
         cycleTemplates: {
-          where: { template: { active: true } },
+          where: { template: { questions: { some: { active: true } } } },
           take: 1,
           select: {
             template: {
               select: {
+                audience: true,
                 questions: {
                   where: { active: true },
                   orderBy: { position: "asc" },
@@ -420,27 +430,34 @@ export const getNewFeedbackContext = async (
   });
 
   const eligibleCycles = cycles.filter(
-    (cycle) =>
-      (cycle.cycleTemplates[0]?.template.questions.length ?? 0) > 0 &&
-      (directReports.length > 0 || Boolean(self && cycle.selfAssessmentEnabled)),
+    (cycle) => {
+      const template = cycle.cycleTemplates[0]?.template;
+      const hasQuestions = (template?.questions.length ?? 0) > 0;
+      const canEvaluateTeam = audienceAllows(template?.audience, "MANAGER") && directReports.length > 0;
+      const canEvaluateSelf = audienceAllows(template?.audience, "EMPLOYEE") && Boolean(self && cycle.selfAssessmentEnabled);
+      return hasQuestions && (canEvaluateTeam || canEvaluateSelf);
+    },
   );
   const cycle = draft
     ? eligibleCycles.find((candidate) => candidate.id === draft.cycleId) ?? null
     : eligibleCycles[0] ?? null;
   const questions = cycle?.cycleTemplates[0]?.template.questions ?? [];
+  const selectedAudience = cycle?.cycleTemplates[0]?.template.audience;
+  const canUseManagerForm = audienceAllows(selectedAudience, "MANAGER");
+  const canUseEmployeeForm = audienceAllows(selectedAudience, "EMPLOYEE");
   const draftMatchesCurrentCycle = Boolean(draft && cycle);
   const draftIsAuthorized = Boolean(
     draftMatchesCurrentCycle &&
       draft &&
       (
-        canCreateFeedbackForPerson(actor, {
+        (canUseManagerForm && canCreateFeedbackForPerson(actor, {
           personId: draft.subjectPersonId,
           managerId: draft.subject.managerId,
-        }) ||
-        canCreateSelfAssessment(actor, {
+        })) ||
+        (canUseEmployeeForm && canCreateSelfAssessment(actor, {
           subjectPersonId: draft.subjectPersonId,
           selfAssessmentEnabled: cycle?.selfAssessmentEnabled ?? false,
-        })
+        }))
       ),
   );
   const people: Array<{
@@ -450,7 +467,7 @@ export const getNewFeedbackContext = async (
     companyName: string;
     departmentName: string;
     assessmentType: "SELF" | "MANAGER";
-  }> = directReports
+  }> = canUseManagerForm ? directReports
     .filter((person) => canCreateFeedbackForPerson(actor, {
       personId: person.id,
       managerId: person.managerId,
@@ -462,8 +479,9 @@ export const getNewFeedbackContext = async (
       companyName: person.company.name,
       departmentName: person.department.name,
       assessmentType: "MANAGER" as const,
-    }));
+    })) : [];
   if (
+    canUseEmployeeForm &&
     self &&
     cycle &&
     canCreateSelfAssessment(actor, {
@@ -517,6 +535,10 @@ export const getFeedbackDetail = async (
           startsAt: true,
           endsAt: true,
           selfAssessmentEnabled: true,
+          cycleTemplates: {
+            take: 1,
+            select: { template: { select: { audience: true } } },
+          },
         },
       },
       subject: {
@@ -548,19 +570,20 @@ export const getFeedbackDetail = async (
     feedback.cycle.status === "OPEN" &&
     feedback.cycle.startsAt <= now &&
     feedback.cycle.endsAt >= now;
+  const detailAudience = feedback.cycle.cycleTemplates[0]?.template.audience;
   const canEdit =
     feedback.status === "DRAFT" &&
     cycleIsOpen &&
     feedback.evaluator.id === actor.personId &&
     (
-      canCreateFeedbackForPerson(actor, {
+      (audienceAllows(detailAudience, "MANAGER") && canCreateFeedbackForPerson(actor, {
         personId: feedback.subject.id,
         managerId: feedback.subject.managerId,
-      }) ||
-      canCreateSelfAssessment(actor, {
+      })) ||
+      (audienceAllows(detailAudience, "EMPLOYEE") && canCreateSelfAssessment(actor, {
         subjectPersonId: feedback.subject.id,
         selfAssessmentEnabled: feedback.cycle.selfAssessmentEnabled,
-      })
+      }))
     );
 
   return {
@@ -633,11 +656,12 @@ export const saveFeedback = async (
           select: {
             selfAssessmentEnabled: true,
             cycleTemplates: {
-              where: { template: { active: true } },
+              where: { template: { questions: { some: { active: true } } } },
               take: 1,
               select: {
                 template: {
                   select: {
+                    audience: true,
                     questions: {
                       where: { active: true },
                       orderBy: { position: "asc" },
@@ -657,17 +681,21 @@ export const saveFeedback = async (
         }),
       ]);
 
+      const templateAudience = cycle?.cycleTemplates[0]?.template.audience;
+      const canUseManagerForm = audienceAllows(templateAudience, "MANAGER");
+      const canUseEmployeeForm = audienceAllows(templateAudience, "EMPLOYEE");
+
       if (
         !subject?.active ||
         !(
-          canCreateFeedbackForPerson(actor, {
+          (canUseManagerForm && canCreateFeedbackForPerson(actor, {
             personId: subject?.id ?? "",
             managerId: subject?.managerId ?? null,
-          }) ||
-          canCreateSelfAssessment(actor, {
+          })) ||
+          (canUseEmployeeForm && canCreateSelfAssessment(actor, {
             subjectPersonId: subject?.id ?? "",
             selfAssessmentEnabled: cycle?.selfAssessmentEnabled ?? false,
-          })
+          }))
         ) ||
         !cycle
       ) {

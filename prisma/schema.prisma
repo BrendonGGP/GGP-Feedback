@@ -41,6 +41,12 @@ enum QuestionType {
   SHORT_TEXT
 }
 
+enum FormAudience {
+  MANAGER
+  EMPLOYEE
+  BOTH
+}
+
 // Estrutura organizacional
 model Company {
   id          String       @id @default(uuid()) @db.Uuid
@@ -194,6 +200,7 @@ model FormTemplate {
   id             String              @id @default(uuid()) @db.Uuid
   name           String              @db.VarChar(160)
   version        Int
+  audience       FormAudience        @default(BOTH)
   active         Boolean             @default(true)
   createdAt      DateTime            @default(now()) @map("created_at") @db.Timestamptz(3)
   questions      FormQuestion[]

@@ -51,6 +51,11 @@ export default async function HrOrganizationPage({ searchParams }: OrganizationP
   );
   const activeManagers = organization.people.filter((person) => person.active);
   const canCreatePeople = activeCompanies.length > 0 && activeDepartments.length > 0;
+  // UMG remains available to the data and cadastro flows; it is intentionally
+  // omitted only from the visual structure overview requested by the business.
+  const visibleCompanies = organization.companies.filter(
+    (company) => company.name.trim().toLocaleLowerCase("pt-BR") !== "umg",
+  );
 
   return (
     <PortalShell
@@ -142,7 +147,7 @@ export default async function HrOrganizationPage({ searchParams }: OrganizationP
         </section>
 
         <section className={styles.structureGrid} aria-label="Empresas e departamentos">
-          {organization.companies.map((company) => (
+          {visibleCompanies.map((company) => (
             <article className={styles.companyCard} key={company.id}>
               <header><span><PortalIcon name="admin" /></span><div><h2>{company.name}</h2><p>{company.active ? "Empresa ativa" : "Empresa inativa"}</p></div></header>
               <ul>
@@ -151,7 +156,7 @@ export default async function HrOrganizationPage({ searchParams }: OrganizationP
               </ul>
             </article>
           ))}
-          {organization.companies.length === 0 ? <p className={styles.emptyState}>Nenhuma empresa cadastrada.</p> : null}
+          {visibleCompanies.length === 0 ? <p className={styles.emptyState}>Nenhuma empresa cadastrada.</p> : null}
         </section>
 
         <section className={styles.peoplePanel} aria-labelledby="people-title">

@@ -12,8 +12,15 @@ type TemplateOption = Readonly<{
   id: string;
   name: string;
   version: number;
+  audience: "MANAGER" | "EMPLOYEE" | "BOTH";
   questions: readonly unknown[];
 }>;
+
+const audienceLabels = {
+  MANAGER: "gestor",
+  EMPLOYEE: "colaborador",
+  BOTH: "gestor e colaborador",
+} as const;
 
 const initialState: HrCycleActionState = {
   message: "",
@@ -109,7 +116,7 @@ export function CycleCreateForm({
           <option value="" disabled>Selecione um formulário ativo</option>
           {templates.map((template) => (
             <option value={template.id} key={template.id}>
-              {template.name} · v{template.version} ({template.questions.length} perguntas)
+              {template.name} · v{template.version} · {audienceLabels[template.audience]} ({template.questions.length} perguntas)
             </option>
           ))}
         </select>
