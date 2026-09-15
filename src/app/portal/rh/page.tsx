@@ -11,6 +11,7 @@ import {
 } from "@/lib/hr/cycle-management";
 
 import { CycleCreateForm } from "./cycle-create-form";
+import { FormTemplateManager } from "./form-template-manager";
 import { updateCycleStatusAction } from "./actions";
 import styles from "./rh.module.css";
 
@@ -23,6 +24,12 @@ const cycleStatusLabels = {
   OPEN: "Aberto",
   CLOSED: "Encerrado",
   ARCHIVED: "Arquivado",
+} as const;
+
+const formAudienceLabels = {
+  MANAGER: "gestor",
+  EMPLOYEE: "colaborador",
+  BOTH: "gestor e colaborador",
 } as const;
 
 const formatDate = (value: string): string =>
@@ -85,8 +92,8 @@ export default async function HrPortalPage({ searchParams }: HrPortalPageProps) 
           <article><span>Feedbacks no escopo</span><strong>{management.metrics.feedbacks}</strong><small>rascunhos e enviados</small></article>
         </section>
 
-        <div className={styles.contentGrid}>
-          <section className={styles.panel} aria-labelledby="cycles-title">
+        <div className={styles.workspaceGrid}>
+          <section className={`${styles.panel} ${styles.cyclesPanel}`} aria-labelledby="cycles-title">
             <header className={styles.panelHeader}>
               <div><p className={styles.eyebrow}>Acompanhamento</p><h2 id="cycles-title">Ciclos cadastrados</h2></div>
               <span>{management.cycles.length} {management.cycles.length === 1 ? "ciclo" : "ciclos"}</span>
@@ -106,7 +113,7 @@ export default async function HrPortalPage({ searchParams }: HrPortalPageProps) 
                       </div>
                       <div className={styles.cycleDetails}>
                         <span className={styles.status} data-status={cycle.status}>{cycleStatusLabels[cycle.status]}</span>
-                        <span>{template ? `${template.name} · ${template.questionCount} perguntas` : "Sem formulário"}</span>
+                        <span>{template ? `${template.name} · v${template.version} · ${formAudienceLabels[template.audience]} · ${template.questionCount} perguntas` : "Sem formulário"}</span>
                         <span>{getFeedbackLabel(cycle.feedbackCount)}{cycle.selfAssessmentEnabled ? " · autoavaliação" : ""}</span>
                       </div>
                       {nextStatus ? (
@@ -126,24 +133,15 @@ export default async function HrPortalPage({ searchParams }: HrPortalPageProps) 
           <aside className={styles.createPanel} aria-label="Criar ciclo">
             <CycleCreateForm templates={management.templates} />
           </aside>
-        </div>
 
-        <section className={styles.panel} aria-labelledby="templates-title">
-          <header className={styles.panelHeader}>
-            <div><p className={styles.eyebrow}>Biblioteca</p><h2 id="templates-title">Formulários ativos</h2></div>
-            <span>Competências usadas nos ciclos</span>
-          </header>
-          <div className={styles.templateGrid}>
-            {management.templates.length === 0 ? <p className={styles.emptyState}>Nenhum formulário ativo encontrado.</p> : null}
-            {management.templates.map((template) => (
-              <article className={styles.templateCard} key={template.id}>
-                <div className={styles.templateTitle}><span><PortalIcon name="feedback" /></span><div><h3>{template.name}</h3><p>Versão {template.version} · {template.questions.length} perguntas</p></div></div>
-                <ol>{template.questions.slice(0, 5).map((question) => <li key={question.id}><span>{question.position}</span><p>{question.prompt.split(" — ")[0]}</p><small>{question.type === "RATING" ? "Nota" : "Texto"}</small></li>)}</ol>
-                {template.questions.length > 5 ? <small className={styles.moreQuestions}>+ {template.questions.length - 5} perguntas adicionais</small> : null}
-              </article>
-            ))}
-          </div>
-        </section>
+          <section className={`${styles.panel} ${styles.templatesPanel}`} aria-labelledby="templates-title">
+            <header className={styles.panelHeader}>
+              <div><p className={styles.eyebrow}>Biblioteca</p><h2 id="templates-title">Formulários</h2></div>
+              <span>Competências usadas nos ciclos</span>
+            </header>
+            <FormTemplateManager templates={management.templates} />
+          </section>
+        </div>
       </div>
     </PortalShell>
   );

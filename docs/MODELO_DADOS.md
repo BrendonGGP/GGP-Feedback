@@ -23,6 +23,18 @@ Feedback 1 --- N FeedbackAnswer
 AccessAccount 1 --- N AuditEvent
 ```
 
+### Formulários por público
+
+`FormTemplate.audience` define quem pode responder o formulário no ciclo:
+
+- `MANAGER`: somente avaliações de liderados feitas por gestores;
+- `EMPLOYEE`: somente autoavaliações de colaboradores;
+- `BOTH`: os dois fluxos.
+
+Editar um formulário não altera perguntas que já podem estar vinculadas a
+respostas. O serviço cria uma nova versão (`version`) e mantém a versão
+anterior disponível para os ciclos existentes.
+
 ## Restrições da migration inicial
 
 Nem todas as regras são representáveis apenas no arquivo Prisma. A migration inicial inclui:

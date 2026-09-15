@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { PortalIcon } from "@/components/portal/portal-icon";
@@ -16,6 +15,8 @@ import {
 import { getPortalDashboardData } from "@/lib/dashboard/dashboard-data";
 
 import { ActionSubmitButton } from "./action-submit-button";
+import { AccountFilters } from "./account-filters";
+import { CreateAccountForm } from "./create-account-form";
 import { DeleteAccountButton } from "./delete-account-button";
 import { PasswordResetDialog } from "./password-reset-dialog";
 import {
@@ -109,27 +110,41 @@ export default async function SystemAdministrationPage({
           <article><span>Sessões ativas</span><strong>{management.metrics.activeSessions}</strong><small>sessões válidas agora</small></article>
         </section>
 
+        <section className={styles.createAccountPanel} aria-labelledby="create-account-title">
+          <header className={styles.createAccountHeader}>
+            <div>
+              <p className={styles.eyebrow}>Provisionamento</p>
+              <h2 id="create-account-title">Novo colaborador</h2>
+              <p>
+                Cadastre o colaborador e crie sua conta de acesso em uma única etapa.
+                A senha inicial será trocada no primeiro login.
+              </p>
+            </div>
+            <span>Cadastro guiado</span>
+          </header>
+          <CreateAccountForm
+            organizationOptions={management.organizationOptions}
+            roleOptions={ACCESS_ROLES.map((role) => ({
+              value: role,
+              label: roleLabels[role],
+            }))}
+          />
+        </section>
+
         <section className={styles.panel} aria-labelledby="accounts-title">
           <header className={styles.panelHeader}>
             <div><p className={styles.eyebrow}>Contas e permissões</p><h2 id="accounts-title">Usuários provisionados</h2></div>
             <span>{management.filteredTotal} resultados</span>
           </header>
 
-          <form className={styles.filters} method="get" role="search">
-            <label>
-              <span>Buscar conta</span>
-              <input type="search" name="busca" defaultValue={management.filters.query} placeholder="Nome, usuário ou e-mail" maxLength={100} />
-            </label>
-            <label>
-              <span>Status</span>
-              <select name="status" defaultValue={management.filters.status ?? ""}>
-                <option value="">Todos os status</option>
-                {MANAGED_ACCOUNT_STATUSES.map((accountStatus) => <option value={accountStatus} key={accountStatus}>{statusLabels[accountStatus]}</option>)}
-              </select>
-            </label>
-            <button type="submit">Aplicar filtros</button>
-            <Link href="/portal/administracao">Limpar</Link>
-          </form>
+          <AccountFilters
+            initialQuery={management.filters.query}
+            initialStatus={management.filters.status ?? ""}
+            statusOptions={MANAGED_ACCOUNT_STATUSES.map((accountStatus) => ({
+              value: accountStatus,
+              label: statusLabels[accountStatus],
+            }))}
+          />
 
           {management.accounts.length === 0 ? (
             <p className={styles.emptyState}>Nenhuma conta encontrada com esses filtros.</p>

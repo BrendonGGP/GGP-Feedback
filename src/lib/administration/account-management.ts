@@ -3,7 +3,13 @@ import { randomUUID } from "node:crypto";
 import type { AccountStatus } from "@prisma/client";
 import { z } from "zod";
 
+import {
+  getPasswordPolicyError,
+  hashPassword,
+  PASSWORD_MAX_LENGTH,
+} from "@/lib/auth/password";
 import type { AuthenticatedActor } from "@/lib/auth/session";
+import { usernameSchema } from "@/lib/auth/username";
 import {
   ACCESS_ROLES,
   canAdministerSystem,
@@ -28,9 +34,59 @@ const accountUpdateSchema = z.object({
   roles: z.array(managedRoleSchema).min(1),
 });
 
+const accountCreationPasswordSchema = z
+  .string()
+  .max(
+    PASSWORD_MAX_LENGTH,
+    `A senha temporária pode ter no máximo ${PASSWORD_MAX_LENGTH} caracteres.`,
+  )
+  .superRefine((value, context) => {
+    const error = getPasswordPolicyError(value, "A senha temporária");
+    if (error) context.addIssue({ code: "custom", message: error });
+  });
+
+const accountCreationSchema = z
+  .object({
+    fullName: z
+      .string()
+      .trim()
+      .min(2, "Informe o nome completo do colaborador.")
+      .max(200, "O nome completo excede o limite permitido."),
+    corporateEmail: z
+      .string()
+      .trim()
+      .email("Informe um e-mail corporativo válido.")
+      .max(254, "O e-mail corporativo excede o limite permitido."),
+    jobTitle: z
+      .string()
+      .trim()
+      .min(2, "Informe o cargo do colaborador.")
+      .max(160, "O cargo excede o limite permitido."),
+    employmentRegime: z
+      .string()
+      .trim()
+      .min(2, "Informe o regime de contratação.")
+      .max(80, "O regime excede o limite permitido."),
+    companyId: z.string().uuid(),
+    departmentId: z.string().uuid(),
+    loginIdentifier: usernameSchema,
+    roles: z.array(managedRoleSchema).min(1),
+    temporaryPassword: accountCreationPasswordSchema,
+    confirmPassword: accountCreationPasswordSchema,
+  })
+  .refine((value) => value.temporaryPassword === value.confirmPassword, {
+    message: "As senhas precisam ser iguais.",
+    path: ["confirmPassword"],
+  });
+
 const accountListFilterSchema = z.object({
   query: z.string().trim().max(100).optional().default(""),
-  status: managedStatusSchema.optional(),
+  // The form sends an empty string when "Todos os status" is selected. Treat
+  // that UI value as an omitted filter so it does not discard a valid search.
+  status: z.preprocess(
+    (value) => (value === "" ? undefined : value),
+    managedStatusSchema.optional(),
+  ),
 });
 
 export type AccountManagementFilters = Readonly<{
@@ -42,6 +98,19 @@ export type ManagedAccountUpdateInput = Readonly<{
   accountId: string;
   status: string;
   roles: readonly string[];
+}>;
+
+export type ManagedAccountCreateInput = Readonly<{
+  fullName: string;
+  corporateEmail: string;
+  jobTitle: string;
+  employmentRegime: string;
+  companyId: string;
+  departmentId: string;
+  loginIdentifier: string;
+  roles: readonly string[];
+  temporaryPassword: string;
+  confirmPassword: string;
 }>;
 
 export type AccountManagementData = Readonly<{
@@ -72,6 +141,11 @@ export type AccountManagementData = Readonly<{
     activeSessions: number;
     isCurrent: boolean;
   }[];
+  organizationOptions: readonly {
+    id: string;
+    name: string;
+    departments: readonly { id: string; name: string }[];
+  }[];
 }>;
 
 export type AccountMutationResult = Readonly<{
@@ -90,6 +164,23 @@ type ParsedAccountUpdate =
     }>
   | Readonly<{ ok: false; message: string }>;
 
+type ParsedAccountCreate =
+  | Readonly<{
+      ok: true;
+      data: Readonly<{
+        fullName: string;
+        corporateEmail: string;
+        jobTitle: string;
+        employmentRegime: string;
+        companyId: string;
+        departmentId: string;
+        loginIdentifier: string;
+        roles: readonly AccessRole[];
+        temporaryPassword: string;
+      }>;
+    }>
+  | Readonly<{ ok: false; message: string }>;
+
 const mutationError = (message: string): AccountMutationResult => ({
   ok: false,
   message,
@@ -98,6 +189,15 @@ const mutationError = (message: string): AccountMutationResult => ({
 const sortedUniqueRoles = (roles: readonly AccessRole[]): AccessRole[] => {
   const selected = new Set(roles);
   return ACCESS_ROLES.filter((role) => selected.has(role));
+};
+
+export const parseAccountManagementFilters = (
+  input: unknown,
+): Readonly<{ query: string; status?: AccountStatus }> => {
+  const parsed = accountListFilterSchema.safeParse(input);
+  return parsed.success
+    ? parsed.data
+    : { query: "", status: undefined };
 };
 
 export const parseManagedAccountUpdate = (
@@ -127,16 +227,50 @@ export const parseManagedAccountUpdate = (
   };
 };
 
+export const parseManagedAccountCreate = (
+  input: unknown,
+): ParsedAccountCreate => {
+  const parsed = accountCreationSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      message:
+        parsed.error.issues[0]?.message ?? "Revise os dados do novo usuário.",
+    };
+  }
+
+  const roles = sortedUniqueRoles(parsed.data.roles);
+  if (!hasValidRoleCombination(roles)) {
+    return {
+      ok: false,
+      message:
+        "Administrador do Sistema deve ser o único papel atribuído à conta.",
+    };
+  }
+
+  return {
+    ok: true,
+    data: {
+      fullName: parsed.data.fullName,
+      corporateEmail: parsed.data.corporateEmail,
+      jobTitle: parsed.data.jobTitle,
+      employmentRegime: parsed.data.employmentRegime,
+      companyId: parsed.data.companyId,
+      departmentId: parsed.data.departmentId,
+      loginIdentifier: parsed.data.loginIdentifier,
+      roles,
+      temporaryPassword: parsed.data.temporaryPassword,
+    },
+  };
+};
+
 export const getSystemAccountManagement = async (
   actor: AuthenticatedActor,
   filters: AccountManagementFilters = {},
 ): Promise<AccountManagementData | null> => {
   if (!canAdministerSystem(actor)) return null;
 
-  const parsedFilters = accountListFilterSchema.safeParse(filters);
-  const safeFilters = parsedFilters.success
-    ? parsedFilters.data
-    : { query: "", status: undefined };
+  const safeFilters = parseAccountManagementFilters(filters);
   const now = new Date();
   const query = safeFilters.query;
   const where = {
@@ -163,6 +297,7 @@ export const getSystemAccountManagement = async (
     activeSessions,
     filteredTotal,
     accounts,
+    organizationOptions,
   ] = await adminPrisma.$transaction([
     adminPrisma.accessAccount.count(),
     adminPrisma.accessAccount.count({ where: { status: "ACTIVE" } }),
@@ -202,6 +337,19 @@ export const getSystemAccountManagement = async (
         },
       },
     }),
+    adminPrisma.company.findMany({
+      where: { active: true },
+      orderBy: { name: "asc" },
+      select: {
+        id: true,
+        name: true,
+        departments: {
+          where: { active: true },
+          orderBy: { name: "asc" },
+          select: { id: true, name: true },
+        },
+      },
+    }),
   ]);
 
   return {
@@ -224,6 +372,127 @@ export const getSystemAccountManagement = async (
       activeSessions: account._count.sessions,
       isCurrent: account.id === actor.accountId,
     })),
+    organizationOptions,
+  };
+};
+
+export const createManagedAccount = async (
+  actor: AuthenticatedActor,
+  input: ManagedAccountCreateInput,
+): Promise<AccountMutationResult> => {
+  if (!canAdministerSystem(actor)) {
+    return mutationError("Você não tem permissão para criar contas.");
+  }
+
+  const parsed = parseManagedAccountCreate(input);
+  if (!parsed.ok) return parsed;
+
+  const organization = await adminPrisma.company.findUnique({
+    where: { id: parsed.data.companyId },
+    select: {
+      id: true,
+      active: true,
+      departments: {
+        where: { id: parsed.data.departmentId },
+        select: { id: true, active: true },
+      },
+    },
+  });
+  if (!organization || !organization.active) {
+    return mutationError("Selecione uma empresa ativa.");
+  }
+  const department = organization.departments[0];
+  if (!department || !department.active) {
+    return mutationError("Selecione um departamento ativo da empresa escolhida.");
+  }
+
+  const loginInUse = await adminPrisma.accessAccount.findFirst({
+    where: {
+      loginIdentifier: {
+        equals: parsed.data.loginIdentifier,
+        mode: "insensitive",
+      },
+    },
+    select: { id: true },
+  });
+  if (loginInUse) {
+    return mutationError("Este nome de usuário já está em uso.");
+  }
+
+  const emailInUse = await adminPrisma.person.findFirst({
+    where: {
+      corporateEmail: {
+        equals: parsed.data.corporateEmail,
+        mode: "insensitive",
+      },
+    },
+    select: { id: true },
+  });
+  if (emailInUse) {
+    return mutationError("Este e-mail corporativo já está vinculado a uma pessoa.");
+  }
+
+  const passwordHash = await hashPassword(parsed.data.temporaryPassword);
+  try {
+    await adminPrisma.$transaction(async (transaction) => {
+      const person = await transaction.person.create({
+        data: {
+          companyId: parsed.data.companyId,
+          departmentId: parsed.data.departmentId,
+          fullName: parsed.data.fullName,
+          corporateEmail: parsed.data.corporateEmail,
+          jobTitle: parsed.data.jobTitle,
+          employmentRegime: parsed.data.employmentRegime,
+          active: true,
+        },
+        select: { id: true },
+      });
+      const account = await transaction.accessAccount.create({
+        data: {
+          personId: person.id,
+          loginIdentifier: parsed.data.loginIdentifier,
+          passwordHash,
+          status: "ACTIVE",
+          mustChangePassword: true,
+          roles: {
+            create: parsed.data.roles.map((role) => ({ role })),
+          },
+        },
+        select: { id: true },
+      });
+
+      await transaction.auditEvent.create({
+        data: {
+          actorAccountId: actor.accountId,
+          requestId: randomUUID(),
+          action: "CREATE_ACCESS_ACCOUNT",
+          entityType: "ACCESS_ACCOUNT",
+          entityId: account.id,
+          result: "SUCCESS",
+          metadata: {
+            personId: person.id,
+            fullName: parsed.data.fullName,
+            companyId: parsed.data.companyId,
+            departmentId: parsed.data.departmentId,
+            loginIdentifier: parsed.data.loginIdentifier,
+            roles: parsed.data.roles,
+            mustChangePassword: true,
+          },
+        },
+      });
+    });
+  } catch (error) {
+    if (error instanceof Error && "code" in error && error.code === "P2002") {
+      return mutationError(
+        "Não foi possível criar a conta: o nome de usuário ou o e-mail já está em uso.",
+      );
+    }
+    return mutationError("Não foi possível criar a conta de acesso.");
+  }
+
+  return {
+    ok: true,
+    message: "Usuário criado. A pessoa deverá trocar a senha no próximo acesso.",
   };
 };
 

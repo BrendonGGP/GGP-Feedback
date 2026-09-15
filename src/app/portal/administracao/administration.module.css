@@ -346,3 +346,293 @@
     transition: none;
   }
 }
+.filterHint{color:var(--text-tertiary);font-size:.66rem;line-height:1.35}
+.filters{align-items:start}
+.filters > button,.filters > a{margin-top:1.1rem}
+.filterField{min-width:0}
+.filterHint{display:block;margin-top:.05rem}
+@media(max-width:70rem){.filters > a{margin-top:0}}
+@media(max-width:44rem){.filters > button,.filters > a{margin-top:0}}
+
+.createAccountPanel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem 1.3rem;
+  border: 1px solid var(--border-accent);
+  border-radius: 1rem;
+  background:
+    linear-gradient(145deg, rgb(101 231 222 / 8%), transparent 60%),
+    rgb(9 48 58 / 90%);
+}
+
+.createAccountHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.createAccountHeader h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.05rem;
+  font-variation-settings: "wght" 740;
+  letter-spacing: -0.025em;
+}
+
+.createAccountHeader p:last-child {
+  max-width: 48rem;
+  margin: 0.35rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  line-height: 1.5;
+}
+
+.createAccountHeader > span {
+  flex: 0 0 auto;
+  color: var(--brand-aqua);
+  font-size: 0.66rem;
+  font-weight: 750;
+  line-height: 1.4;
+  text-align: right;
+}
+
+.createAccountForm {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+  padding-top: 0.25rem;
+}
+
+.createAccountSection {
+  display: grid;
+  gap: 0.85rem;
+  min-width: 0;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 0.85rem;
+  background: rgb(3 27 33 / 24%);
+}
+
+.createAccountSection > legend {
+  padding: 0 0.35rem;
+  color: var(--text-primary);
+  font-size: 0.84rem;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+}
+
+.createAccountSectionHint {
+  margin: -0.3rem 0 0;
+  color: var(--text-tertiary);
+  font-size: 0.66rem;
+  line-height: 1.4;
+}
+
+.createAccountGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+  align-items: start;
+}
+
+.createAccountForm label,
+.createRoleFieldset {
+  display: grid;
+  align-content: start;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.createAccountForm label > span,
+.createRoleFieldset legend,
+.createFieldLabel {
+  color: var(--text-primary);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.createAccountForm label > span em,
+.createRoleFieldset legend em,
+.createFieldLabel em {
+  color: var(--brand-aqua);
+  font-size: 0.6rem;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.createAccountForm input,
+.createAccountForm select {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.75rem;
+  box-sizing: border-box;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.65rem;
+  color: var(--text-primary);
+  background: var(--surface-input);
+  font: inherit;
+  font-size: 0.74rem;
+}
+
+.createAccountForm input:hover,
+.createAccountForm select:hover {
+  border-color: var(--border-accent);
+}
+
+.createAccountForm input:focus-visible,
+.createAccountForm select:focus-visible,
+.createRoleOption:focus-within {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.createAccountHint,
+.createAccountContext {
+  color: var(--text-tertiary);
+  font-size: 0.64rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.createAccountContext {
+  color: var(--brand-aqua);
+}
+
+.passwordInputGroup {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.passwordVisibilityButton {
+  min-width: 5rem;
+  min-height: 2.75rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.65rem;
+  color: var(--text-secondary);
+  background: rgb(255 255 255 / 4%);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.65rem;
+  font-weight: 800;
+  transition: border-color 180ms ease, color 180ms ease, background-color 180ms ease;
+}
+
+.passwordVisibilityButton:hover {
+  border-color: var(--border-accent);
+  color: var(--brand-aqua);
+  background: rgb(101 231 222 / 7%);
+}
+
+.passwordVisibilityButton:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.createRoleFieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.createRoleFieldset legend {
+  margin-bottom: 0.1rem;
+  padding: 0;
+}
+
+.createRoleOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.createRoleOption {
+  display: inline-flex !important;
+  grid-template-columns: none;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.65rem;
+  color: var(--text-secondary) !important;
+  background: rgb(255 255 255 / 3%);
+  cursor: pointer;
+  transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
+}
+
+.createRoleOption:hover {
+  border-color: var(--border-accent);
+  color: var(--text-primary) !important;
+  background: rgb(101 231 222 / 7%);
+}
+
+.createRoleOption input {
+  width: 1rem;
+  min-height: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--brand-aqua);
+}
+
+.createRoleOption input:checked + span {
+  color: var(--text-primary);
+}
+
+.createAccountFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 0.15rem;
+  border-top: 1px solid rgb(255 255 255 / 8%);
+}
+
+.createAccountFooter p {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: 0.66rem;
+  line-height: 1.45;
+}
+
+.createAccountFooter button {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 44rem) {
+  .createAccountHeader,
+  .createAccountFooter {
+    display: grid;
+  }
+
+  .createAccountHeader > span {
+    text-align: left;
+  }
+
+  .createAccountGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .passwordInputGroup {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .createAccountFooter button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .createRoleOption {
+    transition: none;
+  }
+
+  .passwordVisibilityButton {
+    transition: none;
+  }
+}

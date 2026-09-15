@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   getSystemAccountManagement,
+  parseAccountManagementFilters,
+  parseManagedAccountCreate,
   parseManagedAccountUpdate,
   updateManagedAccount,
 } from "./account-management";
@@ -9,6 +11,13 @@ import {
 const accountId = "5f4f74c4-87eb-4f11-80d8-9935e1c0581d";
 
 describe("validação da administração de contas", () => {
+  it("preserva a busca quando o status está em Todos os status", () => {
+    expect(parseAccountManagementFilters({ query: "admin", status: "" })).toEqual({
+      query: "admin",
+      status: undefined,
+    });
+  });
+
   it("normaliza papéis funcionais repetidos na ordem oficial", () => {
     const result = parseManagedAccountUpdate({
       accountId,
@@ -72,5 +81,51 @@ describe("validação da administração de contas", () => {
 
     expect(result.ok).toBe(false);
     expect(result.message).toContain("própria conta");
+  });
+  it("valida a criação de conta, normaliza o usuário e exige política de senha", () => {
+    const result = parseManagedAccountCreate({
+      fullName: "Novo Colaborador",
+      corporateEmail: "novo.colaborador@empresa.com.br",
+      jobTitle: "Analista",
+      employmentRegime: "CLT",
+      companyId: accountId,
+      departmentId: "ef97f61c-a79b-4943-8050-f46d778341eb",
+      loginIdentifier: "  Novo.Usuario ",
+      roles: ["EMPLOYEE"],
+      temporaryPassword: "Inicial@2026",
+      confirmPassword: "Inicial@2026",
+    });
+
+    expect(result).toEqual({
+      ok: true,
+      data: {
+        fullName: "Novo Colaborador",
+        corporateEmail: "novo.colaborador@empresa.com.br",
+        jobTitle: "Analista",
+        employmentRegime: "CLT",
+        companyId: accountId,
+        departmentId: "ef97f61c-a79b-4943-8050-f46d778341eb",
+        loginIdentifier: "novo.usuario",
+        roles: ["EMPLOYEE"],
+        temporaryPassword: "Inicial@2026",
+      },
+    });
+  });
+
+  it("rejeita papel técnico combinado e senha fora da política", () => {
+    expect(
+      parseManagedAccountCreate({
+        fullName: "Novo Colaborador",
+        corporateEmail: "novo.colaborador@empresa.com.br",
+        jobTitle: "Analista",
+        employmentRegime: "CLT",
+        companyId: accountId,
+        departmentId: "ef97f61c-a79b-4943-8050-f46d778341eb",
+        loginIdentifier: "admin.novo",
+        roles: ["SYSTEM_ADMIN", "EMPLOYEE"],
+        temporaryPassword: "invalida",
+        confirmPassword: "invalida",
+      }).ok,
+    ).toBe(false);
   });
 });

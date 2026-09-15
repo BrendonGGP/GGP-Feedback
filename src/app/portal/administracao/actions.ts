@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import {
+  createManagedAccount,
   deleteManagedAccount,
   revokeManagedAccountSessions,
   updateManagedAccount,
@@ -31,6 +32,25 @@ export async function updateAccountAction(formData: FormData): Promise<void> {
     accountId: getFormString(formData.get("accountId")),
     status: getFormString(formData.get("status")),
     roles: getFormStrings(formData.getAll("roles")),
+  });
+  finishAction(result);
+}
+
+export async function createAccountAction(formData: FormData): Promise<void> {
+  const actor = await getAuthenticatedActor();
+  if (!actor) redirect("/");
+
+  const result = await createManagedAccount(actor, {
+    fullName: getFormString(formData.get("fullName")),
+    corporateEmail: getFormString(formData.get("corporateEmail")),
+    jobTitle: getFormString(formData.get("jobTitle")),
+    employmentRegime: getFormString(formData.get("employmentRegime")),
+    companyId: getFormString(formData.get("companyId")),
+    departmentId: getFormString(formData.get("departmentId")),
+    loginIdentifier: getFormString(formData.get("loginIdentifier")),
+    roles: getFormStrings(formData.getAll("roles")),
+    temporaryPassword: getFormString(formData.get("temporaryPassword")),
+    confirmPassword: getFormString(formData.get("confirmPassword")),
   });
   finishAction(result);
 }
