@@ -1,16 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { hash, verify } = vi.hoisted(() => ({
-  verify: vi.fn(async (digest: string, password: string) =>
+const { hashArgon2id, verifyArgon2id } = vi.hoisted(() => ({
+  verifyArgon2id: vi.fn(async (digest: string, password: string) =>
     digest.startsWith("$argon2id$") && password === "correct-password",
   ),
-  hash: vi.fn(async () => "$argon2id$generated-test-hash"),
+  hashArgon2id: vi.fn(async () => "$argon2id$generated-test-hash"),
 }));
 
-vi.mock("argon2", () => ({
-  argon2id: 2,
-  hash,
-  verify,
+vi.mock("./argon2id.mjs", () => ({
+  hashArgon2id,
+  verifyArgon2id,
 }));
 
 import {
@@ -21,15 +20,15 @@ import {
 
 describe("password helpers", () => {
   beforeEach(() => {
-    verify.mockClear();
-    hash.mockClear();
+    verifyArgon2id.mockClear();
+    hashArgon2id.mockClear();
   });
 
   it("solicita Argon2id ao criar um hash", async () => {
     await expect(hashPassword("correct-password")).resolves.toBe(
       "$argon2id$generated-test-hash",
     );
-    expect(hash).toHaveBeenCalledWith("correct-password", { type: 2 });
+    expect(hashArgon2id).toHaveBeenCalledWith("correct-password");
   });
 
   it("verifica apenas hashes Argon2id e trata erro como falha", async () => {
@@ -39,8 +38,9 @@ describe("password helpers", () => {
     await expect(
       verifyPassword("$argon2i$legacy-hash", "correct-password"),
     ).resolves.toBe(false);
+    expect(verifyArgon2id).toHaveBeenCalledTimes(1);
 
-    verify.mockRejectedValueOnce(new Error("invalid digest"));
+    verifyArgon2id.mockRejectedValueOnce(new Error("invalid digest"));
     await expect(
       verifyPassword(DUMMY_PASSWORD_HASH, "wrong-password"),
     ).resolves.toBe(false);
