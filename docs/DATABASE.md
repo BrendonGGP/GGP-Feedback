@@ -98,11 +98,49 @@ provisão de credenciais distintas.
 Os scripts de importação e seed também usam a URL administrativa, seguindo a
 mesma precedência (`ADMIN_DATABASE_URL`, depois `DIRECT_URL`).
 
-As operações funcionais já são executadas por `withDatabaseActor`, que mantém
-as consultas na mesma transação em que os GUCs de identidade são definidos.
-Antes de habilitar `ggp_runtime` em um ambiente implantado, ainda é obrigatório
-configurar a credencial fora do Git e executar probes de isolamento com uma
-conexão que não tenha `BYPASSRLS`.
+As operações funcionais são executadas por `withDatabaseActor`, que mantém as
+consultas na mesma transação em que os GUCs de identidade são definidos e, antes
+de qualquer consulta, executa `SET LOCAL ROLE ggp_runtime`. Assim as policies
+filtram linhas mesmo quando a conexão do pool entra com um usuário privilegiado.
+O usuário de `DATABASE_URL` precisa ser membro de `ggp_runtime` (um superusuário
+sempre é); em um ambiente implantado, use um login dedicado sem `BYPASSRLS` e
+conceda `GRANT ggp_runtime TO <login>`.
+
+A migration `20261007120000_enforce_runtime_rls` prepara as policies para essa
+troca:
+
+- a pessoa avaliada só lê o feedback depois do envio; o autor lê o que escreveu;
+- ciclos encerrados, perguntas arquivadas, pessoas, empresas e departamentos
+  ligados a um feedback visível passam a ser legíveis;
+- o RH lê apenas `id`, `person_id` e `status` de `access_accounts`, para saber
+  quem já tem conta;
+- a auditoria continua só de escrita: o runtime grava com `recordAuditEvent`,
+  que usa `INSERT` sem `RETURNING`.
+
+### Verificação de isolamento após aplicar a migration
+
+Execute no DBeaver, dentro de uma transação que será desfeita, trocando os
+UUIDs por pessoas reais do ambiente (nunca registre esses valores no Git):
+
+```sql
+BEGIN;
+SET LOCAL ROLE ggp_runtime;
+SELECT set_config('ggp.person_id', '<uuid-da-pessoa-avaliada>', true),
+       set_config('ggp.account_id', '<uuid-da-conta>', true),
+       set_config('ggp.roles', 'EMPLOYEE', true);
+-- Deve retornar zero: rascunhos de terceiros sobre a pessoa avaliada.
+SELECT count(*) FROM feedbacks
+ WHERE subject_person_id = '<uuid-da-pessoa-avaliada>'
+   AND evaluator_person_id <> '<uuid-da-pessoa-avaliada>'
+   AND status <> 'SUBMITTED';
+-- Deve falhar com "permission denied": a auditoria não é legível.
+SELECT count(*) FROM audit_events;
+ROLLBACK;
+```
+
+Repita com `ggp.roles` = `MANAGER,EMPLOYEE` (o gestor vê os próprios
+rascunhos) e `HR_ADMIN` (o RH vê todos os feedbacks e a coluna `status` das
+contas).
 
 Concessões de roles são metadados globais e não devem ser tratadas como parte de
 uma transação de dados. Qualquer associação temporária criada para um probe deve

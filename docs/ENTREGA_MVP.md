@@ -93,8 +93,9 @@ O fluxo de entrega de cada alteração é:
 ## Pendências antes de produção
 
 - configurar `AUTH_SECRET` e demais segredos no gerenciador do ambiente;
-- trocar o runtime administrativo pela identidade de menor privilégio e integrar
-  todos os serviços ao contexto transacional das policies RLS;
+- provisionar o login de runtime sem `BYPASSRLS`, membro de `ggp_runtime`, e
+  executar os probes de isolamento de `docs/DATABASE.md` (o código já assume a
+  role `ggp_runtime` em todas as operações funcionais);
 - homologar backup, restauração, retenção e descarte de dados;
 - concluir revisão corporativa de privacidade e do ambiente de hospedagem;
 - definir SSO/MFA, domínio final e responsáveis por incidentes;

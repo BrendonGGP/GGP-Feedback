@@ -4,6 +4,7 @@ import { z } from "zod";
 import type { AuthenticatedActor } from "@/lib/auth/session";
 import { canAdministerHrDomain } from "@/lib/authorization/access-control";
 import { withDatabaseActor } from "@/lib/infrastructure/database/actor-context";
+import { recordAuditEvent } from "@/lib/infrastructure/database/audit";
 import { runtimePrisma as prisma } from "@/lib/infrastructure/database/prisma";
 
 const DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
@@ -270,7 +271,7 @@ export const createHrCycle = async (
     await transaction.cycleFormTemplate.create({
       data: { cycleId: created.id, templateId: template.id },
     });
-    await transaction.auditEvent.create({
+    await recordAuditEvent(transaction, {
       data: {
         actorAccountId: actor.accountId,
         requestId: crypto.randomUUID(),
@@ -334,7 +335,7 @@ export const updateHrCycleStatus = async (
 
   await prisma.$transaction(async (transaction) => {
     await transaction.cycle.update({ where: { id: cycle.id }, data: { status: parsedStatus.data } });
-    await transaction.auditEvent.create({
+    await recordAuditEvent(transaction, {
       data: {
         actorAccountId: actor.accountId,
         requestId: crypto.randomUUID(),

@@ -12,10 +12,16 @@ import { runWithRuntimeTransaction } from "@/lib/infrastructure/database/runtime
  * Runs a unit of business work on one database transaction with the actor
  * identity available to PostgreSQL RLS policies.
  *
- * The GUCs are transaction-local (`is_local = true`). They never persist on a
- * pooled connection after the transaction finishes. Callers must use the
- * transaction client supplied to the callback; queries made through the
- * global client would run on another connection and have no actor context.
+ * The transaction first assumes the least-privilege `ggp_runtime` role
+ * (NOBYPASSRLS), so the RLS policies are enforced even when the pooled
+ * connection logs in with a more privileged user. The connecting user must be
+ * a member of `ggp_runtime` (a superuser always is).
+ *
+ * The role and the GUCs are transaction-local (`SET LOCAL` / `is_local = true`).
+ * They never persist on a pooled connection after the transaction finishes.
+ * Callers must use the transaction client supplied to the callback; queries
+ * made through the global client would run on another connection and have no
+ * actor context.
  */
 export const withDatabaseActor = async <T>(
   actor: AuthenticatedActor,
@@ -37,6 +43,7 @@ export const withDatabaseActor = async <T>(
   }
 
   return runtimePrisma.$transaction(async (transaction) => {
+    await transaction.$executeRaw`SET LOCAL ROLE ggp_runtime`;
     await transaction.$executeRaw`
       SELECT
         set_config('ggp.account_id', ${actor.accountId}, true),

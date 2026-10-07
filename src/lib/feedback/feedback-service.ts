@@ -13,6 +13,7 @@ import {
 } from "@/lib/feedback/feedback-validation";
 import { visibilityWhere } from "@/lib/feedback/feedback-visibility";
 import { withDatabaseActor } from "@/lib/infrastructure/database/actor-context";
+import { recordAuditEvent } from "@/lib/infrastructure/database/audit";
 import { runtimePrisma as prisma } from "@/lib/infrastructure/database/prisma";
 import { serializeCsv } from "@/lib/feedback/csv";
 
@@ -300,7 +301,7 @@ export const getFeedbackExportCsv = async (
         ]),
       );
 
-      await transaction.auditEvent.create({
+      await recordAuditEvent(transaction, {
         data: {
           actorAccountId: actor.accountId,
           requestId: crypto.randomUUID(),
@@ -713,15 +714,13 @@ export const saveFeedback = async (
       }
 
       const status = input.intent === "submit" ? "SUBMITTED" : "DRAFT";
+      // Answers are written while the feedback is still a DRAFT (the RLS
+      // policies only accept answers on drafts); submission happens last.
       let feedbackId: string;
       if (existing) {
         const updated = await transaction.feedback.updateMany({
           where: { id: existing.id, status: "DRAFT", version: existing.version },
-          data: {
-            status,
-            submittedAt: status === "SUBMITTED" ? now : null,
-            version: { increment: 1 },
-          },
+          data: { version: { increment: 1 } },
         });
         if (updated.count !== 1) {
           throw new Error("CONCURRENT_FEEDBACK_UPDATE");
@@ -733,8 +732,8 @@ export const saveFeedback = async (
             cycleId: input.cycleId,
             subjectPersonId: input.subjectPersonId,
             evaluatorPersonId: actor.personId,
-            status,
-            submittedAt: status === "SUBMITTED" ? now : null,
+            status: "DRAFT",
+            submittedAt: null,
           },
           select: { id: true },
         });
@@ -754,7 +753,17 @@ export const saveFeedback = async (
         });
       }
 
-      await transaction.auditEvent.create({
+      if (status === "SUBMITTED") {
+        const submitted = await transaction.feedback.updateMany({
+          where: { id: feedbackId, status: "DRAFT" },
+          data: { status: "SUBMITTED", submittedAt: now },
+        });
+        if (submitted.count !== 1) {
+          throw new Error("CONCURRENT_FEEDBACK_UPDATE");
+        }
+      }
+
+      await recordAuditEvent(transaction, {
         data: {
           actorAccountId: actor.accountId,
           requestId: crypto.randomUUID(),

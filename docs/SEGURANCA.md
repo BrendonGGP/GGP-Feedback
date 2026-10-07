@@ -62,5 +62,5 @@ Para dados pessoais, o alvo é combinar níveis 2 e 3 do baseline local: control
   revogação de sessões estão implementados;
 - dependências são fixadas e auditadas no CI; a atualização de ESLint depende de compatibilidade futura do ecossistema Next.js;
 - o PostgreSQL local também possui as policies equivalentes no schema `ggp`, com isolamento validado por perfil e sem acesso da role de runtime a contas técnicas;
-- autenticação/administração já usam cliente separado; a troca efetiva do runtime pela role de menor privilégio e a propagação do contexto RLS ainda estão pendentes;
+- autenticação/administração usam cliente separado; as operações funcionais assumem a role `ggp_runtime` (`SET LOCAL ROLE`) com o contexto RLS da transação. Falta provisionar, por ambiente, um login dedicado sem `BYPASSRLS` e membro de `ggp_runtime`, e rodar os probes de isolamento descritos em `docs/DATABASE.md`;
 - retenção e descarte de feedbacks precisam de decisão do responsável pelo negócio.

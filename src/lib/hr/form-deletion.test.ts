@@ -7,7 +7,7 @@ const mocks = vi.hoisted(() => {
       update: vi.fn(),
     },
     auditEvent: {
-      create: vi.fn(),
+      createMany: vi.fn(),
     },
   };
 
@@ -62,7 +62,7 @@ describe("exclusao logica de formularios", () => {
       select: { id: true, name: true, active: true },
     });
     expect(mocks.transaction.formTemplate.update).not.toHaveBeenCalled();
-    expect(mocks.transaction.auditEvent.create).not.toHaveBeenCalled();
+    expect(mocks.transaction.auditEvent.createMany).not.toHaveBeenCalled();
   });
 
   it("arquiva o formulario ativo e registra a auditoria", async () => {
@@ -80,15 +80,17 @@ describe("exclusao logica de formularios", () => {
       data: { active: false },
       select: { id: true },
     });
-    expect(mocks.transaction.auditEvent.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
-        actorAccountId: actor.accountId,
-        action: "ARCHIVE_FORM_TEMPLATE",
-        entityType: "FORM_TEMPLATE",
-        entityId: templateId,
-        result: "SUCCESS",
-        metadata: { name: "Feedback de desempenho" },
-      }),
+    expect(mocks.transaction.auditEvent.createMany).toHaveBeenCalledWith({
+      data: [
+        expect.objectContaining({
+          actorAccountId: actor.accountId,
+          action: "ARCHIVE_FORM_TEMPLATE",
+          entityType: "FORM_TEMPLATE",
+          entityId: templateId,
+          result: "SUCCESS",
+          metadata: { name: "Feedback de desempenho" },
+        }),
+      ],
     });
   });
 
@@ -103,6 +105,6 @@ describe("exclusao logica de formularios", () => {
 
     expect(result.ok).toBe(true);
     expect(mocks.transaction.formTemplate.update).not.toHaveBeenCalled();
-    expect(mocks.transaction.auditEvent.create).not.toHaveBeenCalled();
+    expect(mocks.transaction.auditEvent.createMany).not.toHaveBeenCalled();
   });
 });

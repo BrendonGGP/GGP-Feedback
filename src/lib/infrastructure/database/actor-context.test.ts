@@ -37,10 +37,15 @@ describe("contexto de RLS do ator", () => {
     await expect(withDatabaseActor(actor, operation)).resolves.toBe("ok");
 
     expect(prismaMock.$transaction).toHaveBeenCalledOnce();
-    expect(transaction.$executeRaw).toHaveBeenCalledOnce();
+    expect(transaction.$executeRaw).toHaveBeenCalledTimes(2);
     expect(operation).toHaveBeenCalledWith(transaction);
 
-    const [, accountId, personId, roles] = transaction.$executeRaw.mock.calls[0];
+    // The least-privilege role is assumed before any business query runs.
+    const [roleStatement, ...roleParams] = transaction.$executeRaw.mock.calls[0];
+    expect(roleStatement.join("")).toBe("SET LOCAL ROLE ggp_runtime");
+    expect(roleParams).toEqual([]);
+
+    const [, accountId, personId, roles] = transaction.$executeRaw.mock.calls[1];
     expect(accountId).toBe(actor.accountId);
     expect(personId).toBe(actor.personId);
     expect(roles).toBe("MANAGER,EMPLOYEE");

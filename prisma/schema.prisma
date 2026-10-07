@@ -271,6 +271,7 @@ model FeedbackAnswer {
   question   FormQuestion @relation(fields: [questionId], references: [id], onDelete: Restrict)
 
   @@unique([feedbackId, questionId])
+  @@index([questionId])
   @@map("feedback_answers")
 }
 
