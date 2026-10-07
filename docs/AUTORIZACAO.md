@@ -55,7 +55,10 @@ gestor também pode receber feedback do próprio gestor.
   disponível para os demais perfis.
 - Gestor enxerga os liderados diretos atuais e lê apenas feedbacks em que consta
   como avaliador; uma troca de gestor não transfere feedbacks históricos.
-- Colaborador lê apenas feedbacks em que consta como pessoa avaliada.
+- Colaborador lê apenas feedbacks em que consta como pessoa avaliada, e somente
+  depois do envio: rascunhos e feedbacks cancelados do gestor não aparecem para
+  a pessoa avaliada. O autor sempre vê o que escreveu, inclusive o rascunho da
+  própria autoavaliação.
 - Colaborador cria a própria autoavaliação somente quando o ciclo vigente
   estiver aberto e com autoavaliação habilitada; nunca seleciona outra pessoa.
 - Administrador do Sistema não lê feedbacks nem PDI, mesmo em uma atribuição de

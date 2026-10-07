@@ -20,6 +20,7 @@ export type PersonScope = Readonly<{
 export type FeedbackScope = Readonly<{
   subjectPersonId: string;
   evaluatorPersonId: string;
+  status: "DRAFT" | "SUBMITTED" | "CANCELLED";
 }>;
 
 export type SelfAssessmentScope = Readonly<{
@@ -85,14 +86,16 @@ export const canReadFeedbackContent = (
     return true;
   }
 
-  if (feedback.subjectPersonId === actor.personId) {
+  const isAuthor = feedback.evaluatorPersonId === actor.personId;
+  const isSubject = feedback.subjectPersonId === actor.personId;
+
+  // The author keeps access to their own drafts (including a self-assessment).
+  if (isAuthor && (isSubject || hasRole(actor, "MANAGER"))) {
     return true;
   }
 
-  return (
-    hasRole(actor, "MANAGER") &&
-    feedback.evaluatorPersonId === actor.personId
-  );
+  // The person being evaluated only sees a feedback once it was submitted.
+  return isSubject && feedback.status === "SUBMITTED";
 };
 
 export const resolveFeedbackReadScope = (

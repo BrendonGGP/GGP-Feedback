@@ -33,6 +33,7 @@ describe("limites dos perfis de acesso", () => {
       canReadFeedbackContent(systemAdmin, {
         subjectPersonId: "employee",
         evaluatorPersonId: "manager",
+        status: "SUBMITTED",
       }),
     ).toBe(false);
     expect(
@@ -53,6 +54,7 @@ describe("limites dos perfis de acesso", () => {
       canReadFeedbackContent(hr, {
         subjectPersonId: "employee",
         evaluatorPersonId: "manager",
+        status: "SUBMITTED",
       }),
     ).toBe(true);
     expect(
@@ -82,12 +84,14 @@ describe("limites dos perfis de acesso", () => {
       canReadFeedbackContent(manager, {
         subjectPersonId: "direct-report",
         evaluatorPersonId: "manager",
+        status: "SUBMITTED",
       }),
     ).toBe(true);
     expect(
       canReadFeedbackContent(manager, {
         subjectPersonId: "direct-report",
         evaluatorPersonId: "previous-manager",
+        status: "SUBMITTED",
       }),
     ).toBe(false);
     expect(
@@ -104,6 +108,28 @@ describe("limites dos perfis de acesso", () => {
     ).toBe(false);
   });
 
+  it("esconde do avaliado o feedback do gestor ate o envio", () => {
+    const employee = actor("employee", ["EMPLOYEE"]);
+    const fromManager = { subjectPersonId: "employee", evaluatorPersonId: "manager" };
+
+    expect(canReadFeedbackContent(employee, { ...fromManager, status: "DRAFT" })).toBe(false);
+    expect(canReadFeedbackContent(employee, { ...fromManager, status: "CANCELLED" })).toBe(false);
+    expect(canReadFeedbackContent(employee, { ...fromManager, status: "SUBMITTED" })).toBe(true);
+    expect(
+      canReadFeedbackContent(employee, {
+        subjectPersonId: "employee",
+        evaluatorPersonId: "employee",
+        status: "DRAFT",
+      }),
+    ).toBe(true);
+    expect(
+      canReadFeedbackContent(actor("manager", ["MANAGER", "EMPLOYEE"]), {
+        ...fromManager,
+        status: "DRAFT",
+      }),
+    ).toBe(true);
+  });
+
   it("limita o colaborador aos proprios conteudos", () => {
     const employee = actor("employee", ["EMPLOYEE"]);
 
@@ -111,12 +137,14 @@ describe("limites dos perfis de acesso", () => {
       canReadFeedbackContent(employee, {
         subjectPersonId: "employee",
         evaluatorPersonId: "manager",
+        status: "SUBMITTED",
       }),
     ).toBe(true);
     expect(
       canReadFeedbackContent(employee, {
         subjectPersonId: "another-employee",
         evaluatorPersonId: "manager",
+        status: "SUBMITTED",
       }),
     ).toBe(false);
     expect(
@@ -175,12 +203,14 @@ describe("limites dos perfis de acesso", () => {
       canReadFeedbackContent(actor("unknown", []), {
         subjectPersonId: "unknown",
         evaluatorPersonId: "unknown",
+        status: "SUBMITTED",
       }),
     ).toBe(false);
     expect(
       canReadFeedbackContent(actor("mixed", ["SYSTEM_ADMIN", "HR_ADMIN"]), {
         subjectPersonId: "employee",
         evaluatorPersonId: "manager",
+        status: "SUBMITTED",
       }),
     ).toBe(false);
     expect(
