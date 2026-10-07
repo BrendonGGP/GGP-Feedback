@@ -4,6 +4,7 @@ import { z } from "zod";
 import type { AuthenticatedActor } from "@/lib/auth/session";
 import { canAdministerHrDomain } from "@/lib/authorization/access-control";
 import { withDatabaseActor } from "@/lib/infrastructure/database/actor-context";
+import { recordAuditEvent } from "@/lib/infrastructure/database/audit";
 
 const ratingBoundSchema = z.preprocess(
   (value) => {
@@ -173,7 +174,7 @@ export const createHrFormTemplate = async (
         select: { id: true },
       });
 
-      await transaction.auditEvent.create({
+      await recordAuditEvent(transaction, {
         data: {
           actorAccountId: actor.accountId,
           requestId: crypto.randomUUID(),
@@ -243,7 +244,7 @@ export const updateHrFormTemplate = async (
         select: { id: true },
       });
 
-      await transaction.auditEvent.create({
+      await recordAuditEvent(transaction, {
         data: {
           actorAccountId: actor.accountId,
           requestId: crypto.randomUUID(),
@@ -314,7 +315,7 @@ export const deleteHrFormTemplate = async (
       select: { id: true },
     });
 
-    await transaction.auditEvent.create({
+    await recordAuditEvent(transaction, {
       data: {
         actorAccountId: actor.accountId,
         requestId: crypto.randomUUID(),

@@ -4,6 +4,7 @@ import { z } from "zod";
 import type { AuthenticatedActor } from "@/lib/auth/session";
 import { canAdministerHrDomain } from "@/lib/authorization/access-control";
 import { withDatabaseActor } from "@/lib/infrastructure/database/actor-context";
+import { recordAuditEvent } from "@/lib/infrastructure/database/audit";
 import { runtimePrisma as prisma } from "@/lib/infrastructure/database/prisma";
 
 const uuidSchema = z.string().uuid("Selecione uma opção válida.");
@@ -130,7 +131,7 @@ const writeAudit = (
   entityType: string,
   entityId: string,
   metadata?: Prisma.InputJsonValue,
-) => transaction.auditEvent.create({
+) => recordAuditEvent(transaction, {
   data: {
     actorAccountId: actor.accountId,
     requestId: crypto.randomUUID(),
