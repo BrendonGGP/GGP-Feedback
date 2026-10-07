@@ -58,7 +58,7 @@ Envie mudanças para uma branch diferente de `main`. Cada push executa as valida
 
 ## Desenvolvimento local
 
-Pré-requisitos: Node.js 20.9 ou superior, npm e Python 3.14 com as dependências fixadas em `requirements-validation.txt`.
+Pré-requisitos: Node.js 24.7 ou superior (o hash de senha usa o Argon2id nativo de `node:crypto`), npm e Python 3.14 com as dependências fixadas em `requirements-validation.txt`.
 
 No Windows, ative o ambiente Python local antes das validações:
 

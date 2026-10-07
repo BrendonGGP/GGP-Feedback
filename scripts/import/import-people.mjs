@@ -2,8 +2,7 @@ import { randomBytes, randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { isAbsolute, relative, resolve } from "node:path";
 
-import argon2 from "argon2";
-
+import { hashArgon2id } from "../../src/lib/auth/argon2id.mjs";
 import { createAdminPrismaClient } from "../database/prisma-admin-client.mjs";
 
 const APPLY_FLAG = "--apply";
@@ -378,7 +377,7 @@ const applyImport = async (transaction, records) => {
       }
     } else {
       const generatedSecret = randomBytes(32).toString("base64url");
-      const passwordHash = await argon2.hash(generatedSecret, { type: argon2.argon2id });
+      const passwordHash = await hashArgon2id(generatedSecret);
       await transaction.accessAccount.create({ data: { personId: person.id, loginIdentifier: record.username, passwordHash, status: "PENDING_ACTIVATION", mustChangePassword: true } });
       result.accountsCreated += 1;
     }

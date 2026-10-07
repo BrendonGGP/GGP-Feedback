@@ -2,8 +2,7 @@ import { randomBytes } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { isAbsolute, relative, resolve } from "node:path";
 
-import argon2 from "argon2";
-
+import { hashArgon2id, verifyArgon2id } from "../../src/lib/auth/argon2id.mjs";
 import { createAdminPrismaClient } from "../database/prisma-admin-client.mjs";
 
 const APPLY_FLAG = "--apply";
@@ -218,9 +217,7 @@ const upsertSyntheticData = async (transaction, passwords) => {
       data: { revokedAt },
     });
 
-    const passwordHash = await argon2.hash(passwords[account.key], {
-      type: argon2.argon2id,
-    });
+    const passwordHash = await hashArgon2id(passwords[account.key]);
 
     await transaction.accessAccount.upsert({
       where: { id: account.id },
@@ -324,7 +321,7 @@ const verifySyntheticData = async () => {
       const storedPassword = storedPasswords[expectedAccount.key];
       const passwordMatches =
         storedAccount && storedPassword
-          ? await argon2.verify(storedAccount.passwordHash, storedPassword)
+          ? await verifyArgon2id(storedAccount.passwordHash, storedPassword)
           : false;
 
       if (
