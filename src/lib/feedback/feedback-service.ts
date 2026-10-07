@@ -6,12 +6,12 @@ import {
   canCreateFeedbackForPerson,
   canCreateSelfAssessment,
   canAdministerHrDomain,
-  resolveFeedbackReadScope,
 } from "@/lib/authorization/access-control";
 import {
   validateFeedbackAnswers,
   type FeedbackIntent,
 } from "@/lib/feedback/feedback-validation";
+import { visibilityWhere } from "@/lib/feedback/feedback-visibility";
 import { withDatabaseActor } from "@/lib/infrastructure/database/actor-context";
 import { runtimePrisma as prisma } from "@/lib/infrastructure/database/prisma";
 import { serializeCsv } from "@/lib/feedback/csv";
@@ -25,21 +25,6 @@ const isFunctionalActor = (actor: AuthenticatedActor): boolean =>
 
 const audienceAllows = (audience: FormAudience | undefined, role: "MANAGER" | "EMPLOYEE"): boolean =>
   audience === "BOTH" || audience === role;
-
-const visibilityWhere = (actor: AuthenticatedActor): Prisma.FeedbackWhereInput => {
-  const scope = resolveFeedbackReadScope(actor);
-  if (scope === "ALL") return {};
-  if (scope === "SELF_AND_AUTHORED") {
-    return {
-      OR: [
-        { evaluatorPersonId: actor.personId },
-        { subjectPersonId: actor.personId },
-      ],
-    };
-  }
-  if (scope === "SELF") return { subjectPersonId: actor.personId };
-  return { id: "00000000-0000-0000-0000-000000000000" };
-};
 
 export const getFeedbackOverview = async (actor: AuthenticatedActor) => {
   if (!isFunctionalActor(actor)) {
