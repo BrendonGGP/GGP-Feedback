@@ -368,7 +368,7 @@ export function FormTemplateManager({
         >
           <div className={styles.editorPanelHeader}>
             <div>
-              <p className={styles.eyebrow}>{creating ? "Novo formulário" : "Edição de formulário"}</p>
+              <p className="sobretitulo">{creating ? "Novo formulário" : "Edição de formulário"}</p>
               <h3 id="template-editor-title">
                 {creating ? "Monte o formulário por público" : `Editar ${editingTemplate?.name}`}
               </h3>
@@ -387,7 +387,12 @@ export function FormTemplateManager({
       ) : null}
 
       <div className={styles.templateGrid}>
-        {templates.length === 0 ? <p className={styles.emptyState}>Nenhum formulário ativo encontrado.</p> : null}
+        {templates.length === 0 ? (
+          <div className={styles.emptyState}>
+            <span aria-hidden="true"><PortalIcon name="feedback" /></span>
+            <p>Nenhum formulário ativo encontrado.</p>
+          </div>
+        ) : null}
         {templates.map((template) => (
           <article className={styles.templateCard} key={template.id}>
             <div className={styles.templateTitle}>

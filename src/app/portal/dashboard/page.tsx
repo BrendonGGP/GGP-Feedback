@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { DashboardMotion } from "@/components/portal/dashboard-motion";
+import { Revelar } from "@/components/motion/revelar";
 import { PortalIcon, type PortalIconName } from "@/components/portal/portal-icon";
 import { PortalShell } from "@/components/portal/portal-shell";
 import { getAuthenticatedActor } from "@/lib/auth/session";
@@ -119,41 +119,40 @@ export default async function DashboardPage() {
       roleLabel={dashboard.roleLabel}
       roles={actor.roles}
     >
-      <DashboardMotion>
+      <Revelar>
         <div className={styles.dashboard}>
-          <section className={styles.welcome} data-dashboard-reveal aria-labelledby="dashboard-title">
-            <div>
-              <p className={styles.eyebrow}>Visão geral</p>
-              <h1 id="dashboard-title">{getGreeting()}, {dashboard.profile.firstName}</h1>
+          <section className={styles.welcome} aria-labelledby="dashboard-title">
+            <div className={styles.welcomeText}>
+              <p className={`sobretitulo ${styles.today}`}>{formatToday()}</p>
+              <h1 className="titulo-grande" id="dashboard-title">
+                {getGreeting()}, {dashboard.profile.firstName}
+              </h1>
               <p className={styles.profileLine}>
-                <span className={styles.today}>{formatToday()}</span>
-                <span aria-hidden="true">•</span>
                 <span>{dashboard.profile.jobTitle}</span>
-                <span aria-hidden="true">•</span>
+                <span aria-hidden="true">·</span>
                 <span>{dashboard.profile.department}</span>
               </p>
             </div>
 
-            <div className={styles.roleCard}>
-              <span className={styles.roleIcon} aria-hidden="true">
-                <PortalIcon name={dashboard.primaryRole === "SYSTEM_ADMIN" ? "admin" : "user"} />
+            <div className={styles.welcomeActions}>
+              <span className={styles.companyPill}>
+                Você faz parte de <strong>{dashboard.profile.company}</strong>
               </span>
-              <span>
+              <span className={styles.roleCard}>
+                <span className={styles.roleIcon} aria-hidden="true">
+                  <PortalIcon name={dashboard.primaryRole === "SYSTEM_ADMIN" ? "admin" : "user"} />
+                </span>
                 <small>Seu perfil de acesso</small>
                 <strong>{dashboard.roleLabel}</strong>
               </span>
             </div>
           </section>
 
-          <div className={styles.companyPill} data-dashboard-reveal>
-            <span>Você faz parte de <strong>{dashboard.profile.company}</strong></span>
-          </div>
-
           <section className={styles.metrics} aria-label="Indicadores principais">
             {dashboard.metrics.map((metric) => (
               <article
-                className={styles.metricCard}
-                data-dashboard-reveal
+                className={`folha ${styles.metricCard}`}
+                data-revelar
                 data-tone={metric.tone}
                 key={metric.label}
               >
@@ -165,15 +164,18 @@ export default async function DashboardPage() {
           </section>
 
           <div className={styles.contentGrid}>
-            <section className={styles.mainPanel} data-dashboard-reveal aria-labelledby="overview-title">
+            <section className={`folha ${styles.mainPanel}`} data-revelar aria-labelledby="overview-title">
               <header className={styles.panelHeader}>
                 <div>
-                  <p className={styles.eyebrow}>Acompanhamento</p>
+                  <p className="sobretitulo">Acompanhamento</p>
                   <h2 id="overview-title">
                     {dashboard.feedbackSummary ? "Feedbacks do ciclo" : "Limites de acesso"}
                   </h2>
                 </div>
-                <span className={styles.statusChip}>
+                <span
+                  className={styles.statusChip}
+                  data-tone={dashboard.feedbackSummary ? "sucesso" : "neutro"}
+                >
                   <PortalIcon name={dashboard.feedbackSummary ? "check" : "admin"} />
                   {dashboard.feedbackSummary ? "Atualizado" : "Protegido"}
                 </span>
@@ -227,11 +229,11 @@ export default async function DashboardPage() {
             </section>
 
             <aside className={styles.sideColumn} aria-label="Informações complementares">
-              <section className={styles.cycleCard} data-dashboard-reveal aria-labelledby="cycle-title">
+              <section className={`folha ${styles.cycleCard}`} data-revelar aria-labelledby="cycle-title">
                 <header>
                   <span aria-hidden="true"><PortalIcon name="calendar" /></span>
                   <div>
-                    <p className={styles.eyebrow}>Calendário</p>
+                    <p className="sobretitulo">Calendário</p>
                     <h2 id="cycle-title">Ciclo atual</h2>
                   </div>
                 </header>
@@ -247,8 +249,8 @@ export default async function DashboardPage() {
                 )}
               </section>
 
-              <section className={styles.scopeCard} data-dashboard-reveal aria-labelledby="scope-title">
-                <p className={styles.eyebrow}>Permissões</p>
+              <section className={`folha ${styles.scopeCard}`} data-revelar aria-labelledby="scope-title">
+                <p className="sobretitulo">Permissões</p>
                 <h2 id="scope-title">Seu escopo</h2>
                 <p>{dashboard.roleDescription}</p>
                 <span><PortalIcon name="check" /> Validado no servidor</span>
@@ -256,16 +258,19 @@ export default async function DashboardPage() {
             </aside>
           </div>
 
-          <section className={styles.quickSection} data-dashboard-reveal aria-labelledby="quick-title">
-            <header className={styles.panelHeader}>
-              <div>
-                <p className={styles.eyebrow}>Navegação</p>
-                <h2 id="quick-title">Acessos rápidos</h2>
-              </div>
+          <section className={styles.quickSection} aria-labelledby="quick-title">
+            <header className={styles.sectionHeader}>
+              <p className="sobretitulo">Navegação</p>
+              <h2 id="quick-title">Acessos rápidos</h2>
             </header>
             <div className={styles.quickGrid}>
               {quickAccesses.map((access) => (
-                <Link href={access.href} key={access.href}>
+                <Link
+                  className={`folha elevar ${styles.quickLink}`}
+                  data-revelar
+                  href={access.href}
+                  key={access.href}
+                >
                   <span className={styles.quickIcon} aria-hidden="true">
                     <PortalIcon name={access.icon} />
                   </span>
@@ -280,17 +285,17 @@ export default async function DashboardPage() {
           </section>
 
           {dashboard.primaryRole !== "SYSTEM_ADMIN" ? (
-            <section className={styles.pdiNotice} data-dashboard-reveal aria-label="Planejamento do PDI">
+            <section className={`folha ${styles.pdiNotice}`} data-revelar aria-label="Planejamento do PDI">
               <span aria-hidden="true"><PortalIcon name="feedback" /></span>
               <div>
-                <p className={styles.eyebrow}>Próxima fase</p>
+                <p className="sobretitulo">Próxima fase</p>
                 <h2>PDI será construído após o fluxo de Feedback</h2>
                 <p>O MVP atual prioriza ciclos e feedbacks. Nenhum progresso de PDI é inventado nesta tela.</p>
               </div>
             </section>
           ) : null}
         </div>
-      </DashboardMotion>
+      </Revelar>
     </PortalShell>
   );
 }

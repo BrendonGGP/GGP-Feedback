@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { Revelar } from "@/components/motion/revelar";
 import { PortalIcon } from "@/components/portal/portal-icon";
 import { PortalShell } from "@/components/portal/portal-shell";
 import { getAuthenticatedActor } from "@/lib/auth/session";
@@ -65,29 +66,30 @@ export default async function HrPeoplePage({ searchParams }: PeoplePageProps) {
       <div className={styles.page}>
         <header className={styles.hero}>
           <div>
-            <p className={styles.eyebrow}>Base cadastral</p>
-            <h1>Colaboradores e gestores</h1>
-            <p>Consulte o quadro ativo e a relação de liderança sem duplicar pessoas entre as visões.</p>
+            <p className="sobretitulo">Base cadastral</p>
+            <h1 className="titulo-grande">Colaboradores e gestores</h1>
+            <p className={styles.heroDescription}>Consulte o quadro ativo e a relação de liderança sem duplicar pessoas entre as visões.</p>
           </div>
           <div className={styles.heroActions}>
+            <span className={styles.scopeBadge}><PortalIcon name="check" /> Escopo RH validado</span>
             <Link className={styles.secondaryButton} href="/portal/rh/organizacao#cadastro-pessoa">
               <PortalIcon name="team" />
               Cadastrar pessoa
             </Link>
-            <span className={styles.scopeBadge}><PortalIcon name="check" /> Escopo RH validado</span>
           </div>
         </header>
 
+        <Revelar className={styles.content}>
         <section className={styles.metrics} aria-label="Resumo da base cadastral">
-          <article data-tone="aqua"><span>Pessoas ativas</span><strong>{directory.metrics.activePeople}</strong><small>cadastros funcionais</small></article>
-          <article data-tone="green"><span>Gestores ativos</span><strong>{directory.metrics.activeManagers}</strong><small>com liderados diretos</small></article>
-          <article data-tone="amber"><span>Raízes da estrutura</span><strong>{directory.metrics.roots}</strong><small>sem gestor superior</small></article>
-          <article data-tone="neutral"><span>Sem conta vinculada</span><strong>{directory.metrics.withoutAccount}</strong><small>provisionamento separado</small></article>
+          <article data-tone="aqua" data-revelar><span>Pessoas ativas</span><strong>{directory.metrics.activePeople}</strong><small>cadastros funcionais</small></article>
+          <article data-tone="green" data-revelar><span>Gestores ativos</span><strong>{directory.metrics.activeManagers}</strong><small>com liderados diretos</small></article>
+          <article data-tone="amber" data-revelar><span>Raízes da estrutura</span><strong>{directory.metrics.roots}</strong><small>sem gestor superior</small></article>
+          <article data-tone="neutral" data-revelar><span>Sem conta vinculada</span><strong>{directory.metrics.withoutAccount}</strong><small>provisionamento separado</small></article>
         </section>
 
-        <section className={styles.panel} aria-labelledby="directory-title">
+        <section className={styles.panel} aria-labelledby="directory-title" data-revelar>
           <header className={styles.panelHeader}>
-            <div><p className={styles.eyebrow}>Quadro organizacional</p><h2 id="directory-title">Pessoas cadastradas</h2></div>
+            <div><p className="sobretitulo">Quadro organizacional</p><h2 id="directory-title">Pessoas cadastradas</h2></div>
             <span>{directory.filteredTotal} {directory.filteredTotal === 1 ? "resultado" : "resultados"}</span>
           </header>
 
@@ -153,10 +155,11 @@ export default async function HrPeoplePage({ searchParams }: PeoplePageProps) {
           {directory.resultLimited ? <p className={styles.resultLimit}>Exibindo os primeiros 200 resultados. Refine a busca para localizar outra pessoa.</p> : null}
         </section>
 
-        <aside className={styles.infoNote} role="note">
+        <aside className={styles.infoNote} role="note" data-revelar>
           <PortalIcon name="admin" />
           <p><strong>Cadastro e acesso são etapas separadas.</strong> O RH mantém pessoas e vínculos; a conta e o papel de acesso continuam sob responsabilidade do Administrador do Sistema.</p>
         </aside>
+        </Revelar>
       </div>
     </PortalShell>
   );

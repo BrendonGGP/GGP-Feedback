@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { Revelar } from "@/components/motion/revelar";
 import { PortalIcon } from "@/components/portal/portal-icon";
 import { PortalShell } from "@/components/portal/portal-shell";
 import {
@@ -86,133 +87,148 @@ export default async function SystemAdministrationPage({
     >
       <div className={styles.page}>
         <header className={styles.hero}>
-          <div>
-            <p className={styles.eyebrow}>Administração técnica</p>
-            <h1>Controle de acessos</h1>
-            <p>
+          <div className={styles.heroText}>
+            <p className="sobretitulo">Administração técnica</p>
+            <h1 className="titulo-grande">Controle de acessos</h1>
+            <p className={styles.heroDescription}>
               Gerencie contas, papéis e sessões. O conteúdo de Feedback e PDI
               permanece isolado deste perfil.
             </p>
           </div>
           <div className={styles.securityBadge}>
-            <PortalIcon name="admin" />
+            <PortalIcon name="admin" size={16} />
             <span>Segregação funcional ativa</span>
           </div>
         </header>
 
-        {successMessage ? <p className={styles.successMessage} role="status">{successMessage}</p> : null}
-        {errorMessage ? <p className={styles.errorMessage} role="alert">{errorMessage}</p> : null}
+        {successMessage ? (
+          <p className={styles.successMessage} role="status">
+            <PortalIcon name="check" size={18} />
+            <span>{successMessage}</span>
+          </p>
+        ) : null}
+        {errorMessage ? (
+          <p className={styles.errorMessage} role="alert">
+            <PortalIcon name="alert" size={18} />
+            <span>{errorMessage}</span>
+          </p>
+        ) : null}
 
-        <section className={styles.metrics} aria-label="Resumo das contas">
-          <article><span>Contas cadastradas</span><strong>{management.metrics.totalAccounts}</strong><small>identidades provisionadas</small></article>
-          <article><span>Contas ativas</span><strong>{management.metrics.activeAccounts}</strong><small>acessos habilitados</small></article>
-          <article><span>Requerem atenção</span><strong>{management.metrics.attentionAccounts}</strong><small>pendentes, bloqueadas ou desabilitadas</small></article>
-          <article><span>Sessões ativas</span><strong>{management.metrics.activeSessions}</strong><small>sessões válidas agora</small></article>
-        </section>
+        <Revelar className={styles.content}>
+          <section className={styles.metrics} aria-label="Resumo das contas">
+            <article className="folha" data-revelar><span>Contas cadastradas</span><strong>{management.metrics.totalAccounts}</strong><small>identidades provisionadas</small></article>
+            <article className="folha" data-revelar><span>Contas ativas</span><strong>{management.metrics.activeAccounts}</strong><small>acessos habilitados</small></article>
+            <article className="folha" data-revelar><span>Requerem atenção</span><strong>{management.metrics.attentionAccounts}</strong><small>pendentes, bloqueadas ou desabilitadas</small></article>
+            <article className="folha" data-revelar><span>Sessões ativas</span><strong>{management.metrics.activeSessions}</strong><small>sessões válidas agora</small></article>
+          </section>
 
-        <section className={styles.createAccountPanel} aria-labelledby="create-account-title">
-          <header className={styles.createAccountHeader}>
-            <div>
-              <p className={styles.eyebrow}>Provisionamento</p>
-              <h2 id="create-account-title">Novo colaborador</h2>
-              <p>
-                Cadastre o colaborador e crie sua conta de acesso em uma única etapa.
-                A senha inicial será trocada no primeiro login.
-              </p>
-            </div>
-            <span>Cadastro guiado</span>
-          </header>
-          <CreateAccountForm
-            organizationOptions={management.organizationOptions}
-            roleOptions={ACCESS_ROLES.map((role) => ({
-              value: role,
-              label: roleLabels[role],
-            }))}
-          />
-        </section>
+          <section className={`folha ${styles.createAccountPanel}`} data-revelar aria-labelledby="create-account-title">
+            <header className={styles.createAccountHeader}>
+              <div>
+                <p className="sobretitulo">Provisionamento</p>
+                <h2 id="create-account-title">Novo colaborador</h2>
+                <p>
+                  Cadastre o colaborador e crie sua conta de acesso em uma única etapa.
+                  A senha inicial será trocada no primeiro login.
+                </p>
+              </div>
+              <span>Cadastro guiado</span>
+            </header>
+            <CreateAccountForm
+              organizationOptions={management.organizationOptions}
+              roleOptions={ACCESS_ROLES.map((role) => ({
+                value: role,
+                label: roleLabels[role],
+              }))}
+            />
+          </section>
 
-        <section className={styles.panel} aria-labelledby="accounts-title">
-          <header className={styles.panelHeader}>
-            <div><p className={styles.eyebrow}>Contas e permissões</p><h2 id="accounts-title">Usuários provisionados</h2></div>
-            <span>{management.filteredTotal} resultados</span>
-          </header>
+          <section className={`folha ${styles.panel}`} data-revelar aria-labelledby="accounts-title">
+            <header className={styles.panelHeader}>
+              <div><p className="sobretitulo">Contas e permissões</p><h2 id="accounts-title">Usuários provisionados</h2></div>
+              <span>{management.filteredTotal} resultados</span>
+            </header>
 
-          <AccountFilters
-            initialQuery={management.filters.query}
-            initialStatus={management.filters.status ?? ""}
-            statusOptions={MANAGED_ACCOUNT_STATUSES.map((accountStatus) => ({
-              value: accountStatus,
-              label: statusLabels[accountStatus],
-            }))}
-          />
+            <AccountFilters
+              initialQuery={management.filters.query}
+              initialStatus={management.filters.status ?? ""}
+              statusOptions={MANAGED_ACCOUNT_STATUSES.map((accountStatus) => ({
+                value: accountStatus,
+                label: statusLabels[accountStatus],
+              }))}
+            />
 
-          {management.accounts.length === 0 ? (
-            <p className={styles.emptyState}>Nenhuma conta encontrada com esses filtros.</p>
-          ) : (
-            <div className={styles.tableScroller} tabIndex={0}>
-              <table>
-                <caption className={styles.srOnly}>Contas provisionadas e controles de acesso</caption>
-                <thead><tr><th scope="col">Pessoa</th><th scope="col">Nome de usuário</th><th scope="col">Papéis</th><th scope="col">Status</th><th scope="col">Sessões</th><th scope="col">Ações</th></tr></thead>
-                <tbody>
-                  {management.accounts.map((account) => {
-                    const updateFormId = `account-${account.id}`;
-                    return (
-                      <tr key={account.id}>
-                        <td data-label="Pessoa">
-                          <div className={styles.personCell}>
-                            <span aria-hidden="true">{account.fullName.split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase()}</span>
-                            <div><strong>{account.fullName}</strong><small>{account.jobTitle}</small><small>{account.companyName} · {account.departmentName}</small></div>
-                          </div>
-                        </td>
-                        <td data-label="Nome de usuário"><div className={styles.accountCell}><strong>{account.loginIdentifier}</strong><small>{account.corporateEmail ?? "Sem e-mail corporativo"}</small>{account.mustChangePassword ? <em>Troca de senha pendente</em> : null}</div></td>
-                        <td data-label="Papéis">
-                          <fieldset className={styles.roleOptions} disabled={account.isCurrent}>
-                            <legend className={styles.srOnly}>Papéis de {account.fullName}</legend>
-                            {ACCESS_ROLES.map((role) => (
-                              <label key={role} title={roleLabels[role]}>
-                                <input type="checkbox" name="roles" value={role} defaultChecked={account.roles.includes(role)} form={updateFormId} />
-                                <span>{roleLabels[role]}</span>
-                              </label>
-                            ))}
-                          </fieldset>
-                        </td>
-                        <td data-label="Status">
-                          <select className={styles.statusSelect} name="status" defaultValue={account.status} form={updateFormId} disabled={account.isCurrent} aria-label={`Status de ${account.fullName}`}>
-                            {MANAGED_ACCOUNT_STATUSES.map((accountStatus) => <option value={accountStatus} key={accountStatus}>{statusLabels[accountStatus]}</option>)}
-                          </select>
-                          <span className={styles.statusBadge} data-status={account.status}>{statusLabels[account.status]}</span>
-                        </td>
-                        <td data-label="Sessões"><div className={styles.sessionCell}><strong>{account.activeSessions}</strong><small>{formatLastLogin(account.lastLoginAt)}</small></div></td>
-                        <td data-label="Ações">
-                          {account.isCurrent ? (
-                            <span className={styles.currentAccount}>Conta atual protegida</span>
-                          ) : (
-                            <div className={styles.actions}>
-                              <form id={updateFormId} action={updateAccountAction}>
-                                <input type="hidden" name="accountId" value={account.id} />
-                                <ActionSubmitButton label="Salvar acesso" pendingLabel="Salvando..." />
-                              </form>
-                              <form action={revokeAccountSessionsAction}>
-                                <input type="hidden" name="accountId" value={account.id} />
-                                <ActionSubmitButton label="Revogar sessões" pendingLabel="Revogando..." tone="secondary" disabled={account.activeSessions === 0} />
-                              </form>
-                              <PasswordResetDialog accountId={account.id} accountName={account.fullName} />
-                              <form action={deleteAccountAction} className={styles.deleteAccountForm}>
-                                <input type="hidden" name="accountId" value={account.id} />
-                                <DeleteAccountButton accountName={account.fullName} />
-                              </form>
+            {management.accounts.length === 0 ? (
+              <div className={styles.emptyState}>
+                <span className={styles.emptyIcon}><PortalIcon name="search" size={22} /></span>
+                <p>Nenhuma conta encontrada com esses filtros.</p>
+              </div>
+            ) : (
+              <div className={styles.tableScroller} tabIndex={0}>
+                <table>
+                  <caption className={styles.srOnly}>Contas provisionadas e controles de acesso</caption>
+                  <thead><tr><th scope="col">Pessoa</th><th scope="col">Nome de usuário</th><th scope="col">Papéis</th><th scope="col">Status</th><th scope="col">Sessões</th><th scope="col">Ações</th></tr></thead>
+                  <tbody>
+                    {management.accounts.map((account) => {
+                      const updateFormId = `account-${account.id}`;
+                      return (
+                        <tr key={account.id}>
+                          <td data-label="Pessoa">
+                            <div className={styles.personCell}>
+                              <span aria-hidden="true">{account.fullName.split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase()}</span>
+                              <div><strong>{account.fullName}</strong><small>{account.jobTitle}</small><small>{account.companyName} · {account.departmentName}</small></div>
                             </div>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-          {management.resultLimited ? <p className={styles.resultLimit}>Exibindo os primeiros 100 resultados. Refine os filtros para localizar outra conta.</p> : null}
-        </section>
+                          </td>
+                          <td data-label="Nome de usuário"><div className={styles.accountCell}><strong>{account.loginIdentifier}</strong><small>{account.corporateEmail ?? "Sem e-mail corporativo"}</small>{account.mustChangePassword ? <em>Troca de senha pendente</em> : null}</div></td>
+                          <td data-label="Papéis">
+                            <fieldset className={styles.roleOptions} disabled={account.isCurrent}>
+                              <legend className={styles.srOnly}>Papéis de {account.fullName}</legend>
+                              {ACCESS_ROLES.map((role) => (
+                                <label key={role} title={roleLabels[role]}>
+                                  <input type="checkbox" name="roles" value={role} defaultChecked={account.roles.includes(role)} form={updateFormId} />
+                                  <span>{roleLabels[role]}</span>
+                                </label>
+                              ))}
+                            </fieldset>
+                          </td>
+                          <td data-label="Status">
+                            <select className={styles.statusSelect} name="status" defaultValue={account.status} form={updateFormId} disabled={account.isCurrent} aria-label={`Status de ${account.fullName}`}>
+                              {MANAGED_ACCOUNT_STATUSES.map((accountStatus) => <option value={accountStatus} key={accountStatus}>{statusLabels[accountStatus]}</option>)}
+                            </select>
+                            <span className={styles.statusBadge} data-status={account.status}>{statusLabels[account.status]}</span>
+                          </td>
+                          <td data-label="Sessões"><div className={styles.sessionCell}><strong>{account.activeSessions}</strong><small>{formatLastLogin(account.lastLoginAt)}</small></div></td>
+                          <td data-label="Ações">
+                            {account.isCurrent ? (
+                              <span className={styles.currentAccount}>Conta atual protegida</span>
+                            ) : (
+                              <div className={styles.actions}>
+                                <form id={updateFormId} action={updateAccountAction}>
+                                  <input type="hidden" name="accountId" value={account.id} />
+                                  <ActionSubmitButton label="Salvar acesso" pendingLabel="Salvando..." />
+                                </form>
+                                <form action={revokeAccountSessionsAction}>
+                                  <input type="hidden" name="accountId" value={account.id} />
+                                  <ActionSubmitButton label="Revogar sessões" pendingLabel="Revogando..." tone="secondary" disabled={account.activeSessions === 0} />
+                                </form>
+                                <PasswordResetDialog accountId={account.id} accountName={account.fullName} />
+                                <form action={deleteAccountAction} className={styles.deleteAccountForm}>
+                                  <input type="hidden" name="accountId" value={account.id} />
+                                  <DeleteAccountButton accountName={account.fullName} />
+                                </form>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {management.resultLimited ? <p className={styles.resultLimit}><PortalIcon name="info" size={18} /><span>Exibindo os primeiros 100 resultados. Refine os filtros para localizar outra conta.</span></p> : null}
+          </section>
+        </Revelar>
       </div>
     </PortalShell>
   );

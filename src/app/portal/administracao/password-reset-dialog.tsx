@@ -2,6 +2,8 @@
 
 import { useRef } from "react";
 
+import { PortalIcon } from "@/components/portal/portal-icon";
+
 import { changeAccountPasswordAction } from "./actions";
 import { ActionSubmitButton } from "./action-submit-button";
 import styles from "./administration.module.css";
@@ -55,7 +57,7 @@ export function PasswordResetDialog({
       >
         <div className={styles.passwordDialogHeader}>
           <div>
-            <p className={styles.eyebrow}>Acesso administrativo</p>
+            <p className="sobretitulo">Acesso administrativo</p>
             <h2 id={titleId}>Definir senha temporária</h2>
           </div>
           <button
@@ -64,7 +66,7 @@ export function PasswordResetDialog({
             aria-label="Fechar janela de senha"
             onClick={closeDialog}
           >
-            Fechar
+            <PortalIcon name="close" size={20} />
           </button>
         </div>
 

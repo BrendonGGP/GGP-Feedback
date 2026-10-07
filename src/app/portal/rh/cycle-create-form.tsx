@@ -63,7 +63,7 @@ export function CycleCreateForm({
   return (
     <form className={styles.createForm} action={formAction} onKeyDown={advanceOnEnter}>
       <div className={styles.formIntro}>
-        <p className={styles.eyebrow}>Novo ciclo</p>
+        <p className="sobretitulo">Novo ciclo</p>
         <h2>Configure uma nova rodada</h2>
         <p>O ciclo é criado como rascunho e só fica disponível após a abertura pelo RH.</p>
         <p className={styles.keyboardHint}>Use Enter para avançar entre os campos ou Tab para navegar.</p>

@@ -1,74 +1,69 @@
-/* Painel admin: tema claro do design system. Só tokens de src/app/globals.css. */
+/* Painel admin — vocabulário GGPost. Só tokens de src/app/globals.css. */
 
 .page {
   display: grid;
-  gap: var(--space-6);
+  gap: var(--space-5);
   min-width: 0;
   max-width: 94rem;
   margin: 0 auto;
 }
 
-/* Rótulo técnico local (mesmo contrato de .rotulo-tec) */
-.eyebrow {
-  margin: 0 0 var(--space-2);
-  color: var(--color-text-secondary);
-  font-family: var(--font-mono);
-  font-size: var(--fs-rotulo);
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+.content {
+  display: grid;
+  gap: var(--space-5);
+  min-width: 0;
 }
 
-/* Cabeçalho da tela */
+/* ═══════════ Cabeçalho da tela (sem fundo, sem borda) ═══════════ */
 .hero {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: var(--space-6);
+  gap: 16px 24px;
+  padding: 30px 4px 22px;
 }
 
-.hero h1 {
-  margin: 0;
-  color: var(--color-text);
-  font-size: var(--fs-titulo);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: var(--lh-snug);
+.heroText {
+  min-width: 0;
 }
 
-.hero > div > p:last-child {
+.heroText .sobretitulo {
+  margin-bottom: 4px;
+}
+
+.heroDescription {
   max-width: 48rem;
-  margin: var(--space-2) 0 0;
+  margin: 6px 0 0;
   color: var(--color-text-secondary);
-  font-size: var(--fs-corpo);
-  line-height: var(--lh-base);
+  font-size: var(--fs-secao);
+  line-height: 24px;
+  letter-spacing: -0.01em;
 }
 
+/* Chip "tint" de escopo */
 .securityBadge {
   display: inline-flex;
   align-items: center;
   flex: 0 0 auto;
-  gap: var(--space-2);
-  height: 1.75rem;
-  padding: 0 var(--space-3);
-  border: 1px solid var(--color-border);
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
   border-radius: var(--radius-pill);
-  color: var(--color-text-secondary);
-  background: var(--color-surface);
-  font-size: var(--fs-rotulo);
-  font-weight: 500;
+  color: var(--color-primary-hover);
+  background: var(--color-primary-bg);
+  font-size: var(--fs-meta);
+  font-weight: 600;
+  letter-spacing: -0.006em;
   line-height: 1;
   white-space: nowrap;
 }
 
 .securityBadge svg {
   flex: 0 0 auto;
-  width: 0.875rem;
-  height: 0.875rem;
-  color: var(--marca-azul);
 }
 
-/* Métricas — ritmo único: rótulo → 0.5rem → número → 0.25rem → legenda */
+/* ═══════════ Métricas (folhas) ═══════════ */
 .metrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -78,12 +73,8 @@
 .metrics article {
   display: grid;
   align-content: start;
-  gap: 0;
   min-width: 0;
-  padding: var(--space-4) var(--space-5);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
+  padding: 20px;
 }
 
 .metrics span {
@@ -96,8 +87,9 @@
   margin-top: var(--space-2);
   color: var(--color-text);
   font-size: var(--fs-metrica);
-  font-weight: 600;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
   line-height: var(--lh-tight);
 }
 
@@ -108,113 +100,141 @@
   line-height: var(--lh-snug);
 }
 
-/* Painel de contas */
+/* ═══════════ Folha de contas ═══════════ */
 .panel {
   min-width: 0;
   overflow: hidden;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
 }
 
 .panelHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: var(--space-4);
-  padding: var(--space-5);
-  border-bottom: 1px solid var(--color-border);
+  padding: 20px 20px 4px;
 }
 
-.panelHeader h2 {
+.panelHeader .sobretitulo,
+.createAccountHeader .sobretitulo {
+  margin-bottom: 4px;
+}
+
+.panelHeader h2,
+.createAccountHeader h2 {
   margin: 0;
   color: var(--color-text);
   font-size: var(--fs-secao);
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.014em;
+  line-height: var(--lh-snug);
 }
 
 .panelHeader > span {
   color: var(--color-text-secondary);
   font-size: var(--fs-meta);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
-/* Botões */
+/* ═══════════ Botões (pílula) ═══════════ */
 .primaryButton,
 .secondaryButton,
 .filters button,
 .filters a,
 .dangerButton,
-.dialogCloseButton,
 .passwordVisibilityButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  min-height: var(--control-h);
-  padding: 0 1rem;
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
+  height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--radius-pill);
   font: inherit;
   font-size: var(--fs-corpo);
-  font-weight: 500;
-  line-height: var(--lh-tight);
+  font-weight: 600;
+  letter-spacing: -0.006em;
+  line-height: 1;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
   transition:
-    background-color var(--motion-rapido) var(--ease-padrao),
-    border-color var(--motion-rapido) var(--ease-padrao),
-    color var(--motion-rapido) var(--ease-padrao);
+    background-color 0.2s,
+    color 0.2s,
+    filter 0.2s,
+    translate 0.2s;
+}
+
+.primaryButton:active:not(:disabled),
+.secondaryButton:active:not(:disabled),
+.filters button:active,
+.filters a:active,
+.dangerButton:active:not(:disabled),
+.passwordVisibilityButton:active,
+.dialogCloseButton:active {
+  translate: 0 1px;
 }
 
 /* primário */
 .primaryButton,
 .filters button {
-  color: var(--color-surface);
-  background: var(--marca-azul);
+  color: #fff;
+  background: var(--color-primary);
 }
 
 .primaryButton:hover:not(:disabled),
 .filters button:hover {
-  background: var(--marca-azul-hover);
+  background: var(--color-primary-pressionado);
 }
 
 /* secundário */
 .secondaryButton,
 .filters a,
 .passwordVisibilityButton {
-  border-color: var(--color-border-strong);
   color: var(--color-text);
-  background: var(--color-surface);
+  background: var(--color-preenchimento-2);
 }
 
 .secondaryButton:hover:not(:disabled),
 .filters a:hover,
 .passwordVisibilityButton:hover {
-  background: var(--color-nav-hover);
+  background: var(--color-preenchimento-3);
 }
 
+/* tint (alternância ativa) */
 .passwordVisibilityButton[aria-pressed="true"] {
-  color: var(--marca-azul);
+  color: var(--color-primary-hover);
   background: var(--color-primary-bg);
 }
 
-/* fantasma */
+.passwordVisibilityButton[aria-pressed="true"]:hover {
+  background: var(--color-primary-bg-hover);
+}
+
+/* fantasma redondo (fechar diálogo) */
 .dialogCloseButton {
+  display: inline-grid;
   flex: 0 0 auto;
-  min-height: var(--control-h-compact);
-  padding: 0 var(--space-3);
-  color: var(--color-text);
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  color: var(--color-nav-text);
   background: transparent;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    translate 0.2s;
 }
 
 .dialogCloseButton:hover {
-  background: var(--color-nav-hover);
+  background: rgb(var(--tinta) / 5.5%);
 }
 
-/* perigo */
+/* perigo discreto */
 .deleteAccountForm {
   display: grid;
   width: 100%;
@@ -229,17 +249,17 @@
 }
 
 .dangerButton:hover:not(:disabled) {
-  border-color: var(--color-danger);
+  filter: brightness(0.95);
 }
 
 .primaryButton:disabled,
 .secondaryButton:disabled,
 .dangerButton:disabled {
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
-/* Campos (filtros, cadastro, diálogo e status da tabela) */
+/* ═══════════ Campos ═══════════ */
 .filters input,
 .filters select,
 .statusSelect,
@@ -248,18 +268,20 @@
 .passwordDialogForm input {
   width: 100%;
   min-width: 0;
-  height: var(--control-h);
-  padding: 0 var(--space-3);
-  border: 1px solid var(--color-border-strong);
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid transparent;
   border-radius: var(--radius-sm);
   color: var(--color-text);
-  background: var(--color-surface);
+  background: var(--color-preenchimento);
   font: inherit;
-  font-size: var(--fs-corpo);
+  font-size: var(--fs-nome);
+  line-height: normal;
   outline: none;
   transition:
-    border-color var(--motion-rapido) var(--ease-padrao),
-    box-shadow var(--motion-rapido) var(--ease-padrao);
+    background-color 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .filters input::placeholder,
@@ -274,7 +296,7 @@
 .createAccountForm input:not([type="checkbox"]):hover,
 .createAccountForm select:hover,
 .passwordDialogForm input:hover {
-  border-color: var(--color-text-muted);
+  background: var(--color-preenchimento-2);
 }
 
 .filters input:focus,
@@ -283,8 +305,9 @@
 .createAccountForm input:not([type="checkbox"]):focus,
 .createAccountForm select:focus,
 .passwordDialogForm input:focus {
-  border-color: var(--marca-azul);
-  box-shadow: 0 0 0 3px oklch(0.291 0.103 256.9 / 12%);
+  border-color: var(--color-primary);
+  background: var(--color-surface);
+  box-shadow: 0 0 0 4px var(--color-primary-anel);
   outline: none;
 }
 
@@ -299,27 +322,29 @@
   border-color: var(--color-danger);
 }
 
-/* Filtros: linhas rótulo / controle / dica compartilhadas via subgrid,
-   para que inputs, select e botões fiquem na mesma linha sem margem calculada. */
+/* ═══════════ Barra de filtros ═══════════
+   Linhas rótulo / controle / dica compartilhadas via subgrid: campos e botões
+   (todos 40px) ficam na mesma linha e alinhados pela base. */
 .filters {
   display: grid;
-  grid-template-columns: minmax(15rem, 1fr) minmax(12rem, 0.45fr) auto auto;
-  grid-template-rows: auto auto auto;
-  align-items: start;
-  gap: 0.375rem var(--space-3);
-  padding: var(--space-4) var(--space-5);
-  border-bottom: 1px solid var(--color-border);
+  grid-template-columns: minmax(12rem, 1fr) minmax(10rem, 0.45fr) auto auto;
+  grid-template-rows: auto 40px auto;
+  align-items: end;
+  gap: 6px 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-filete);
 }
 
 .filters label {
   display: grid;
   grid-row: 1 / span 3;
   grid-template-rows: subgrid;
-  gap: 0.375rem;
+  gap: 6px;
+  align-items: end;
 }
 
 .filters label > span {
-  color: var(--color-text);
+  color: var(--color-text-secondary);
   font-size: var(--fs-meta);
   font-weight: 500;
 }
@@ -330,20 +355,19 @@
 
 .filterHint {
   display: block;
+  align-self: start;
   color: var(--color-text-secondary);
   font-size: var(--fs-meta);
   line-height: var(--lh-snug);
 }
 
-/* botões na linha dos controles */
 .filters > button,
 .filters > a {
   grid-row: 2;
-  height: var(--control-h);
-  min-height: 0;
+  align-self: end;
 }
 
-/* Tabela */
+/* ═══════════ Tabela ═══════════ */
 .tableScroller {
   min-width: 0;
   max-width: 100%;
@@ -352,7 +376,7 @@
 }
 
 .tableScroller:focus-visible {
-  outline: 2px solid var(--marca-azul);
+  outline: 2px solid var(--color-primary);
   outline-offset: -2px;
 }
 
@@ -365,31 +389,42 @@
 
 .tableScroller th,
 .tableScroller td {
-  padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--color-border);
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-filete);
   font-size: var(--fs-corpo);
   text-align: left;
   vertical-align: middle;
 }
 
+.tableScroller th:first-child,
+.tableScroller td:first-child {
+  padding-left: 20px;
+}
+
+.tableScroller th:last-child,
+.tableScroller td:last-child {
+  padding-right: 20px;
+}
+
 .tableScroller th {
+  padding-block: 12px;
   color: var(--color-text-secondary);
-  font-family: var(--font-mono);
-  font-size: var(--fs-rotulo);
-  font-weight: 500;
-  letter-spacing: 0.16em;
+  font-size: var(--fs-sobretitulo);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: var(--lh-snug);
   text-transform: uppercase;
 }
 
-.tableScroller th:nth-child(1) { width: 23%; }
-.tableScroller th:nth-child(2) { width: 20%; }
-.tableScroller th:nth-child(3) { width: 21%; }
-.tableScroller th:nth-child(4) { width: 14%; }
-.tableScroller th:nth-child(5) { width: 10%; }
-.tableScroller th:nth-child(6) { width: 12%; }
+.tableScroller th:nth-child(1) { width: 22%; }
+.tableScroller th:nth-child(2) { width: 18%; }
+.tableScroller th:nth-child(3) { width: 20%; }
+.tableScroller th:nth-child(4) { width: 13%; }
+.tableScroller th:nth-child(5) { width: 9%; }
+.tableScroller th:nth-child(6) { width: 18%; }
 
 .tableScroller tbody tr {
-  transition: background-color var(--motion-rapido) var(--ease-padrao);
+  transition: background-color 0.2s;
 }
 
 .tableScroller tbody tr:last-child td {
@@ -397,7 +432,7 @@
 }
 
 .tableScroller tbody tr:hover {
-  background: var(--color-nav-hover);
+  background: rgb(var(--tinta) / 3.5%);
 }
 
 /* Células */
@@ -408,18 +443,18 @@
   min-width: 0;
 }
 
+/* Avatar de iniciais */
 .personCell > span {
   display: grid;
   flex: 0 0 auto;
-  width: 2rem;
-  height: 2rem;
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius-pill);
   place-items: center;
-  color: var(--color-surface);
-  background: var(--marca-azul);
-  font-size: var(--fs-rotulo);
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  color: #fff;
+  background: var(--color-primary);
+  font-size: var(--fs-sobretitulo);
+  font-weight: 700;
   line-height: 1;
 }
 
@@ -427,7 +462,7 @@
 .accountCell,
 .sessionCell {
   display: grid;
-  gap: 0.125rem;
+  gap: 2px;
   min-width: 0;
 }
 
@@ -436,7 +471,7 @@
 .sessionCell strong {
   color: var(--color-text);
   font-size: var(--fs-corpo);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .personCell small,
@@ -453,19 +488,20 @@
   overflow-wrap: anywhere;
 }
 
+/* Badge de atenção: troca de senha pendente */
 .accountCell em {
   display: inline-flex;
   align-items: center;
   justify-self: start;
-  height: 1.25rem;
+  height: 22px;
   margin-top: var(--space-1);
-  padding: 0 var(--space-2);
+  padding: 0 9px;
   border-radius: var(--radius-pill);
-  color: var(--color-atencao);
+  color: var(--color-atencao-texto);
   background: var(--color-atencao-bg);
-  font-size: var(--fs-rotulo);
+  font-size: var(--fs-sobretitulo);
   font-style: normal;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1;
   white-space: nowrap;
 }
@@ -500,7 +536,7 @@
   width: 1rem;
   height: 1rem;
   margin: 0;
-  accent-color: var(--marca-azul);
+  accent-color: var(--color-primary);
 }
 
 .roleOptions:disabled {
@@ -513,20 +549,20 @@
 
 .statusSelect {
   display: block;
-  height: var(--control-h-compact);
 }
 
+/* Badge de status */
 .statusBadge {
   display: inline-flex;
   align-items: center;
-  height: 1.25rem;
+  height: 22px;
   margin-top: var(--space-2);
-  padding: 0 var(--space-2);
+  padding: 0 9px;
   border-radius: var(--radius-pill);
   color: var(--color-text-secondary);
-  background: var(--color-nav-hover);
-  font-size: var(--fs-rotulo);
-  font-weight: 500;
+  background: rgb(var(--tinta) / 6%);
+  font-size: var(--fs-sobretitulo);
+  font-weight: 600;
   line-height: 1;
   white-space: nowrap;
 }
@@ -537,7 +573,7 @@
 }
 
 .statusBadge[data-status="PENDING_ACTIVATION"] {
-  color: var(--color-atencao);
+  color: var(--color-atencao-texto);
   background: var(--color-atencao-bg);
 }
 
@@ -547,7 +583,7 @@
   background: var(--color-danger-bg);
 }
 
-/* Ações da linha (botões compactos) */
+/* Ações da linha (botões sm) */
 .actions {
   display: grid;
   gap: var(--space-2);
@@ -562,33 +598,49 @@
 .actions .secondaryButton,
 .actions .dangerButton {
   width: 100%;
-  min-height: var(--control-h-compact);
-  padding: 0 var(--space-3);
+  height: 32px;
+  padding: 0 12px;
   font-size: var(--fs-meta);
 }
 
 .passwordTrigger {
-  padding-block: var(--space-1);
-  white-space: normal;
+  min-width: 0;
 }
 
+/* Conta atual: badge info */
 .currentAccount {
-  display: block;
-  max-width: 8rem;
-  color: var(--marca-petroleo);
-  font-size: var(--fs-meta);
-  font-weight: 500;
-  line-height: var(--lh-snug);
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: var(--radius-pill);
+  color: var(--color-primary-hover);
+  background: var(--color-primary-bg);
+  font-size: var(--fs-sobretitulo);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
 }
 
-/* Mensagens */
+/* ═══════════ Alertas inline ═══════════ */
 .successMessage,
-.errorMessage {
+.errorMessage,
+.resultLimit {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
   margin: 0;
-  padding: var(--space-3);
-  border-radius: var(--radius-sm);
-  font-size: var(--fs-meta);
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  font-size: var(--fs-corpo);
   line-height: var(--lh-base);
+}
+
+.successMessage svg,
+.errorMessage svg,
+.resultLimit svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
 }
 
 .successMessage {
@@ -602,23 +654,38 @@
 }
 
 .resultLimit {
-  margin: 0;
-  padding: var(--space-3) var(--space-5);
-  border-top: 1px solid var(--color-border);
-  color: var(--color-text-secondary);
+  margin: 16px 20px 20px;
+  color: var(--color-primary-hover);
   background: var(--color-primary-bg);
   font-size: var(--fs-meta);
+}
+
+/* ═══════════ Estado vazio ═══════════ */
+.emptyState {
+  display: grid;
+  justify-items: center;
+  padding: 56px 24px 52px;
   text-align: center;
 }
 
-.emptyState {
-  margin: var(--space-5);
-  padding: var(--space-10) var(--space-5);
-  border-radius: var(--radius-sm);
-  color: var(--color-text-secondary);
-  background: var(--color-primary-bg);
-  font-size: var(--fs-corpo);
-  text-align: center;
+.emptyIcon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 15px;
+  color: var(--color-icone);
+  background: var(--color-preenchimento-2);
+}
+
+.emptyState p {
+  max-width: 24rem;
+  margin: 16px 0 0;
+  color: var(--color-text);
+  font-size: var(--fs-titulo);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: var(--lh-snug);
 }
 
 .srOnly {
@@ -633,15 +700,15 @@
   border: 0;
 }
 
-/* Diálogo de senha (flutuante modal) */
+/* ═══════════ Diálogo de senha temporária ═══════════ */
 .passwordDialog {
   width: min(30rem, calc(100vw - 2rem));
   max-width: calc(100vw - 2rem);
   max-height: min(90dvh, 42rem);
   margin: auto;
-  padding: var(--space-6);
+  padding: 0;
   overflow: auto;
-  border: 1px solid var(--vidro-borda);
+  border: 0;
   border-radius: var(--radius-folha);
   color: var(--color-text);
   background: var(--color-surface);
@@ -649,33 +716,32 @@
 }
 
 .passwordDialog::backdrop {
-  background: oklch(0 0 0 / 30%);
+  background: var(--color-veu);
 }
 
 .passwordDialogHeader {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
-  padding-bottom: var(--space-4);
-  border-bottom: 1px solid var(--color-border);
+  gap: var(--space-3);
+  padding: 16px 12px 8px 24px;
 }
 
-.passwordDialogHeader .eyebrow {
-  margin-bottom: var(--space-1);
+.passwordDialogHeader .sobretitulo {
+  margin-bottom: 2px;
 }
 
 .passwordDialogHeader h2 {
   margin: 0;
   color: var(--color-text);
-  font-size: var(--fs-titulo);
+  font-size: var(--fs-secao);
   font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: var(--lh-snug);
+  letter-spacing: -0.014em;
+  line-height: 22px;
 }
 
 .passwordDialogDescription {
-  margin: var(--space-4) 0 0;
+  margin: 8px 24px 0;
   color: var(--color-text-secondary);
   font-size: var(--fs-corpo);
   line-height: var(--lh-base);
@@ -689,16 +755,16 @@
 .passwordDialogForm {
   display: grid;
   gap: var(--space-4);
-  margin-top: var(--space-5);
+  padding: 20px 24px 24px;
 }
 
 .passwordDialogForm label {
   display: grid;
-  gap: 0.375rem;
+  gap: 6px;
 }
 
 .passwordDialogForm label > span {
-  color: var(--color-text);
+  color: var(--color-text-secondary);
   font-size: var(--fs-meta);
   font-weight: 500;
 }
@@ -720,76 +786,70 @@
   width: 100%;
 }
 
-/* Cadastro de colaborador */
+/* ═══════════ Cadastro de colaborador (folha) ═══════════ */
 .createAccountPanel {
   display: grid;
-  gap: var(--space-4);
-  padding: var(--space-5);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
+  gap: 20px;
+  min-width: 0;
+  padding: 20px;
 }
 
 .createAccountHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: var(--space-4);
 }
 
-.createAccountHeader h2 {
-  margin: 0;
-  color: var(--color-text);
-  font-size: var(--fs-secao);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
 .createAccountHeader p:last-child {
   max-width: 48rem;
-  margin: var(--space-1) 0 0;
+  margin: 4px 0 0;
   color: var(--color-text-secondary);
   font-size: var(--fs-corpo);
   line-height: var(--lh-base);
 }
 
+/* Badge info */
 .createAccountHeader > span {
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
-  height: 1.25rem;
-  padding: 0 var(--space-2);
+  height: 22px;
+  padding: 0 9px;
   border-radius: var(--radius-pill);
-  color: var(--marca-azul);
+  color: var(--color-primary-hover);
   background: var(--color-primary-bg);
-  font-size: var(--fs-rotulo);
-  font-weight: 500;
+  font-size: var(--fs-sobretitulo);
+  font-weight: 600;
   line-height: 1;
   white-space: nowrap;
 }
 
 .createAccountForm {
   display: grid;
-  gap: var(--space-4);
+  gap: 20px;
   min-width: 0;
 }
 
+/* Seções sem caixa: separadas por filete (campos já usam o preenchimento). */
 .createAccountSection {
   display: grid;
   gap: var(--space-3);
   min-width: 0;
   margin: 0;
-  padding: var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
+  padding: 20px 0 0;
+  border: 0;
+  border-top: 1px solid var(--color-filete);
 }
 
 .createAccountSection > legend {
-  padding: 0 var(--space-1);
+  float: left;
+  width: 100%;
+  padding: 0;
   color: var(--color-text);
   font-size: var(--fs-nome);
   font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .createAccountSectionHint {
@@ -810,14 +870,14 @@
 .createRoleFieldset {
   display: grid;
   align-content: start;
-  gap: 0.375rem;
+  gap: 6px;
   min-width: 0;
 }
 
 .createAccountForm label > span,
 .createRoleFieldset legend,
 .createFieldLabel {
-  color: var(--color-text);
+  color: var(--color-text-secondary);
   font-size: var(--fs-meta);
   font-weight: 500;
 }
@@ -826,33 +886,28 @@
 .createRoleFieldset legend em,
 .createFieldLabel em {
   margin-left: var(--space-1);
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
   font-size: var(--fs-rotulo);
   font-style: normal;
   font-weight: 500;
 }
 
-.createAccountHint,
-.createAccountContext {
+.createAccountHint {
   color: var(--color-text-secondary);
   font-size: var(--fs-meta);
   font-weight: 400;
   line-height: var(--lh-snug);
 }
 
-.createAccountContext {
-  color: var(--marca-petroleo);
-}
-
 .passwordInputGroup {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: stretch;
+  align-items: center;
   gap: var(--space-2);
 }
 
 .passwordVisibilityButton {
-  min-width: 5rem;
+  min-width: 5.5rem;
 }
 
 .createRoleFieldset {
@@ -862,7 +917,7 @@
 }
 
 .createRoleFieldset legend {
-  margin-bottom: 0.375rem;
+  margin-bottom: 6px;
   padding: 0;
 }
 
@@ -872,43 +927,47 @@
   gap: var(--space-2);
 }
 
+/* Chip selecionável */
 .createRoleOption {
   display: inline-flex !important;
   grid-template-columns: none;
   align-items: center;
   gap: var(--space-2);
-  min-height: var(--control-h);
-  padding: 0 var(--space-3);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-sm);
+  height: 36px;
+  padding: 0 14px 0 12px;
+  border-radius: var(--radius-pill);
   color: var(--color-text) !important;
-  background: var(--color-surface);
+  background: var(--color-preenchimento-2);
   font-size: var(--fs-corpo);
   cursor: pointer;
   transition:
-    border-color var(--motion-rapido) var(--ease-padrao),
-    background-color var(--motion-rapido) var(--ease-padrao);
+    background-color 0.2s,
+    color 0.2s,
+    box-shadow 0.2s;
 }
 
 .createRoleOption:hover {
-  background: var(--color-nav-hover);
+  background: var(--color-preenchimento-3);
 }
 
 .createRoleOption:has(input:checked) {
-  border-color: var(--marca-azul);
+  color: var(--color-primary-hover) !important;
   background: var(--color-primary-bg);
 }
 
+.createRoleOption:has(input:checked):hover {
+  background: var(--color-primary-bg-hover);
+}
+
 .createRoleOption:focus-within {
-  border-color: var(--marca-azul);
-  box-shadow: 0 0 0 3px oklch(0.291 0.103 256.9 / 12%);
+  box-shadow: 0 0 0 4px var(--color-primary-anel);
 }
 
 .createRoleOption input {
   width: 1rem;
   height: 1rem;
   margin: 0;
-  accent-color: var(--marca-azul);
+  accent-color: var(--color-primary);
 }
 
 .createRoleOption input:focus-visible {
@@ -916,8 +975,13 @@
 }
 
 .createAccountForm .createRoleOption > span {
+  color: inherit;
   font-size: var(--fs-corpo);
-  font-weight: 400;
+  font-weight: 500;
+}
+
+.createAccountForm .createRoleOption:has(input:checked) > span {
+  font-weight: 600;
 }
 
 .createAccountFooter {
@@ -925,8 +989,8 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--color-border);
+  padding-top: 20px;
+  border-top: 1px solid var(--color-filete);
 }
 
 .createAccountFooter p {
@@ -940,7 +1004,7 @@
   flex: 0 0 auto;
 }
 
-/* Responsivo */
+/* ═══════════ Responsivo ═══════════ */
 @media (max-width: 90rem) {
   .tableScroller {
     overflow: visible;
@@ -966,24 +1030,26 @@
   .tableScroller tbody {
     display: grid;
     gap: var(--space-3);
-    padding: var(--space-4);
+    padding: 16px 20px 20px;
   }
 
+  /* Linha vira peça interna da folha: preenchimento, raio 14, sem sombra. */
   .tableScroller tbody tr {
     display: grid;
     grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
     gap: var(--space-4) var(--space-5);
-    padding: var(--space-4);
-    border: 1px solid var(--color-border);
+    padding: 16px;
     border-radius: var(--radius);
-    background: var(--color-surface);
+    background: var(--color-preenchimento);
   }
 
   .tableScroller tbody tr:hover {
-    background: var(--color-surface);
+    background: var(--color-preenchimento);
   }
 
-  .tableScroller tbody td {
+  .tableScroller tbody td,
+  .tableScroller tbody td:first-child,
+  .tableScroller tbody td:last-child {
     display: grid;
     align-content: start;
     gap: var(--space-2);
@@ -995,19 +1061,40 @@
   .tableScroller tbody td::before {
     content: attr(data-label);
     color: var(--color-text-secondary);
-    font-family: var(--font-mono);
-    font-size: var(--fs-rotulo);
-    font-weight: 500;
-    letter-spacing: 0.16em;
+    font-size: var(--fs-sobretitulo);
+    font-weight: 600;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
+  }
+
+  /* Campos dentro da peça: um degrau acima para não sumirem no fundo. */
+  .tableScroller .statusSelect {
+    background: var(--color-surface);
+  }
+
+  .tableScroller .statusSelect:hover:not(:disabled) {
+    background: var(--color-preenchimento-2);
+  }
+
+  .tableScroller .statusSelect:focus {
+    background: var(--color-surface);
+  }
+
+  .tableScroller .statusBadge {
+    justify-self: start;
+    margin-top: 0;
   }
 
   .actions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .actions .secondaryButton {
+    background: var(--color-preenchimento-3);
+  }
+
   .currentAccount {
-    max-width: none;
+    justify-self: start;
   }
 }
 
@@ -1015,39 +1102,29 @@
   .metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
 
-  .filters {
-    grid-template-columns: minmax(0, 1fr) minmax(12rem, 0.5fr) auto;
-  }
-
-  .filters > a {
-    grid-row: 4;
-    grid-column: 1 / -1;
-    justify-self: start;
+@media (max-width: 60rem) {
+  .hero {
+    padding: 8px 4px 20px;
   }
 }
 
 @media (max-width: 44rem) {
-  .hero {
-    display: grid;
-  }
-
   .securityBadge {
     justify-self: start;
   }
 
-  .metrics,
   .filters {
-    grid-template-columns: 1fr;
-  }
-
-  .filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-rows: none;
     row-gap: var(--space-3);
+    padding: 16px;
   }
 
   .filters label {
     grid-row: auto;
+    grid-column: 1 / -1;
     grid-template-rows: none;
   }
 
@@ -1058,12 +1135,12 @@
   }
 
   .panelHeader {
-    display: grid;
-    gap: var(--space-1);
+    flex-wrap: wrap;
+    padding: 16px 16px 4px;
   }
 
   .tableScroller tbody {
-    padding: var(--space-3);
+    padding: 12px 16px 16px;
   }
 
   .tableScroller tbody tr {
@@ -1076,14 +1153,33 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .resultLimit {
+    margin: 12px 16px 16px;
+  }
+
   .passwordDialog {
     width: calc(100vw - 1.5rem);
     max-width: calc(100vw - 1.5rem);
-    padding: var(--space-4);
+  }
+
+  .passwordDialogHeader {
+    padding: 12px 8px 8px 16px;
+  }
+
+  .passwordDialogDescription {
+    margin-inline: 16px;
+  }
+
+  .passwordDialogForm {
+    padding: 16px;
   }
 
   .passwordDialogActions {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .createAccountPanel {
+    padding: 16px;
   }
 
   .createAccountHeader,
@@ -1102,6 +1198,12 @@
 
   .createAccountFooter button {
     width: 100%;
+  }
+}
+
+@media (max-width: 30rem) {
+  .metrics {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
