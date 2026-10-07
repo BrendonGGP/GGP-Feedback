@@ -34,7 +34,7 @@ const PADRAO: Opcoes = {
   shockRadius: 250,
   shockStrength: 10,
   returnDuration: 1,
-  ignorar: ".card, .collage, a, button, input, label",
+  ignorar: ".card, a, button, input, label",
 };
 
 export function dotGrid(canvas: HTMLCanvasElement, reduce: boolean, opts: Partial<Opcoes> = {}): () => void {

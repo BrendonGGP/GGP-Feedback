@@ -3,7 +3,6 @@
 import { signIn } from "next-auth/react";
 import { FormEvent, KeyboardEvent, useId, useState } from "react";
 
-import { useCena } from "@/components/auth/entrada/tela-entrada";
 import { PortalIcon } from "@/components/portal/portal-icon";
 
 const GENERIC_LOGIN_ERROR =
@@ -15,7 +14,6 @@ export function LoginForm() {
   const identifierId = useId();
   const passwordId = useId();
   const errorId = useId();
-  const cena = useCena();
   const [showPassword, setShowPassword] = useState(false);
   const [etapa, setEtapa] = useState<Etapa>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -61,7 +59,6 @@ export function LoginForm() {
       }
 
       setEtapa("done");
-      cena.current?.sucesso();
       window.location.assign(result.url ?? "/portal");
     } catch {
       setErrorMessage(GENERIC_LOGIN_ERROR);
@@ -92,7 +89,6 @@ export function LoginForm() {
             disabled={isSubmitting}
             enterKeyHint="go"
             onKeyDown={submitOnEnter}
-            onInput={() => cena.current?.digitando()}
             aria-invalid={errorMessage ? true : undefined}
             aria-describedby={errorMessage ? errorId : undefined}
             required
@@ -117,7 +113,6 @@ export function LoginForm() {
             disabled={isSubmitting}
             enterKeyHint="go"
             onKeyDown={submitOnEnter}
-            onInput={() => cena.current?.digitando()}
             aria-invalid={errorMessage ? true : undefined}
             aria-describedby={errorMessage ? errorId : undefined}
             required

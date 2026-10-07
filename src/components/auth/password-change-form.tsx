@@ -6,7 +6,6 @@ import {
   changePasswordAction,
   type PasswordChangeState,
 } from "@/app/portal/alterar-senha/actions";
-import { useCena } from "@/components/auth/entrada/tela-entrada";
 import { PortalIcon } from "@/components/portal/portal-icon";
 
 const initialState: PasswordChangeState = { error: null };
@@ -15,7 +14,6 @@ export function PasswordChangeForm() {
   const newPasswordId = useId();
   const confirmationId = useId();
   const errorId = useId();
-  const cena = useCena();
   const [state, formAction, isPending] = useActionState(
     changePasswordAction,
     initialState,
@@ -52,7 +50,6 @@ export function PasswordChangeForm() {
             maxLength={128}
             required
             disabled={isPending}
-            onInput={() => cena.current?.digitando()}
             aria-invalid={invalido || undefined}
             aria-describedby={invalido ? errorId : undefined}
           />
@@ -75,7 +72,6 @@ export function PasswordChangeForm() {
             maxLength={128}
             required
             disabled={isPending}
-            onInput={() => cena.current?.digitando()}
             aria-invalid={invalido || undefined}
             aria-describedby={invalido ? errorId : undefined}
           />
