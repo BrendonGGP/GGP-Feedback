@@ -58,7 +58,7 @@ export function FeedbackForm({ cycle, people, questions, initialPersonId = "", i
       <input type="hidden" name="cycleId" value={cycle.id} />
       {state.message ? <div className={styles.errorSummary} role="alert" tabIndex={-1} ref={errorSummaryRef}><strong>Não foi possível continuar</strong><p>{state.message}</p></div> : null}
 
-      <section className={styles.formSection} aria-labelledby="cycle-person-title">
+      <section className={styles.formSection} aria-labelledby="cycle-person-title" data-revelar>
         <header><h2 id="cycle-person-title">Ciclo e pessoa avaliada</h2></header>
         <div className={styles.formGrid}>
           <label><span>Ciclo</span><input value={`${cycle.name} (aberto)`} readOnly aria-readonly="true" /></label>
@@ -69,7 +69,7 @@ export function FeedbackForm({ cycle, people, questions, initialPersonId = "", i
         {selectedPerson ? <p className={styles.assessmentHint} role="status">{isSelfAssessment ? "Você está preenchendo sua autoavaliação." : `Você está avaliando ${selectedPerson.fullName} como gestor direto.`}</p> : null}
       </section>
 
-      <section className={styles.formSection} aria-labelledby="competencies-title">
+      <section className={styles.formSection} aria-labelledby="competencies-title" data-revelar>
         <header><h2 id="competencies-title">Competências</h2></header>
         <div className={styles.scaleHelp}><strong>Escala de notas</strong><p><b>3</b> = padrão esperado · <b>4 e 5</b> = acima do esperado, com evidências · <b>1 e 2</b> = ponto de atenção</p></div>
         <div className={styles.competencyList}>
@@ -123,9 +123,9 @@ export function FeedbackForm({ cycle, people, questions, initialPersonId = "", i
         </div>
       </section>
 
-      {textQuestions.length > 0 ? <section className={styles.formSection} aria-labelledby="comments-title"><header><h2 id="comments-title">Comentários</h2></header><div className={styles.commentsGrid}>{textQuestions.map((question) => { const [title, description] = splitPrompt(question.prompt); const initialText = initialAnswers.find((answer) => answer.questionId === question.id)?.text ?? ""; return <label key={question.id} htmlFor={`answer-${question.id}`}><span>{title}{question.required ? " *" : ""}</span>{description ? <small>{description}</small> : null}<textarea id={`answer-${question.id}`} name={`answer.${question.id}`} rows={5} defaultValue={initialText} aria-invalid={Boolean(state.fieldErrors[question.id])} aria-describedby={state.fieldErrors[question.id] ? `error-${question.id}` : undefined} />{state.fieldErrors[question.id] ? <small className={styles.fieldError} id={`error-${question.id}`}>{state.fieldErrors[question.id]}</small> : null}</label>; })}</div></section> : null}
+      {textQuestions.length > 0 ? <section className={styles.formSection} aria-labelledby="comments-title" data-revelar><header><h2 id="comments-title">Comentários</h2></header><div className={styles.commentsGrid}>{textQuestions.map((question) => { const [title, description] = splitPrompt(question.prompt); const initialText = initialAnswers.find((answer) => answer.questionId === question.id)?.text ?? ""; return <label key={question.id} htmlFor={`answer-${question.id}`}><span>{title}{question.required ? " *" : ""}</span>{description ? <small>{description}</small> : null}<textarea id={`answer-${question.id}`} name={`answer.${question.id}`} rows={5} defaultValue={initialText} aria-invalid={Boolean(state.fieldErrors[question.id])} aria-describedby={state.fieldErrors[question.id] ? `error-${question.id}` : undefined} />{state.fieldErrors[question.id] ? <small className={styles.fieldError} id={`error-${question.id}`}>{state.fieldErrors[question.id]}</small> : null}</label>; })}</div></section> : null}
 
-      <footer className={styles.formActions}><button type="submit" name="intent" value="draft" disabled={pending}>Salvar rascunho</button><button className={styles.primaryButton} type="submit" name="intent" value="submit" disabled={pending}>{pending ? "Salvando..." : isSelfAssessment ? "Concluir autoavaliação" : "Concluir feedback"}</button></footer>
+      <footer className={`vidro ${styles.formActions}`}><button type="submit" name="intent" value="draft" disabled={pending}>Salvar rascunho</button><button className={styles.primaryButton} type="submit" name="intent" value="submit" disabled={pending}>{pending ? "Salvando..." : isSelfAssessment ? "Concluir autoavaliação" : "Concluir feedback"}</button></footer>
     </form>
   );
 }

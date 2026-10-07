@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { Revelar } from "@/components/motion/revelar";
 import { PortalIcon } from "@/components/portal/portal-icon";
 import { PortalShell } from "@/components/portal/portal-shell";
 import { getAuthenticatedActor } from "@/lib/auth/session";
@@ -65,12 +66,12 @@ export default async function HrOrganizationPage({ searchParams }: OrganizationP
       roleLabel={dashboard.roleLabel}
       roles={actor.roles}
     >
-      <div className={styles.page}>
+      <Revelar className={styles.page}>
         <header className={styles.hero}>
           <div>
-            <p className={styles.eyebrow}>Recursos Humanos</p>
-            <h1>Estrutura organizacional</h1>
-            <p>Cadastre empresas, departamentos e pessoas e mantenha a linha de liderança atualizada.</p>
+            <p className="sobretitulo">Recursos Humanos</p>
+            <h1 className="titulo-grande">Estrutura organizacional</h1>
+            <p className={styles.heroDescription}>Cadastre empresas, departamentos e pessoas e mantenha a linha de liderança atualizada.</p>
           </div>
           <div className={styles.scopeBadge}>
             <PortalIcon name="check" />
@@ -82,19 +83,19 @@ export default async function HrOrganizationPage({ searchParams }: OrganizationP
         {error ? <p className={styles.errorMessage} role="alert">{error}</p> : null}
 
         <section className={styles.metrics} aria-label="Resumo da estrutura organizacional">
-          <article><span>Empresas ativas</span><strong>{organization.metrics.activeCompanies}</strong><small>unidades disponíveis</small></article>
-          <article><span>Departamentos ativos</span><strong>{organization.metrics.activeDepartments}</strong><small>alocações disponíveis</small></article>
-          <article><span>Pessoas ativas</span><strong>{organization.metrics.activePeople}</strong><small>cadastros funcionais</small></article>
-          <article><span>Sem gestor</span><strong>{organization.metrics.peopleWithoutManager}</strong><small>raízes da hierarquia</small></article>
+          <article data-revelar><span>Empresas ativas</span><strong>{organization.metrics.activeCompanies}</strong><small>unidades disponíveis</small></article>
+          <article data-revelar><span>Departamentos ativos</span><strong>{organization.metrics.activeDepartments}</strong><small>alocações disponíveis</small></article>
+          <article data-revelar><span>Pessoas ativas</span><strong>{organization.metrics.activePeople}</strong><small>cadastros funcionais</small></article>
+          <article data-revelar><span>Sem gestor</span><strong>{organization.metrics.peopleWithoutManager}</strong><small>raízes da hierarquia</small></article>
         </section>
 
         <section className={styles.creationPanel} aria-labelledby="register-title">
           <header className={styles.panelHeader}>
-            <div><p className={styles.eyebrow}>Cadastros</p><h2 id="register-title">Adicionar à estrutura</h2></div>
+            <div><p className="sobretitulo">Cadastros</p><h2 id="register-title">Adicionar à estrutura</h2></div>
             <span>Use Tab para avançar e Enter para enviar</span>
           </header>
           <div className={styles.creationGrid}>
-            <details open className={styles.stepCard}>
+            <details open className={styles.stepCard} data-revelar>
               <summary>
                 <span className={styles.stepHeading}>
                   <span className={styles.stepNumber}>1</span>
@@ -108,7 +109,7 @@ export default async function HrOrganizationPage({ searchParams }: OrganizationP
               </form>
             </details>
 
-            <details open className={styles.stepCard}>
+            <details open className={styles.stepCard} data-revelar>
               <summary>
                 <span className={styles.stepHeading}>
                   <span className={styles.stepNumber}>2</span>
@@ -123,7 +124,7 @@ export default async function HrOrganizationPage({ searchParams }: OrganizationP
               </form>
             </details>
 
-            <details id="cadastro-pessoa" open className={`${styles.stepCard} ${styles.personCreation}`}>
+            <details id="cadastro-pessoa" open className={`${styles.stepCard} ${styles.personCreation}`} data-revelar>
               <summary>
                 <span className={styles.stepHeading}>
                   <span className={styles.stepNumber}>3</span>
@@ -148,7 +149,7 @@ export default async function HrOrganizationPage({ searchParams }: OrganizationP
 
         <section className={styles.structureGrid} aria-label="Empresas e departamentos">
           {visibleCompanies.map((company) => (
-            <article className={styles.companyCard} key={company.id}>
+            <article className={styles.companyCard} key={company.id} data-revelar>
               <header><span><PortalIcon name="admin" /></span><div><h2>{company.name}</h2><p>{company.active ? "Empresa ativa" : "Empresa inativa"}</p></div></header>
               <ul>
                 {company.departments.map((department) => <li key={department.id}><span>{department.name}</span><small data-active={department.active}>{department.active ? "Ativo" : "Inativo"}</small></li>)}
@@ -156,12 +157,12 @@ export default async function HrOrganizationPage({ searchParams }: OrganizationP
               </ul>
             </article>
           ))}
-          {visibleCompanies.length === 0 ? <p className={styles.emptyState}>Nenhuma empresa cadastrada.</p> : null}
+          {visibleCompanies.length === 0 ? <div className={styles.emptyState} data-revelar><span className={styles.emptyIcon}><PortalIcon name="organization" /></span><strong>Nenhuma empresa cadastrada.</strong></div> : null}
         </section>
 
-        <section className={styles.peoplePanel} aria-labelledby="people-title">
+        <section className={styles.peoplePanel} aria-labelledby="people-title" data-revelar>
           <header className={styles.panelHeader}>
-            <div><p className={styles.eyebrow}>Equipe</p><h2 id="people-title">Pessoas e lideranças</h2></div>
+            <div><p className="sobretitulo">Equipe</p><h2 id="people-title">Pessoas e lideranças</h2></div>
             <span>Até 200 cadastros · alterações protegidas por versão</span>
           </header>
           <div className={styles.peopleList}>
@@ -186,10 +187,10 @@ export default async function HrOrganizationPage({ searchParams }: OrganizationP
                 </form>
               </details>
             ))}
-            {organization.people.length === 0 ? <p className={styles.emptyState}>Nenhuma pessoa cadastrada.</p> : null}
+            {organization.people.length === 0 ? <div className={styles.emptyState}><span className={styles.emptyIcon}><PortalIcon name="people" /></span><strong>Nenhuma pessoa cadastrada.</strong></div> : null}
           </div>
         </section>
-      </div>
+      </Revelar>
     </PortalShell>
   );
 }

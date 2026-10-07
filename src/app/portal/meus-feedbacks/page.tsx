@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { Revelar } from "@/components/motion/revelar";
+import { PortalIcon } from "@/components/portal/portal-icon";
 import { PortalShell } from "@/components/portal/portal-shell";
 import { getAuthenticatedActor } from "@/lib/auth/session";
 import { getPortalDashboardData } from "@/lib/dashboard/dashboard-data";
@@ -49,7 +51,7 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
 
   return (
     <PortalShell activePath="/portal/meus-feedbacks" pageTitle="Feedback" personName={dashboard.profile.fullName} roleLabel={dashboard.roleLabel} roles={actor.roles}>
-      <div className={styles.page}>
+      <Revelar className={styles.page}>
         {saved === "enviado" || saved === "rascunho" ? (
           <div className={styles.successMessage} role="status">
             {saved === "enviado"
@@ -59,9 +61,9 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
         ) : null}
         <header className={styles.hero}>
           <div>
-            <p className={styles.eyebrow}>Desenvolvimento</p>
-            <h1>Feedback</h1>
-            <p>Acompanhe feedbacks de liderança e autoavaliações durante os ciclos.</p>
+            <p className="sobretitulo">Desenvolvimento</p>
+            <h1 className="titulo-grande">Feedback</h1>
+            <p className={styles.description}>Acompanhe feedbacks de liderança e autoavaliações durante os ciclos.</p>
           </div>
           <div className={styles.heroActions}>
             {actor.roles.includes("HR_ADMIN") ? <a className={styles.secondaryButton} href="/api/portal/meus-feedbacks/export">Exportar CSV</a> : null}
@@ -71,20 +73,20 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
         </header>
 
         <section className={styles.metrics} aria-label="Resumo de feedbacks">
-          {metrics.map(([label, value]) => <article key={label}><span>{label}</span><strong>{value}</strong></article>)}
+          {metrics.map(([label, value]) => <article key={label} data-revelar><span>{label}</span><strong>{value}</strong></article>)}
         </section>
 
-        <form className={styles.filters} method="get" aria-label="Filtrar feedbacks">
+        <form className={styles.filters} method="get" aria-label="Filtrar feedbacks" data-revelar>
           <label><span>Nome</span><input name="nome" defaultValue={readParam(params.nome)} placeholder="Buscar por pessoa..." /></label>
           <label><span>Data</span><input type="date" name="data" defaultValue={date} /></label>
           <label><span>Status</span><select name="status" defaultValue={status}><option value="">Todos</option><option value="DRAFT">Rascunho</option><option value="SUBMITTED">Enviado</option></select></label>
           <button type="submit">Aplicar filtros</button>
         </form>
 
-        <section className={styles.tableCard} aria-labelledby="feedback-list-title">
+        <section className={styles.tableCard} aria-labelledby="feedback-list-title" data-revelar>
           <h2 className={styles.visuallyHidden} id="feedback-list-title">Lista de feedbacks</h2>
           {rows.length === 0 ? (
-            <div className={styles.emptyState}><strong>Nenhum feedback encontrado</strong><p>Ajuste os filtros ou aguarde a abertura de um novo ciclo.</p></div>
+            <div className={styles.emptyState}><span className={styles.emptyIcon}><PortalIcon name="feedback" /></span><strong>Nenhum feedback encontrado</strong><p>Ajuste os filtros ou aguarde a abertura de um novo ciclo.</p></div>
           ) : (
             <div className={styles.table} role="table">
               <div className={styles.tableHeader} role="row">
@@ -104,7 +106,7 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
             </div>
           )}
         </section>
-      </div>
+      </Revelar>
     </PortalShell>
   );
 }

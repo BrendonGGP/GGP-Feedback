@@ -6,27 +6,41 @@ import {
   changePasswordAction,
   type PasswordChangeState,
 } from "@/app/portal/alterar-senha/actions";
+import { PortalIcon } from "@/components/portal/portal-icon";
 
 const initialState: PasswordChangeState = { error: null };
 
 export function PasswordChangeForm() {
   const newPasswordId = useId();
   const confirmationId = useId();
+  const errorId = useId();
   const [state, formAction, isPending] = useActionState(
     changePasswordAction,
     initialState,
   );
+  const invalido = Boolean(state.error);
 
   return (
-    <form className="login-form password-change-form" action={formAction} aria-busy={isPending}>
-      <div className="password-policy" role="note">
-        <strong>Requisitos da nova senha</strong>
-        <span>Use pelo menos 9 caracteres, incluindo um número e um caractere especial. Não reutilize a senha temporária.</span>
-      </div>
+    <>
+      <h1>
+        Crie sua <span className="nm">senha</span>
+      </h1>
+      <p className="sub">Esta etapa é necessária antes de acessar as áreas do portal.</p>
 
-      <div className="form-field">
-        <label htmlFor={newPasswordId}>Nova senha</label>
-        <div className="input-frame">
+      <form action={formAction} aria-busy={isPending}>
+        <div className="aviso" role="note">
+          <b>Requisitos da nova senha</b>
+          Use pelo menos 9 caracteres, incluindo um número e um caractere especial.
+          Não reutilize a senha temporária.
+        </div>
+
+        <div className="lbl-row">
+          <label htmlFor={newPasswordId}>Nova senha</label>
+        </div>
+        <div className={`inp ${invalido ? "invalid" : ""}`.trim()}>
+          <span className="ico" aria-hidden="true">
+            <PortalIcon name="lock" size={17} />
+          </span>
           <input
             id={newPasswordId}
             name="newPassword"
@@ -36,13 +50,19 @@ export function PasswordChangeForm() {
             maxLength={128}
             required
             disabled={isPending}
+            aria-invalid={invalido || undefined}
+            aria-describedby={invalido ? errorId : undefined}
           />
         </div>
-      </div>
+        <p className="err" aria-hidden="true" />
 
-      <div className="form-field">
-        <label htmlFor={confirmationId}>Confirmar nova senha</label>
-        <div className="input-frame">
+        <div className="lbl-row">
+          <label htmlFor={confirmationId}>Confirmar nova senha</label>
+        </div>
+        <div className={`inp ${invalido ? "invalid" : ""}`.trim()}>
+          <span className="ico" aria-hidden="true">
+            <PortalIcon name="lock" size={17} />
+          </span>
           <input
             id={confirmationId}
             name="confirmPassword"
@@ -52,23 +72,24 @@ export function PasswordChangeForm() {
             maxLength={128}
             required
             disabled={isPending}
+            aria-invalid={invalido || undefined}
+            aria-describedby={invalido ? errorId : undefined}
           />
         </div>
-      </div>
-
-      {state.error ? (
-        <p className="login-feedback" role="alert">
+        <p className="err" id={errorId} role="alert">
           {state.error}
         </p>
-      ) : null}
 
-      <button className="submit-button" type="submit" disabled={isPending}>
-        <span>{isPending ? "Atualizando senha..." : "Definir nova senha"}</span>
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M5 12h13" />
-          <path d="m14 7 5 5-5 5" />
-        </svg>
-      </button>
-    </form>
+        <button className={`btn ${isPending ? "loading" : ""}`.trim()} type="submit" disabled={isPending}>
+          <span className="st st-idle">Definir nova senha</span>
+          <span className="st st-load" aria-hidden={!isPending}>
+            <i />
+            <i />
+            <i />
+            <span className="sr-only">Atualizando senha</span>
+          </span>
+        </button>
+      </form>
+    </>
   );
 }

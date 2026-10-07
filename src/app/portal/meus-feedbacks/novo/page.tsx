@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { Revelar } from "@/components/motion/revelar";
+import { PortalIcon } from "@/components/portal/portal-icon";
 import { PortalShell } from "@/components/portal/portal-shell";
 import { getAuthenticatedActor } from "@/lib/auth/session";
 import { getPortalDashboardData } from "@/lib/dashboard/dashboard-data";
@@ -32,14 +34,15 @@ export default async function NewFeedbackPage({ searchParams }: NewFeedbackPageP
 
   return (
     <PortalShell activePath="/portal/meus-feedbacks" pageTitle="Feedback" personName={dashboard.profile.fullName} roleLabel={dashboard.roleLabel} roles={actor.roles}>
-      <div className={styles.page}>
+      <Revelar className={styles.page}>
         <header className={styles.newHeader}>
           <Link href="/portal/meus-feedbacks">← Voltar para Feedback</Link>
-          <h1>{draftId ? "Continuar avaliação" : "Nova avaliação"}</h1>
-          <p>Selecione sua autoavaliação ou um liderado autorizado e responda às competências do ciclo.</p>
+          <h1 className="titulo-grande">{draftId ? "Continuar avaliação" : "Nova avaliação"}</h1>
+          <p className={styles.description}>Selecione sua autoavaliação ou um liderado autorizado e responda às competências do ciclo.</p>
         </header>
         {unavailable ? (
-          <section className={styles.emptyState}>
+          <section className={styles.emptyState} data-revelar>
+            <span className={styles.emptyIcon}><PortalIcon name="feedback" /></span>
             <strong>Formulário indisponível</strong>
             <p>É necessário ter um ciclo aberto, um formulário ativo e uma autoavaliação habilitada ou um liderado direto.</p>
           </section>
@@ -52,7 +55,7 @@ export default async function NewFeedbackPage({ searchParams }: NewFeedbackPageP
             initialAnswers={context.draft?.answers}
           />
         )}
-      </div>
+      </Revelar>
     </PortalShell>
   );
 }

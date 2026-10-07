@@ -6,93 +6,68 @@
   margin: 0 auto;
 }
 
-/* Cabeçalho de página simples */
+/* ── Cabeçalho de tela: título grande, sem fundo nem borda ── */
 .hero {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: var(--space-6);
+  gap: 16px 24px;
+  padding: 30px 4px 22px;
 }
 
-.eyebrow {
-  margin: 0 0 var(--space-1);
-  color: var(--color-text-secondary);
-  font-family: var(--font-mono);
-  font-size: var(--fs-rotulo);
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+.heroText {
+  min-width: 0;
 }
 
-.hero h1 {
-  margin: 0;
-  color: var(--color-text);
-  font-size: var(--fs-titulo);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: var(--lh-snug);
+.heroText > :global(.sobretitulo) {
+  margin-bottom: var(--space-1);
 }
 
-.hero p:last-child {
+.heroDescription {
   max-width: 42rem;
-  margin: var(--space-1) 0 0;
+  margin: 6px 0 0;
   color: var(--color-text-secondary);
-  font-size: var(--fs-meta);
-  line-height: var(--lh-base);
+  font-size: var(--fs-secao);
+  line-height: 24px;
+  letter-spacing: -0.01em;
 }
 
+/* Chip tint de escopo */
 .scopeBadge {
   display: inline-flex;
   align-items: center;
   flex: 0 0 auto;
-  gap: var(--space-1);
-  height: 1.75rem;
+  gap: 6px;
+  height: 2rem;
   padding: 0 var(--space-3);
   border-radius: var(--radius-pill);
-  color: var(--marca-azul);
+  color: var(--color-primary-hover);
   background: var(--color-primary-bg);
-  font-size: var(--fs-rotulo);
-  font-weight: 500;
+  font-size: var(--fs-meta);
+  font-weight: 600;
   line-height: 1;
   white-space: nowrap;
 }
 
 .scopeBadge svg {
   flex: 0 0 auto;
-  width: 0.875rem;
-  height: 0.875rem;
+  width: 1rem;
+  height: 1rem;
 }
 
-.lastActivity svg,
-.cycleIcon svg,
-.emptyIcon svg {
-  width: 1.125rem;
-  height: 1.125rem;
-  color: var(--color-text-secondary);
-}
-
-/* Métricas: cartões sóbrios, sem tarja colorida */
+/* ── Métricas: folhas ── */
 .metrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--space-4);
 }
 
-.metrics article,
-.teamPanel,
-.cyclePanel {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
-}
-
-/* Ritmo único de cartão de métrica: rótulo → 0.5rem → número → 0.25rem → legenda */
 .metrics article {
   display: grid;
   align-content: start;
-  gap: 0;
   min-width: 0;
-  padding: var(--space-4) var(--space-5);
+  padding: 20px;
   text-align: left;
 }
 
@@ -106,9 +81,9 @@
   margin-top: var(--space-2);
   color: var(--color-text);
   font-size: var(--fs-metrica);
-  font-weight: 600;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
   line-height: var(--lh-tight);
 }
 
@@ -122,30 +97,33 @@
   max-width: 100%;
   overflow: hidden;
   font-size: var(--fs-secao);
+  letter-spacing: -0.014em;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+/* ── Equipe: seção com grade de folhas ── */
 .teamPanel {
-  overflow: hidden;
+  display: grid;
+  gap: var(--space-3);
 }
 
 .panelHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: var(--space-4);
-  padding: var(--space-4) var(--space-5);
-  border-bottom: 1px solid var(--color-border);
+  padding: 0 4px;
 }
 
 .panelHeader h2,
 .cyclePanel h2 {
-  margin: 0;
+  margin: 2px 0 0;
   color: var(--color-text);
-  font-size: var(--fs-nome);
+  font-size: var(--fs-secao);
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.014em;
+  line-height: var(--lh-snug);
 }
 
 .panelHeader > span {
@@ -159,17 +137,14 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-4);
-  padding: var(--space-5);
 }
 
 .memberCard {
   display: grid;
+  align-content: start;
   gap: var(--space-4);
   min-width: 0;
-  padding: var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
+  padding: 20px;
 }
 
 .memberHeader {
@@ -179,17 +154,18 @@
   min-width: 0;
 }
 
+/* Avatar de iniciais: círculo petróleo */
 .avatar {
   display: grid;
-  flex: 0 0 2.25rem;
-  width: 2.25rem;
-  height: 2.25rem;
+  flex: 0 0 2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: var(--radius-pill);
   place-items: center;
-  color: var(--color-surface);
-  background: var(--marca-azul);
-  font-size: var(--fs-rotulo);
-  font-weight: 600;
+  color: #fff;
+  background: var(--color-primary);
+  font-size: var(--fs-sobretitulo);
+  font-weight: 700;
   letter-spacing: 0.02em;
   line-height: 1;
 }
@@ -222,8 +198,8 @@
   gap: var(--space-2);
   margin: 0;
   padding: var(--space-3) 0;
-  border-top: 1px solid var(--color-border);
-  border-bottom: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-filete);
+  border-bottom: 1px solid var(--color-filete);
 }
 
 .memberDetails div {
@@ -236,10 +212,9 @@
 
 .memberDetails dt {
   color: var(--color-text-secondary);
-  font-family: var(--font-mono);
-  font-size: var(--fs-rotulo);
-  font-weight: 500;
-  letter-spacing: 0.16em;
+  font-size: var(--fs-sobretitulo);
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -261,8 +236,8 @@
   display: grid;
   gap: 0.125rem;
   padding: var(--space-3);
-  border-radius: var(--radius-sm);
-  background: var(--color-primary-bg);
+  border-radius: var(--radius);
+  background: var(--color-preenchimento);
 }
 
 .feedbackSummary span {
@@ -274,12 +249,12 @@
 .feedbackSummary strong {
   color: var(--color-text);
   font-size: var(--fs-secao);
-  font-weight: 600;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
 .feedbackSummary strong[data-warning="true"] {
-  color: var(--color-atencao);
+  color: var(--color-atencao-texto);
 }
 
 .lastActivity {
@@ -296,53 +271,70 @@
   flex: 0 0 auto;
   width: 0.875rem;
   height: 0.875rem;
+  color: var(--color-icone);
 }
 
-/* Estado vazio: fundo suave, sem ícone em círculo colorido */
+/* ── Estado vazio: folha centrada ── */
 .emptyState {
   display: grid;
   justify-items: center;
-  gap: var(--space-2);
-  margin: var(--space-5);
-  padding: var(--space-8) var(--space-6);
-  border-radius: var(--radius-sm);
-  place-content: center;
+  padding: 56px 24px 52px;
   text-align: center;
-  background: var(--color-primary-bg);
 }
 
 .emptyIcon {
   display: grid;
+  width: 48px;
+  height: 48px;
   place-items: center;
+  border-radius: 15px;
+  color: var(--color-icone);
+  background: var(--color-preenchimento-2);
+}
+
+.emptyIcon svg {
+  width: 1.375rem;
+  height: 1.375rem;
 }
 
 .emptyState h3 {
-  margin: var(--space-1) 0 0;
+  margin: var(--space-4) 0 0;
   color: var(--color-text);
-  font-size: var(--fs-nome);
+  font-size: var(--fs-titulo);
   font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .emptyState p {
-  max-width: 32rem;
-  margin: 0;
+  max-width: 24rem;
+  margin: 6px 0 0;
   color: var(--color-text-secondary);
-  font-size: var(--fs-corpo);
-  line-height: var(--lh-base);
+  font-size: 0.90625rem;
+  line-height: 21px;
 }
 
+/* ── Ciclo atual ── */
 .cyclePanel {
   display: flex;
   align-items: flex-start;
   gap: var(--space-3);
-  padding: var(--space-5);
+  padding: 20px;
 }
 
 .cycleIcon {
   display: grid;
   flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2.5rem;
   place-items: center;
-  padding-top: 0.125rem;
+  border-radius: var(--radius-sm);
+  color: var(--color-icone);
+  background: var(--color-preenchimento-2);
+}
+
+.cycleIcon svg {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .cyclePanel > div > p:last-child {
@@ -363,20 +355,15 @@
   }
 }
 
-@media (max-width: 48rem) {
+@media (max-width: 60rem) {
   .hero {
-    display: grid;
-    align-items: start;
-    gap: var(--space-3);
+    padding: 8px 4px 20px;
   }
+}
 
-  .scopeBadge {
-    justify-self: start;
-  }
-
+@media (max-width: 48rem) {
   .memberGrid {
     grid-template-columns: 1fr;
-    padding: var(--space-4);
   }
 }
 
@@ -385,17 +372,17 @@
     grid-template-columns: 1fr;
   }
 
+  .metrics article,
+  .memberCard,
+  .cyclePanel {
+    padding: 16px;
+  }
+
   .panelHeader {
     align-items: flex-start;
-    padding: var(--space-4);
   }
 
   .emptyState {
-    margin: var(--space-4);
-    padding: var(--space-6) var(--space-4);
-  }
-
-  .cyclePanel {
-    padding: var(--space-4);
+    padding: 40px 16px 36px;
   }
 }

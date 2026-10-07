@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { Revelar } from "@/components/motion/revelar";
+import { PortalIcon } from "@/components/portal/portal-icon";
 import { PortalShell } from "@/components/portal/portal-shell";
 import { getAuthenticatedActor } from "@/lib/auth/session";
 import { getPortalDashboardData } from "@/lib/dashboard/dashboard-data";
@@ -32,29 +34,30 @@ export default async function FeedbackAnalyticsPage() {
       roleLabel={dashboard.roleLabel}
       roles={actor.roles}
     >
-      <div className={styles.page}>
+      <Revelar className={styles.page}>
         <header className={styles.newHeader}>
           <Link href="/portal/meus-feedbacks">← Voltar para Feedback</Link>
-          <p className={styles.eyebrow}>Desenvolvimento</p>
-          <h1>Análises de Feedback</h1>
-          <p>Identifique tendências de desempenho sem expor respostas textuais nesta visão.</p>
+          <p className="sobretitulo">Desenvolvimento</p>
+          <h1 className="titulo-grande">Análises de Feedback</h1>
+          <p className={styles.description}>Identifique tendências de desempenho sem expor respostas textuais nesta visão.</p>
         </header>
 
         <section className={styles.metrics} aria-label="Resumo das análises">
-          <article><span>Feedbacks enviados</span><strong>{analytics.totalFeedbacks}</strong><small>no seu escopo de acesso</small></article>
-          <article><span>Média geral</span><strong>{formatAverage(analytics.average)}<span className={styles.metricSuffix}> / 5</span></strong><small>somente notas respondidas</small></article>
-          <article><span>Ciclos avaliados</span><strong>{analytics.cycleCount}</strong><small>com feedback enviado</small></article>
+          <article data-revelar><span>Feedbacks enviados</span><strong>{analytics.totalFeedbacks}</strong><small>no seu escopo de acesso</small></article>
+          <article data-revelar><span>Média geral</span><strong>{formatAverage(analytics.average)}<span className={styles.metricSuffix}> / 5</span></strong><small>somente notas respondidas</small></article>
+          <article data-revelar><span>Ciclos avaliados</span><strong>{analytics.cycleCount}</strong><small>com feedback enviado</small></article>
         </section>
 
         {analytics.totalFeedbacks === 0 ? (
-          <section className={styles.emptyState}>
+          <section className={styles.emptyState} data-revelar>
+            <span className={styles.emptyIcon}><PortalIcon name="analytics" /></span>
             <strong>Ainda não há dados para analisar</strong>
             <p>As médias aparecerão quando houver feedbacks concluídos no seu escopo.</p>
           </section>
         ) : (
           <div className={styles.analyticsGrid}>
-            <section className={styles.analyticsCard} aria-labelledby="cycles-analysis-title">
-              <header><div><p className={styles.eyebrow}>Evolução</p><h2 id="cycles-analysis-title">Média por ciclo</h2></div><span>Escala de 1 a 5</span></header>
+            <section className={styles.analyticsCard} aria-labelledby="cycles-analysis-title" data-revelar>
+              <header><div><p className="sobretitulo">Evolução</p><h2 id="cycles-analysis-title">Média por ciclo</h2></div><span>Escala de 1 a 5</span></header>
               <div className={styles.analyticsRows}>
                 {analytics.cycles.map((cycle) => (
                   <article key={cycle.name}>
@@ -65,8 +68,8 @@ export default async function FeedbackAnalyticsPage() {
               </div>
             </section>
 
-            <section className={styles.analyticsCard} aria-labelledby="competencies-analysis-title">
-              <header><div><p className={styles.eyebrow}>Competências</p><h2 id="competencies-analysis-title">Média por competência</h2></div><span>{analytics.competencies.length} itens</span></header>
+            <section className={styles.analyticsCard} aria-labelledby="competencies-analysis-title" data-revelar>
+              <header><div><p className="sobretitulo">Competências</p><h2 id="competencies-analysis-title">Média por competência</h2></div><span>{analytics.competencies.length} itens</span></header>
               <div className={styles.analyticsRows}>
                 {analytics.competencies.map((competency) => (
                   <article key={competency.name}>
@@ -80,7 +83,7 @@ export default async function FeedbackAnalyticsPage() {
         )}
 
         {analytics.limited ? <p className={styles.analyticsNote} role="note">Exibindo os 5.000 feedbacks mais recentes. Refinamentos adicionais serão disponibilizados em uma próxima versão.</p> : null}
-      </div>
+      </Revelar>
     </PortalShell>
   );
 }

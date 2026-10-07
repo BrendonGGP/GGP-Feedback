@@ -3,32 +3,26 @@
   gap: var(--space-5);
 }
 
-/* Cabeçalho de página simples: título + linha de contexto */
+/* ── Cabeçalho de tela: título grande, sem fundo nem borda ── */
 .welcome {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-end;
   justify-content: space-between;
-  gap: var(--space-6);
+  gap: 16px 24px;
+  padding: 30px 4px 22px;
 }
 
-.eyebrow {
-  margin: 0 0 var(--space-1);
-  color: var(--color-text-secondary);
-  font-family: var(--font-mono);
-  font-size: var(--fs-rotulo);
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+.welcomeText {
+  min-width: 0;
+}
+
+.welcomeText .today {
+  margin-bottom: var(--space-1);
 }
 
 .welcome h1 {
-  margin: 0;
   max-width: 40ch;
-  color: var(--color-text);
-  font-size: var(--fs-titulo);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: var(--lh-snug);
   text-wrap: balance;
 }
 
@@ -36,107 +30,88 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-2);
-  margin: var(--space-1) 0 0;
+  gap: 0 var(--space-2);
+  margin: 6px 0 0;
   color: var(--color-text-secondary);
-  font-size: var(--fs-meta);
-  line-height: var(--lh-base);
+  font-size: var(--fs-secao);
+  line-height: 24px;
+  letter-spacing: -0.01em;
 }
 
 .profileLine > span[aria-hidden="true"] {
   color: var(--color-text-muted);
 }
 
-.today::first-letter {
-  text-transform: uppercase;
-}
-
-.roleCard {
+.welcomeActions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-3);
-  width: min(100%, 18rem);
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
-}
-
-.roleIcon,
-.quickIcon {
-  display: grid;
-  flex: 0 0 auto;
-  place-items: center;
-  color: var(--color-text-secondary);
-}
-
-.roleIcon svg,
-.quickIcon svg {
-  width: 1.125rem;
-  height: 1.125rem;
-}
-
-.roleCard > span:last-child {
-  display: grid;
-  gap: 0.125rem;
+  gap: var(--space-2);
   min-width: 0;
 }
 
-.roleCard small {
-  color: var(--color-text-secondary);
-  font-size: var(--fs-meta);
-}
-
-.roleCard strong {
-  color: var(--color-text);
-  font-size: var(--fs-corpo);
-  font-weight: 500;
-}
-
+/* Chips do cabeçalho: escopo (tint) e empresa (neutro) */
+.roleCard,
 .companyPill {
   display: inline-flex;
   align-items: center;
-  justify-self: start;
-  gap: var(--space-2);
+  gap: 6px;
   max-width: 100%;
-  min-height: 1.75rem;
+  min-height: 2rem;
   padding: 0 var(--space-3);
   border-radius: var(--radius-pill);
-  color: var(--color-text-secondary);
-  background: var(--color-nav-hover);
   font-size: var(--fs-meta);
+  line-height: 1.2;
+}
+
+.roleCard {
+  color: var(--color-primary-hover);
+  background: var(--color-primary-bg);
+}
+
+.roleCard small {
+  font-size: var(--fs-meta);
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.roleCard strong {
+  font-weight: 600;
+}
+
+.companyPill {
+  color: var(--color-text-secondary);
+  background: rgb(var(--tinta) / 6%);
 }
 
 .companyPill strong {
   color: var(--color-text);
-  font-weight: 500;
+  font-weight: 600;
 }
 
-/* Métricas: cartões sóbrios com borda, rótulo pequeno e número tabular */
+.roleIcon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+}
+
+.roleIcon svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* ── Métricas: folhas ── */
 .metrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--space-4);
 }
 
-.metricCard,
-.mainPanel,
-.cycleCard,
-.scopeCard,
-.quickSection,
-.pdiNotice {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
-}
-
-/* Ritmo único de cartão de métrica: rótulo → 0.5rem → número → 0.25rem → legenda */
 .metricCard {
   display: grid;
   align-content: start;
-  gap: 0;
   min-width: 0;
-  padding: var(--space-4) var(--space-5);
+  padding: 20px;
   text-align: left;
 }
 
@@ -152,9 +127,9 @@
   overflow-wrap: anywhere;
   color: var(--color-text);
   font-size: var(--fs-metrica);
-  font-weight: 600;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
   line-height: var(--lh-tight);
 }
 
@@ -164,14 +139,18 @@
   font-size: var(--fs-meta);
 }
 
+/* ── Conteúdo ── */
 .contentGrid {
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(18rem, 0.8fr);
   gap: var(--space-4);
 }
 
-.mainPanel {
-  padding: var(--space-5);
+.mainPanel,
+.cycleCard,
+.scopeCard,
+.pdiNotice {
+  padding: 20px;
 }
 
 .panelHeader {
@@ -180,33 +159,41 @@
   justify-content: space-between;
   gap: var(--space-4);
   padding-bottom: var(--space-4);
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-filete);
 }
 
 .panelHeader h2,
+.sectionHeader h2,
 .cycleCard h2,
 .scopeCard h2,
 .pdiNotice h2 {
-  margin: 0;
+  margin: 2px 0 0;
   color: var(--color-text);
-  font-size: var(--fs-nome);
+  font-size: var(--fs-secao);
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.014em;
+  line-height: var(--lh-snug);
 }
 
+/* Badge de status */
 .statusChip {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-1);
-  height: 1.25rem;
-  padding: 0 var(--space-2);
+  gap: 4px;
+  height: 22px;
+  padding: 0 9px;
   border-radius: var(--radius-pill);
   color: var(--color-text-secondary);
-  background: var(--color-nav-hover);
-  font-size: var(--fs-rotulo);
-  font-weight: 500;
+  background: rgb(var(--tinta) / 6%);
+  font-size: var(--fs-sobretitulo);
+  font-weight: 600;
   line-height: 1;
   white-space: nowrap;
+}
+
+.statusChip[data-tone="sucesso"] {
+  color: var(--color-sucesso);
+  background: var(--color-sucesso-bg);
 }
 
 .statusChip svg {
@@ -237,9 +224,9 @@
 .progressSummary strong {
   color: var(--color-text);
   font-size: var(--fs-metrica);
-  font-weight: 600;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
   line-height: var(--lh-tight);
 }
 
@@ -254,7 +241,7 @@
   height: 0.5rem;
   margin-top: var(--space-4);
   border-radius: var(--radius-pill);
-  background: var(--color-nav-hover);
+  background: rgb(var(--tinta) / 6%);
   overflow: hidden;
 }
 
@@ -263,7 +250,7 @@
   width: var(--progress);
   height: 100%;
   border-radius: inherit;
-  background: var(--marca-azul);
+  background: var(--color-primary);
 }
 
 .feedbackStats {
@@ -279,20 +266,21 @@
   justify-content: space-between;
   gap: var(--space-4);
   padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius);
+  background: var(--color-preenchimento);
 }
 
 .feedbackStats dt {
   color: var(--color-text-secondary);
   font-size: var(--fs-meta);
+  font-weight: 500;
 }
 
 .feedbackStats dd {
   margin: 0;
   color: var(--color-text);
   font-size: var(--fs-secao);
-  font-weight: 600;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
@@ -304,27 +292,33 @@
   padding-top: var(--space-5);
 }
 
-.restrictedState > span {
+.restrictedState > span,
+.pdiNotice > span {
   display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
   place-items: center;
-  color: var(--color-text-secondary);
+  border-radius: var(--radius-sm);
+  color: var(--color-icone);
+  background: var(--color-preenchimento-2);
 }
 
-.restrictedState svg {
+.restrictedState svg,
+.pdiNotice > span svg {
   width: 1.25rem;
   height: 1.25rem;
 }
 
 .restrictedState h3 {
-  margin: 0 0 var(--space-2);
+  margin: 0 0 var(--space-1);
   color: var(--color-text);
   font-size: var(--fs-nome);
   font-weight: 600;
 }
 
 .restrictedState p,
-.scopeCard > p:not(.eyebrow),
-.pdiNotice p:not(.eyebrow) {
+.scopeCard > p:not(:global(.sobretitulo)),
+.pdiNotice p:not(:global(.sobretitulo)) {
   max-width: 48rem;
   margin: 0;
   color: var(--color-text-secondary);
@@ -338,11 +332,6 @@
   gap: var(--space-4);
 }
 
-.cycleCard,
-.scopeCard {
-  padding: var(--space-5);
-}
-
 .cycleCard header {
   display: flex;
   align-items: center;
@@ -353,12 +342,12 @@
   display: grid;
   flex: 0 0 auto;
   place-items: center;
-  color: var(--color-text-secondary);
+  color: var(--color-icone);
 }
 
 .cycleCard header svg {
-  width: 1.125rem;
-  height: 1.125rem;
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .cycleDetails {
@@ -369,8 +358,8 @@
 
 .cycleDetails strong {
   color: var(--color-text);
-  font-size: var(--fs-corpo);
-  font-weight: 500;
+  font-size: var(--fs-nome);
+  font-weight: 600;
 }
 
 .cycleDetails span,
@@ -388,72 +377,85 @@
   flex: 0 0 auto;
   width: 0.875rem;
   height: 0.875rem;
-  color: var(--color-text-secondary);
+  color: var(--color-icone);
 }
 
 .emptyMessage {
   margin: var(--space-4) 0 0;
-  padding: var(--space-3);
-  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius);
   color: var(--color-text-secondary);
-  background: var(--color-primary-bg);
+  background: var(--color-preenchimento);
   font-size: var(--fs-meta);
   line-height: var(--lh-base);
 }
 
-.scopeCard > p:not(.eyebrow) {
+.scopeCard > p:not(:global(.sobretitulo)) {
   margin-block: var(--space-3) var(--space-4);
 }
 
+/* ── Acessos rápidos: cada link é uma folha clicável ── */
 .quickSection {
-  padding: var(--space-5);
+  display: grid;
+  gap: var(--space-3);
+}
+
+.sectionHeader {
+  padding: 0 4px;
 }
 
 .quickGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
-  margin-top: var(--space-4);
+  gap: var(--space-4);
 }
 
-.quickGrid a {
+.quickLink {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  padding: 16px 20px;
   color: var(--color-text);
-  background: var(--color-surface);
   text-decoration: none;
-  transition: background-color var(--motion-rapido) var(--ease-padrao);
 }
 
-.quickGrid a:hover {
-  background: var(--color-nav-hover);
+.quickIcon {
+  display: grid;
+  flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  color: var(--color-icone);
+  background: var(--color-preenchimento-2);
 }
 
-.quickGrid a > span:nth-child(2) {
+.quickIcon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.quickLink > span:nth-child(2) {
   display: grid;
   gap: 0.125rem;
   min-width: 0;
 }
 
-.quickGrid strong {
-  font-size: var(--fs-corpo);
-  font-weight: 500;
+.quickLink strong {
+  font-size: var(--fs-nome);
+  font-weight: 600;
 }
 
-.quickGrid small {
+.quickLink small {
   color: var(--color-text-secondary);
   font-size: var(--fs-meta);
 }
 
-.quickGrid a > svg {
+.quickLink > svg {
   width: 1rem;
   height: 1rem;
-  color: var(--color-text-secondary);
+  color: var(--color-icone);
 }
 
 .pdiNotice {
@@ -461,18 +463,6 @@
   grid-template-columns: auto minmax(0, 1fr);
   align-items: start;
   gap: var(--space-4);
-  padding: var(--space-5);
-}
-
-.pdiNotice > span {
-  display: grid;
-  place-items: center;
-  color: var(--color-text-secondary);
-}
-
-.pdiNotice > span svg {
-  width: 1.25rem;
-  height: 1.25rem;
 }
 
 .pdiNotice h2 {
@@ -489,17 +479,13 @@
   }
 }
 
-@media (max-width: 48rem) {
+@media (max-width: 60rem) {
   .welcome {
-    display: grid;
-    align-items: start;
-    gap: var(--space-4);
+    padding: 8px 4px 20px;
   }
+}
 
-  .roleCard {
-    width: 100%;
-  }
-
+@media (max-width: 48rem) {
   .contentGrid {
     grid-template-columns: 1fr;
   }
@@ -514,18 +500,6 @@
     gap: var(--space-4);
   }
 
-  .profileLine {
-    align-items: flex-start;
-  }
-
-  .profileLine > span[aria-hidden="true"] {
-    display: none;
-  }
-
-  .profileLine > span:not([aria-hidden="true"]) {
-    flex-basis: 100%;
-  }
-
   .metrics,
   .sideColumn,
   .quickGrid,
@@ -533,12 +507,16 @@
     grid-template-columns: 1fr;
   }
 
+  .metricCard,
   .mainPanel,
-  .quickSection,
   .cycleCard,
   .scopeCard,
   .pdiNotice {
-    padding: var(--space-4);
+    padding: 16px;
+  }
+
+  .quickLink {
+    padding: 14px 16px;
   }
 
   .panelHeader,
@@ -553,11 +531,5 @@
   .restrictedState,
   .pdiNotice {
     grid-template-columns: 1fr;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .quickGrid a {
-    transition: none;
   }
 }

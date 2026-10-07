@@ -1,95 +1,154 @@
 @import "tailwindcss";
 
 /*
- * Tokens do design system (tema claro único).
- * Precisa de uma cor nova? Derive de um tom existente (mesmo matiz OKLch),
- * declare aqui com um comentário e nunca escreva hex solto em componente.
+ * Identidade visual do GGPost (businessMH/frontend/src/index.css), adaptada ao
+ * portal GGP Feedback. Tokens são a fonte da verdade: componente nenhum escolhe
+ * cor por tema nem escreve hex solto. Precisa de uma cor nova? Derive de um tom
+ * existente, declare aqui (claro e escuro) e comente para que serve.
  */
+
+/* ── Fontes da marca, servidas pelo próprio app (sem CDN) ──
+   Inter e Nunito são variáveis: o descritor declara a faixa do eixo wght,
+   senão o navegador desenha a instância padrão. */
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: swap; src: url("/fonts/Inter-var-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: swap; src: url("/fonts/Inter-var-latin-ext.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "Nunito"; font-style: normal; font-weight: 200 1000; font-display: swap; src: url("/fonts/Nunito-var-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Nunito"; font-style: normal; font-weight: 200 1000; font-display: swap; src: url("/fonts/Nunito-var-latin-ext.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 500; font-display: swap; src: url("/fonts/IBMPlexMono-500-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 500; font-display: swap; src: url("/fonts/IBMPlexMono-500-latin-ext.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+/* Jost: só no título grande da tela de entrada. */
+@font-face { font-family: "Jost"; font-style: normal; font-weight: 500 600; font-display: swap; src: url("/fonts/Jost-var-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Jost"; font-style: normal; font-weight: 500 600; font-display: swap; src: url("/fonts/Jost-var-latin-ext.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+
+/* ═══════════════════════════════════════════════════════════════
+   TEMA CLARO — azul institucional (marca), petróleo (ação e estado),
+   verde (presença e comunicado oficial). Sem degradê.
+   `.dark` no <html> redefine os mesmos papéis logo abaixo.
+   ═══════════════════════════════════════════════════════════════ */
 :root {
   color-scheme: light;
 
-  /* Marca */
-  --marca-azul: oklch(0.291 0.103 256.9); /* #00295d — primária: ação, item ativo, foco */
-  --marca-petroleo: oklch(0.566 0.085 227.3); /* #37809D — destaque: contadores, seleção */
-  --marca-verde: oklch(0.746 0.192 150.5); /* #29cd68 — só significado; nunca texto */
-  --marca-azul-hover: oklch(0.36 0.11 256.9); /* hover do botão primário */
+  /* Tinta das sobreposições (hover, trilho) em canais RGB: rgb(var(--tinta) / .055). */
+  --tinta: 16 24 40;
 
-  /* Neutros frios (matiz ~258) */
-  --color-bg: oklch(0.975 0.004 250);
-  --color-surface: oklch(1 0 0);
-  --color-border: oklch(0.9 0.008 258);
-  --color-border-strong: oklch(0.82 0.012 258); /* borda de controle em repouso */
-  --color-nav-hover: oklch(0.94 0.006 258);
-  --color-primary-bg: oklch(0.955 0.008 250);
-  --color-text: oklch(0.24 0.015 258);
-  --color-text-secondary: oklch(0.55 0.02 258);
+  /* ── Marca ── */
+  --marca-azul: oklch(0.291 0.103 256.9); /* #00295d */
+  --marca-verde: oklch(0.746 0.192 150.5); /* #29cd68 — só significado */
+  --marca-grafite: #3e4347;
+  --marca-petroleo: #37809d; /* o P do logotipo */
+
+  /* ── Cor principal: petróleo um degrau mais fundo (AA com texto branco) ── */
+  --color-primary: oklch(0.54 0.085 227.3); /* #2e7895 */
+  --color-primary-hover: oklch(0.48 0.085 227.3);
+  --color-primary-pressionado: var(--color-primary-hover);
+  --color-primary-light: oklch(0.62 0.075 227.3);
+  --color-primary-bg: oklch(0.958 0.014 227.3);
+  --color-primary-bg-hover: #dcebf1;
+  --color-primary-anel: rgb(55 128 157 / 14%); /* anel de foco de campo */
+
+  /* ── Superfícies ── */
+  --color-bg: #f2f3f5;
+  --color-surface: #ffffff;
+  --color-nav: #ffffff;
+  --color-nav-text: #3e4347;
+  --color-nav-hover: #f1f2f4;
+  --color-preenchimento: #f4f5f7; /* campo, chip, linha de dado dentro da folha */
+  --color-preenchimento-2: #eceef1;
+  --color-preenchimento-3: #e3e6ea;
+  --color-lente: rgb(255 255 255 / 95%);
+  --sombra-lente: inset 0 1px 0 #fff, 0 0 0 0.5px rgb(16 24 40 / 9%), 0 1px 2px rgb(16 24 40 / 7%), 0 6px 14px -6px rgb(16 24 40 / 18%);
+  --color-vidro-opaco: #f7f8fa;
+  --color-veu: rgb(16 24 40 / 28%);
+  --color-desativado: #c5d3da;
+  --color-filete: rgb(16 24 40 / 7.5%);
+  --color-border: oklch(0.925 0.006 258);
+  --color-border-strong: oklch(0.86 0.008 258);
+  --color-pontos: #dce0e5; /* grade de pontos do fundo */
+
+  /* ── Texto ── */
+  --color-text: #1d2125;
+  --color-text-secondary: #6b7280;
   --color-text-muted: oklch(0.62 0.018 258);
+  --color-icone: #5d646e;
 
-  /* Semânticas (todas passam AA como texto sobre branco) */
-  --color-danger: oklch(0.52 0.19 27);
-  --color-danger-bg: oklch(0.965 0.02 27);
-  --color-atencao: oklch(0.52 0.12 70);
-  --color-atencao-bg: oklch(0.97 0.03 80);
-  --color-sucesso: oklch(0.5 0.12 150);
-  --color-sucesso-bg: oklch(0.965 0.03 150);
+  /* ── Estados ── */
   --color-online: var(--marca-verde);
+  --color-oficial: var(--color-primary);
+  --color-atencao: oklch(0.62 0.14 70); /* ponto/ícone; texto usa -texto */
+  --color-atencao-bg: #fbf4e4;
+  --color-atencao-texto: #8a5a00;
+  --color-danger: oklch(0.55 0.19 25);
+  --color-danger-bg: oklch(0.968 0.014 25);
+  --color-sucesso: oklch(0.55 0.14 150.5);
+  --color-sucesso-bg: oklch(0.965 0.03 150.5);
 
-  /* Gráficos: rampa entre o azul e o verde da marca */
-  --chart-1: oklch(0.291 0.103 256.9);
-  --chart-2: oklch(0.4 0.1 245);
-  --chart-3: oklch(0.49 0.092 235);
-  --chart-4: oklch(0.566 0.085 227.3);
-  --chart-5: oklch(0.62 0.1 205);
-  --chart-6: oklch(0.67 0.13 180);
-  --chart-7: oklch(0.71 0.16 162);
-  --chart-8: oklch(0.746 0.192 150.5);
+  /* ── Gráficos: petróleo primeiro, verde da marca depois ── */
+  --chart-1: oklch(0.54 0.085 227.3);
+  --chart-2: oklch(0.746 0.192 150.5);
+  --chart-3: oklch(0.62 0.075 227.3);
+  --chart-4: oklch(0.65 0.15 175);
+  --color-grafico-neutro: #dde2e7;
 
-  /* Elevação: duas camadas tingidas de azul, nunca preto */
-  --elev-1: 0 1px 2px oklch(0.291 0.103 256.9 / 6%), 0 1px 4px oklch(0.291 0.103 256.9 / 4%);
-  --elev-2: 0 2px 4px oklch(0.291 0.103 256.9 / 6%), 0 8px 24px oklch(0.291 0.103 256.9 / 8%);
-  --elev-3: 0 4px 8px oklch(0.291 0.103 256.9 / 8%), 0 16px 48px oklch(0.291 0.103 256.9 / 14%);
-
-  /* Vidro (navegação e flutuantes) */
-  --vidro-fundo: oklch(1 0 0 / 72%);
-  --vidro-fundo-denso: oklch(1 0 0 / 88%);
-  --vidro-borda: oklch(0.9 0.008 258 / 70%);
-
-  /* Forma */
-  --radius: 14px; /* cartões, menus, toasts */
-  --radius-sm: 8px; /* botões, inputs, selects */
-  --radius-pill: 999px; /* navegação, chips, badges, avatares */
-  --radius-folha: 20px; /* modais e painéis grandes */
-
-  /* Controles */
+  /* ── Geometria ── */
+  --raio-cartao: 24px; /* folha de conteúdo */
+  --radius-folha: 28px; /* sobreposição: modal, ilha */
+  --radius: 14px; /* peça interna, menu */
+  --radius-sm: 12px; /* campo */
+  --radius-pill: 999px; /* botão, lente, chip, avatar */
   --control-h: 2.5rem; /* h-10 */
-  --control-h-compact: 2.25rem; /* h-9 */
+  --control-h-compact: 2rem; /* h-8 */
+  --control-h-lg: 3rem; /* h-12 */
 
-  /* Movimento */
+  /* ── Movimento ── */
   --motion-rapido: 0.18s;
   --motion-padrao: 0.25s;
-  --ease-padrao: cubic-bezier(0.2, 0, 0, 1);
+  --curva-mola: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --curva-saida: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-padrao: var(--curva-saida);
 
-  /* Tipografia (fontes auto-hospedadas; sem CDN) */
-  --font-ui: "Inter", "Inter Variable", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  /* ── Elevação ── */
+  --sombra-folha: 0 1px 2px rgb(16 24 40 / 3.5%), 0 10px 30px -16px rgb(16 24 40 / 12%);
+  --elev-1: var(--sombra-folha);
+  --elev-2: 0 0 0 0.5px rgb(16 24 40 / 8%), 0 2px 6px -2px rgb(16 24 40 / 12%), 0 10px 24px -10px rgb(16 24 40 / 18%);
 
-  /* Escala tipográfica (px fixos do design system) — use só estes tamanhos */
-  --fs-entrada: 2rem; /* 32 — título da tela de entrada */
-  --fs-metrica: 1.5rem; /* 24 — número de métrica */
-  --fs-titulo: 1.25rem; /* 20 — título de tela */
-  --fs-secao: 1.0625rem; /* 17 — título de seção / texto em destaque */
-  --fs-nome: 0.9375rem; /* 15 — nome, título de cartão */
-  --fs-corpo: 0.875rem; /* 14 — corpo, controles, navegação */
-  --fs-meta: 0.8125rem; /* 13 — metadados, legendas, ajuda */
-  --fs-rotulo: 0.6875rem; /* 11 — badges, rótulo técnico; piso absoluto */
+  /* ── Vidro: material da camada de navegação ── */
+  --vidro-fundo: rgb(246 247 249 / 60%);
+  --vidro-desfoque: 4px;
+  --vidro-fundo-barra: rgb(246 247 249 / 68%);
+  --vidro-desfoque-barra: 20px;
+  --vidro-fundo-denso: rgb(248 249 250 / 88%);
+  --vidro-desfoque-denso: 30px;
+  --vidro-saturacao: 180%;
+  --vidro-borda: transparent;
+  --vidro-sombra:
+    inset 0 1px 0 rgb(255 255 255 / 95%),
+    inset 0 0 0 1px rgb(255 255 255 / 50%),
+    0 0 0 0.5px rgb(16 24 40 / 11%),
+    0 2px 6px -2px rgb(16 24 40 / 6%),
+    0 16px 36px -14px rgb(16 24 40 / 22%);
+  --elev-3: var(--vidro-sombra), 0 40px 80px -30px rgb(16 24 40 / 35%);
 
-  /* Entrelinhas */
-  --lh-tight: 1.2; /* títulos e números */
-  --lh-snug: 1.35; /* nomes e linhas de uma frase */
-  --lh-base: 1.5; /* corpo */
-  --lh-relaxed: 1.65; /* parágrafos longos */
+  /* ── Tipografia ── */
+  --font-ui: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  --font-marca: "Nunito", "Segoe UI", sans-serif;
+  --font-titulo: "Jost", "Futura", sans-serif;
+  --fs-entrada: clamp(2.5rem, 4.7vw, 4.25rem);
+  --fs-titulo-grande: 2.125rem; /* 34 — título de tela */
+  --fs-metrica: 1.75rem; /* 28 */
+  --fs-titulo: 1.1875rem; /* 19 — título de painel/estado vazio */
+  --fs-secao: 1.0625rem; /* 17 — título de seção, descrição de tela */
+  --fs-nome: 0.9375rem; /* 15 — nome, corpo de destaque */
+  --fs-corpo: 0.875rem; /* 14 — corpo, controles */
+  --fs-meta: 0.8125rem; /* 13 — metadados, rótulos de campo */
+  --fs-sobretitulo: 0.75rem; /* 12 — sobretítulo em caixa alta */
+  --fs-rotulo: 0.6875rem; /* 11 — badge, contador; piso */
+  --lh-tight: 1.18;
+  --lh-snug: 1.35;
+  --lh-base: 1.5;
+  --lh-relaxed: 1.6;
 
-  /* Espaçamento em múltiplos de 4px */
+  /* ── Espaço (múltiplos de 4px) ── */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -102,27 +161,105 @@
   --space-16: 4rem;
 }
 
-* {
-  box-sizing: border-box;
+/* ═══════════════════════════════════════════════════════════════
+   TEMA ESCURO — os mesmos papéis, outra luz. Quem separa as camadas
+   é a superfície ficando mais clara conforme sobe; a aresta do vidro
+   vira um fio de luz.
+   ═══════════════════════════════════════════════════════════════ */
+.dark {
+  color-scheme: dark;
+  --tinta: 255 255 255;
+  --marca-grafite: #e6e9ec;
+
+  --color-primary: oklch(0.6 0.09 227.3);
+  --color-primary-hover: oklch(0.76 0.075 227.3);
+  --color-primary-pressionado: oklch(0.54 0.09 227.3);
+  --color-primary-light: oklch(0.7 0.075 227.3);
+  --color-primary-bg: oklch(0.29 0.045 227.3);
+  --color-primary-bg-hover: oklch(0.33 0.055 227.3);
+  --color-primary-anel: rgb(110 170 200 / 22%);
+
+  --color-bg: #0f1215;
+  --color-surface: #181c21;
+  --color-nav: #181c21;
+  --color-nav-text: #c4cad1;
+  --color-nav-hover: #22272d;
+  --color-preenchimento: #20252b;
+  --color-preenchimento-2: #272d34;
+  --color-preenchimento-3: #30363e;
+  --color-filete: rgb(255 255 255 / 8%);
+  --color-border: oklch(0.31 0.01 258);
+  --color-border-strong: oklch(0.4 0.012 258);
+  --color-lente: rgb(60 67 76 / 90%);
+  --sombra-lente: inset 0 1px 0 rgb(255 255 255 / 8%), 0 0 0 0.5px rgb(0 0 0 / 50%), 0 1px 2px rgb(0 0 0 / 30%), 0 6px 14px -6px rgb(0 0 0 / 50%);
+  --color-vidro-opaco: #1e2228;
+  --color-veu: rgb(0 0 0 / 55%);
+  --color-desativado: #34444c;
+  --color-pontos: #242930;
+
+  --color-text: #e9ecef;
+  --color-text-secondary: #9ba3ad;
+  --color-text-muted: oklch(0.6 0.015 258);
+  --color-icone: #a4acb6;
+
+  --color-atencao: oklch(0.76 0.14 70);
+  --color-atencao-bg: #2a2314;
+  --color-atencao-texto: #e5b84e;
+  --color-danger: oklch(0.68 0.17 25);
+  --color-danger-bg: oklch(0.27 0.06 25);
+  --color-sucesso: oklch(0.72 0.16 150.5);
+  --color-sucesso-bg: oklch(0.27 0.05 150.5);
+
+  --chart-1: oklch(0.6 0.09 227.3);
+  --chart-3: oklch(0.7 0.075 227.3);
+  --color-grafico-neutro: #353b42;
+
+  --sombra-folha: 0 0 0 0.5px rgb(255 255 255 / 5%), 0 10px 30px -16px rgb(0 0 0 / 60%);
+  --elev-2: 0 0 0 0.5px rgb(255 255 255 / 8%), 0 2px 6px -2px rgb(0 0 0 / 40%), 0 10px 24px -10px rgb(0 0 0 / 60%);
+
+  --vidro-fundo: rgb(30 34 40 / 60%);
+  --vidro-fundo-barra: rgb(30 34 40 / 70%);
+  --vidro-fundo-denso: rgb(26 30 35 / 90%);
+  --vidro-saturacao: 140%;
+  --vidro-sombra:
+    inset 0 1px 0 rgb(255 255 255 / 7%),
+    inset 0 0 0 1px rgb(255 255 255 / 4%),
+    0 0 0 0.5px rgb(0 0 0 / 60%),
+    0 2px 6px -2px rgb(0 0 0 / 30%),
+    0 16px 36px -14px rgb(0 0 0 / 60%);
+  --elev-3: var(--vidro-sombra), 0 40px 80px -30px rgb(0 0 0 / 60%);
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before {
+    box-sizing: border-box;
+    border-color: var(--color-border);
+  }
 }
 
 html {
   min-width: 320px;
-  background: var(--color-bg);
-  scroll-behavior: smooth;
+  background-color: var(--color-bg);
 }
 
+/* Grade de pontos da entrada como fundo do app inteiro — parada, só textura. */
 body {
   min-height: 100vh;
   margin: 0;
   color: var(--color-text);
-  background: var(--color-bg);
+  background-color: var(--color-bg);
+  background-image: radial-gradient(circle at 11px 11px, var(--color-pontos) 1.3px, transparent 1.4px);
+  background-size: 22px 22px;
+  background-attachment: fixed;
   font-family: var(--font-ui);
   font-size: var(--fs-corpo);
-  line-height: var(--lh-base);
+  line-height: var(--lh-relaxed);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 button,
@@ -130,6 +267,7 @@ input,
 select,
 textarea {
   font: inherit;
+  color: inherit;
 }
 
 button,
@@ -137,485 +275,205 @@ a {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Foco visível na cor principal. */
 :where(button, a, input, select, textarea, summary, [tabindex]):focus-visible {
-  outline: 2px solid var(--marca-azul);
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
 ::selection {
-  color: var(--color-surface);
-  background: var(--marca-petroleo);
+  color: #fff;
+  background: var(--color-primary);
 }
 
-/* Utilitários do design system */
-.rotulo-tec,
-.eyebrow {
-  margin: 0;
-  color: var(--color-text-secondary);
-  font-family: var(--font-mono);
-  font-size: var(--fs-rotulo);
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background-color: transparent; }
+::-webkit-scrollbar-thumb { background-color: var(--color-border); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background-color: var(--color-text-secondary); }
+
+/* ── Troca de tema: círculo que se abre a partir do botão (View Transitions) ── */
+:root.trocando-tema::view-transition-old(root),
+:root.trocando-tema::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+:root.trocando-tema *,
+:root.trocando-tema *::before,
+:root.trocando-tema *::after {
+  transition: none !important;
 }
 
-.tabular {
-  font-variant-numeric: tabular-nums;
+/* ═══════════════ Materiais ═══════════════ */
+
+/* Folha: superfície de conteúdo. Branca, raio 24 e só sombra — nunca borda junto. */
+.folha {
+  background-color: var(--color-surface);
+  border-radius: var(--raio-cartao);
+  box-shadow: var(--sombra-folha);
 }
 
-.vidro,
-.vidro-painel {
-  background: var(--vidro-fundo);
-  backdrop-filter: blur(16px) saturate(1.4);
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+/* Vidro — só na camada de navegação; nunca vidro sobre vidro. */
+.vidro {
+  background-color: var(--vidro-fundo-barra);
+  -webkit-backdrop-filter: blur(var(--vidro-desfoque-barra)) saturate(var(--vidro-saturacao));
+  backdrop-filter: blur(var(--vidro-desfoque-barra)) saturate(var(--vidro-saturacao));
+  box-shadow: var(--vidro-sombra);
 }
-
 .vidro-denso {
-  background: var(--vidro-fundo-denso);
-  backdrop-filter: blur(20px) saturate(1.4);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  background-color: var(--vidro-fundo-denso);
+  -webkit-backdrop-filter: blur(var(--vidro-desfoque-denso)) saturate(var(--vidro-saturacao));
+  backdrop-filter: blur(var(--vidro-desfoque-denso)) saturate(var(--vidro-saturacao));
 }
-
-.vidro-flutuante {
-  border: 1px solid var(--vidro-borda);
-  box-shadow: var(--elev-3);
+.vidro-painel {
+  background-color: var(--vidro-fundo);
+  -webkit-backdrop-filter: blur(var(--vidro-desfoque)) saturate(160%);
+  backdrop-filter: blur(var(--vidro-desfoque)) saturate(160%);
+  box-shadow: var(--vidro-sombra);
 }
+.vidro-flutuante { box-shadow: var(--elev-3); }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .vidro,
-  .vidro-painel,
-  .vidro-denso {
-    background: var(--color-surface);
-  }
+  .vidro, .vidro-denso, .vidro-painel { background-color: var(--color-nav); }
 }
-
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
-  .vidro,
-  .vidro-painel,
-  .vidro-denso {
-    background: var(--color-surface);
-    backdrop-filter: none;
+  .vidro, .vidro-denso, .vidro-painel {
+    background-color: var(--color-nav);
     -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }
 
+/* Superfície clicável: elevação só como resposta ao ponteiro. */
 .elevar {
-  transition:
-    transform var(--motion-rapido) var(--ease-padrao),
-    box-shadow var(--motion-rapido) var(--ease-padrao);
+  transition: transform var(--motion-rapido) ease, box-shadow var(--motion-rapido) ease;
 }
-
 .elevar:hover {
-  box-shadow: var(--elev-2);
   transform: translateY(-2px);
+  box-shadow: var(--elev-2);
 }
 
-/* Tela de entrada e troca obrigatória de senha */
-.login-page {
-  position: relative;
-  display: grid;
-  min-height: 100svh;
-  background: var(--color-bg);
+/* Anel pontilhado (comunicado oficial / destaque): fora da caixa. */
+.anel-pontilhado {
+  outline: 2px dotted var(--anel-cor, var(--color-border));
+  outline-offset: 4px;
 }
 
-.login-shell {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(22rem, 26rem);
-  align-items: center;
-  gap: clamp(3rem, 8vw, 8rem);
-  width: min(100%, 72rem);
-  min-height: 100svh;
-  margin: 0 auto;
-  padding: clamp(2rem, 6vw, 5rem) clamp(1.5rem, 5vw, 4rem);
-}
+/* ═══════════════ Tipografia ═══════════════ */
 
-.brand-panel {
-  max-width: 32rem;
-}
-
-.brand-lockup {
-  position: relative;
-  width: clamp(12rem, 18vw, 14rem);
-  aspect-ratio: 3952 / 1952;
-  margin-bottom: var(--space-10);
-  overflow: hidden;
-}
-
-/*
- * ggp-logo-gray-blue.png (4800×4800) tem o desenho visível em
- * x=424..4376, y=1424..3376. O canvas é ampliado e deslocado para que
- * exatamente essa área preencha o .brand-lockup.
- */
-.brand-logo-canvas {
-  position: absolute;
-  top: -72.95%;
-  left: -10.73%;
-  width: 121.46%;
-  aspect-ratio: 1;
-}
-
-.brand-logo-image {
-  object-fit: contain;
-}
-
-.brand-kicker {
+/* Título grande (estilo Apple): sobretítulo em caixa alta, título 34/40. */
+.sobretitulo {
   margin: 0;
-  color: var(--marca-petroleo);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sobretitulo);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.titulo-grande {
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--fs-titulo-grande);
+  font-weight: 700;
+  line-height: 40px;
+  letter-spacing: -0.025em;
+}
+.rotulo-tec {
+  margin: 0;
+  color: var(--color-text-secondary);
   font-family: var(--font-mono);
   font-size: var(--fs-rotulo);
   font-weight: 500;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
+.assinatura {
+  font-family: var(--font-marca);
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  padding-left: 0.3em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.tabular { font-variant-numeric: tabular-nums; }
 
-.brand-panel h1 {
-  margin: var(--space-3) 0 var(--space-4);
-  color: var(--color-text);
-  font-size: var(--fs-entrada);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: var(--lh-tight);
+/* ═══════════════ Movimento ═══════════════ */
+
+/* Entrada do painel de rota: em CSS (sem fill-mode) para não deixar
+   transform/filter no elemento — senão `position: fixed` lá dentro passaria
+   a se posicionar pelo painel. */
+@keyframes painelEntra {
+  from { opacity: 0; transform: translateX(var(--painel-de, 0)); filter: blur(7px); }
+  to { opacity: 1; transform: translateX(0); filter: blur(0); }
+}
+.painel-entra { animation: painelEntra 0.34s cubic-bezier(0.22, 0.61, 0.36, 1); }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+.animate-fadeIn { animation: fadeIn 0.2s ease-out; }
+.animate-scaleIn { animation: scaleIn 0.2s ease-out; }
+
+/* Três pontos pulando: "processando", "publicando". */
+@keyframes pontoPula {
+  0%, 55%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-4px); }
+}
+.pontos-pulando { display: inline-flex; align-items: center; gap: 4px; }
+.pontos-pulando > i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+  animation: pontoPula 0.9s ease-in-out infinite;
+}
+.pontos-pulando > i:nth-child(2) { animation-delay: 0.12s; }
+.pontos-pulando > i:nth-child(3) { animation-delay: 0.24s; }
+
+/* Skeleton de carregamento. */
+@keyframes brilhoSkeleton {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.9; }
+}
+.skeleton {
+  background-color: var(--color-border);
+  border-radius: 0.5rem;
+  animation: brilhoSkeleton 1.4s ease-in-out infinite;
 }
 
-.brand-description {
-  max-width: 30rem;
-  margin: 0;
-  color: var(--color-text-secondary);
-  font-size: var(--fs-nome);
-  line-height: var(--lh-relaxed);
+/* Logo da ilha "chegando" na abertura e a cada troca de seção. */
+@keyframes logoChega {
+  0% { opacity: 0.55; transform: translateY(2px) scale(0.98); }
+  60% { opacity: 1; transform: translateY(-1px) scale(1.01); }
+  100% { opacity: 1; transform: none; }
 }
+.digitando .logo-ggp { animation: logoChega 0.9s var(--curva-saida); }
 
-.brand-principles {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin-top: var(--space-6);
-}
+/* Logo GGP: a versão para fundo escuro aparece só no tema escuro. */
+.logo-ggp--escuro { display: none; }
+.dark .logo-ggp--claro { display: none; }
+.dark .logo-ggp--escuro { display: block; }
 
-.brand-principles span {
-  display: inline-flex;
-  align-items: center;
-  height: 1.75rem;
-  padding: 0 0.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
-  color: var(--color-text-secondary);
-  background: var(--color-surface);
-  font-size: var(--fs-rotulo);
-  font-weight: 500;
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
   white-space: nowrap;
 }
 
-.login-card {
-  width: 100%;
-  padding: clamp(1.5rem, 3vw, 2rem);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
-}
-
-.login-card-header {
-  margin-bottom: var(--space-6);
-}
-
-.access-label {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin: 0;
-  color: var(--color-text-secondary);
-  font-family: var(--font-mono);
-  font-size: var(--fs-rotulo);
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.access-label__mark {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: var(--radius-pill);
-  background: var(--marca-petroleo);
-}
-
-.login-card h2 {
-  margin: var(--space-4) 0 var(--space-2);
-  color: var(--color-text);
-  font-size: var(--fs-titulo);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: var(--lh-snug);
-}
-
-.login-card-header p {
-  margin: 0;
-  color: var(--color-text-secondary);
-  font-size: var(--fs-corpo);
-  line-height: var(--lh-base);
-}
-
-.login-form {
-  display: grid;
-  gap: var(--space-4);
-}
-
-.form-field {
-  display: grid;
-  gap: 0.375rem;
-}
-
-.form-field > label {
-  color: var(--color-text);
-  font-size: var(--fs-meta);
-  font-weight: 500;
-}
-
-.input-frame {
-  position: relative;
-  display: flex;
-  align-items: center;
-  height: var(--control-h);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface);
-  transition: border-color var(--motion-rapido) ease, box-shadow var(--motion-rapido) ease;
-}
-
-.input-frame:hover {
-  border-color: var(--color-text-muted);
-}
-
-.input-frame:focus-within {
-  border-color: var(--marca-azul);
-  box-shadow: 0 0 0 3px oklch(0.291 0.103 256.9 / 12%);
-}
-
-.input-frame input {
-  width: 100%;
-  min-width: 0;
-  height: 100%;
-  padding: 0 0.75rem;
-  border: 0;
-  border-radius: inherit;
-  color: var(--color-text);
-  background: transparent;
-  outline: 0;
-  font-size: var(--fs-corpo);
-}
-
-.input-frame--password input {
-  padding-right: 2.75rem;
-}
-
-.input-frame input::placeholder {
-  color: var(--color-text-muted);
-}
-
-.input-frame input:disabled {
-  cursor: wait;
-  opacity: 0.6;
-}
-
-.password-toggle {
-  position: absolute;
-  right: 0.25rem;
-  display: grid;
-  width: 2rem;
-  height: 2rem;
-  padding: 0;
-  border: 0;
-  border-radius: var(--radius-sm);
-  place-items: center;
-  color: var(--color-text-secondary);
-  background: transparent;
-  cursor: pointer;
-  transition: color var(--motion-rapido) ease, background-color var(--motion-rapido) ease;
-}
-
-.password-toggle:hover:not(:disabled),
-.password-toggle[aria-pressed="true"] {
-  color: var(--marca-azul);
-  background: var(--color-nav-hover);
-}
-
-.password-toggle:disabled {
-  cursor: wait;
-  opacity: 0.5;
-}
-
-.password-toggle svg,
-.submit-button svg,
-.login-card-footer svg {
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.password-toggle svg {
-  width: 1.125rem;
-  height: 1.125rem;
-  stroke-width: 1.7;
-}
-
-.login-feedback,
-.login-success {
-  margin: 0;
-  padding: var(--space-3);
-  border-radius: var(--radius-sm);
-  font-size: var(--fs-meta);
-  line-height: var(--lh-base);
-}
-
-.login-feedback {
-  color: var(--color-danger);
-  background: var(--color-danger-bg);
-}
-
-.login-success {
-  color: var(--color-sucesso);
-  background: var(--color-sucesso-bg);
-}
-
-.submit-button,
-.portal-sign-out {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  width: 100%;
-  height: var(--control-h);
-  padding: 0 1rem;
-  border: 0;
-  border-radius: var(--radius-sm);
-  color: var(--color-surface);
-  background: var(--marca-azul);
-  cursor: pointer;
-  font-size: var(--fs-corpo);
-  font-weight: 500;
-  transition: background-color var(--motion-rapido) ease;
-}
-
-.submit-button:hover:not(:disabled),
-.portal-sign-out:hover {
-  background: var(--marca-azul-hover);
-}
-
-.submit-button:disabled {
-  cursor: wait;
-  opacity: 0.6;
-}
-
-.submit-button svg {
-  width: 1rem;
-  height: 1rem;
-  stroke-width: 2;
-}
-
-.login-card-footer {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-top: var(--space-6);
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--color-border);
-  color: var(--color-text-secondary);
-  font-size: var(--fs-meta);
-  line-height: var(--lh-base);
-}
-
-.login-card-footer svg {
-  flex: 0 0 auto;
-  width: 0.875rem;
-  height: 0.875rem;
-  stroke-width: 1.8;
-}
-
-.password-card {
-  max-width: 26rem;
-}
-
-.password-policy {
-  display: grid;
-  gap: var(--space-1);
-  padding: var(--space-3);
-  border-radius: var(--radius-sm);
-  color: var(--color-text-secondary);
-  background: var(--color-primary-bg);
-  font-size: var(--fs-meta);
-  line-height: var(--lh-base);
-}
-
-.password-policy strong {
-  color: var(--color-text);
-  font-size: var(--fs-meta);
-  font-weight: 600;
-}
-
-.password-change-form .submit-button {
-  margin-top: var(--space-1);
-}
-
-.page-signature {
-  position: absolute;
-  right: clamp(1.5rem, 5vw, 4rem);
-  bottom: 1.25rem;
-  margin: 0;
-  color: var(--color-text-muted);
-  font-family: "Nunito", var(--font-ui);
-  font-size: var(--fs-rotulo);
-  font-weight: 700;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-}
-
-.page-signature span {
-  margin-inline: 0.5rem;
-  color: var(--marca-petroleo);
-}
-
-@media (max-width: 56rem) {
-  .login-shell {
-    grid-template-columns: 1fr;
-    align-content: center;
-    gap: var(--space-8);
-    max-width: 30rem;
-    padding: var(--space-10) var(--space-4) var(--space-16);
-  }
-
-  .brand-lockup {
-    width: 11rem;
-    margin-bottom: var(--space-6);
-  }
-
-  .brand-panel h1 {
-    font-size: var(--fs-metrica);
-  }
-
-  .page-signature {
-    right: var(--space-4);
-    bottom: var(--space-4);
-    left: var(--space-4);
-    text-align: center;
-  }
-}
-
-@media (max-width: 32rem) {
-  .brand-principles {
-    display: none;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
+  .painel-entra,
+  .animate-fadeIn,
+  .animate-scaleIn,
+  .pontos-pulando > i,
+  .skeleton,
+  .digitando .logo-ggp {
+    animation: none !important;
   }
-
+  .elevar:hover { transform: none; }
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }

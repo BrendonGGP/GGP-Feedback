@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { Revelar } from "@/components/motion/revelar";
 import { PortalIcon } from "@/components/portal/portal-icon";
 import { PortalShell } from "@/components/portal/portal-shell";
 import { getAuthenticatedActor } from "@/lib/auth/session";
@@ -71,35 +72,41 @@ export default async function HrPortalPage({ searchParams }: HrPortalPageProps) 
       <div className={styles.page}>
         <header className={styles.hero}>
           <div>
-            <p className={styles.eyebrow}>Recursos Humanos</p>
-            <h1>Ciclos e formulários</h1>
-            <p>Configure as rodadas de Feedback e acompanhe a disponibilidade dos formulários.</p>
+            <p className="sobretitulo">Recursos Humanos</p>
+            <h1 className="titulo-grande">Ciclos e formulários</h1>
+            <p className={styles.heroDescription}>Configure as rodadas de Feedback e acompanhe a disponibilidade dos formulários.</p>
           </div>
-          <div className={styles.scopeBadge}>
-            <PortalIcon name="check" />
-            <span>Escopo RH validado no servidor</span>
+          <div className={styles.heroActions}>
+            <div className={styles.scopeBadge}>
+              <PortalIcon name="check" />
+              <span>Escopo RH validado no servidor</span>
+            </div>
           </div>
         </header>
 
+        <Revelar className={styles.content}>
         {feedbackCreated ? <p className={styles.successMessage} role="status">Ciclo criado como rascunho.</p> : null}
         {cycleUpdated ? <p className={styles.successMessage} role="status">Status do ciclo atualizado.</p> : null}
         {actionError ? <p className={styles.errorMessage} role="alert">{actionError}</p> : null}
 
         <section className={styles.metrics} aria-label="Resumo do domínio de RH">
-          <article><span>Pessoas ativas</span><strong>{management.metrics.activePeople}</strong><small>cadastros disponíveis</small></article>
-          <article><span>Ciclos abertos</span><strong>{management.metrics.openCycles}</strong><small>em acompanhamento</small></article>
-          <article><span>Formulários ativos</span><strong>{management.metrics.activeTemplates}</strong><small>prontos para uso</small></article>
-          <article><span>Feedbacks no escopo</span><strong>{management.metrics.feedbacks}</strong><small>rascunhos e enviados</small></article>
+          <article data-revelar><span>Pessoas ativas</span><strong>{management.metrics.activePeople}</strong><small>cadastros disponíveis</small></article>
+          <article data-revelar><span>Ciclos abertos</span><strong>{management.metrics.openCycles}</strong><small>em acompanhamento</small></article>
+          <article data-revelar><span>Formulários ativos</span><strong>{management.metrics.activeTemplates}</strong><small>prontos para uso</small></article>
+          <article data-revelar><span>Feedbacks no escopo</span><strong>{management.metrics.feedbacks}</strong><small>rascunhos e enviados</small></article>
         </section>
 
         <div className={styles.workspaceGrid}>
-          <section className={`${styles.panel} ${styles.cyclesPanel}`} aria-labelledby="cycles-title">
+          <section className={`${styles.panel} ${styles.cyclesPanel}`} aria-labelledby="cycles-title" data-revelar>
             <header className={styles.panelHeader}>
-              <div><p className={styles.eyebrow}>Acompanhamento</p><h2 id="cycles-title">Ciclos cadastrados</h2></div>
+              <div><p className="sobretitulo">Acompanhamento</p><h2 id="cycles-title">Ciclos cadastrados</h2></div>
               <span>{management.cycles.length} {management.cycles.length === 1 ? "ciclo" : "ciclos"}</span>
             </header>
             {management.cycles.length === 0 ? (
-              <p className={styles.emptyState}>Nenhum ciclo cadastrado. Crie o primeiro ao lado.</p>
+              <div className={styles.emptyState}>
+                <span aria-hidden="true"><PortalIcon name="calendar" /></span>
+                <p>Nenhum ciclo cadastrado. Crie o primeiro ao lado.</p>
+              </div>
             ) : (
               <div className={styles.cycleList}>
                 {management.cycles.map((cycle) => {
@@ -120,7 +127,7 @@ export default async function HrPortalPage({ searchParams }: HrPortalPageProps) 
                         <form action={updateCycleStatusAction}>
                           <input type="hidden" name="cycleId" value={cycle.id} />
                           <input type="hidden" name="targetStatus" value={nextStatus} />
-                          <button type="submit">{nextStatus === "OPEN" ? "Abrir ciclo" : nextStatus === "CLOSED" ? "Encerrar" : "Arquivar"}</button>
+                          <button className={styles.rowButton} type="submit">{nextStatus === "OPEN" ? "Abrir ciclo" : nextStatus === "CLOSED" ? "Encerrar" : "Arquivar"}</button>
                         </form>
                       ) : <span className={styles.noAction}>Sem ações</span>}
                     </article>
@@ -134,14 +141,15 @@ export default async function HrPortalPage({ searchParams }: HrPortalPageProps) 
             <CycleCreateForm templates={management.templates} />
           </aside>
 
-          <section className={`${styles.panel} ${styles.templatesPanel}`} aria-labelledby="templates-title">
+          <section className={`${styles.panel} ${styles.templatesPanel}`} aria-labelledby="templates-title" data-revelar>
             <header className={styles.panelHeader}>
-              <div><p className={styles.eyebrow}>Biblioteca</p><h2 id="templates-title">Formulários</h2></div>
+              <div><p className="sobretitulo">Biblioteca</p><h2 id="templates-title">Formulários</h2></div>
               <span>Competências usadas nos ciclos</span>
             </header>
             <FormTemplateManager templates={management.templates} />
           </section>
         </div>
+        </Revelar>
       </div>
     </PortalShell>
   );

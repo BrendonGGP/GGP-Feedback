@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
+import { Revelar } from "@/components/motion/revelar";
 import { PortalIcon } from "@/components/portal/portal-icon";
 import { PortalShell } from "@/components/portal/portal-shell";
 import { getAuthenticatedActor } from "@/lib/auth/session";
@@ -49,12 +50,14 @@ export default async function ManagerTeamPage() {
       roleLabel={dashboard.roleLabel}
       roles={actor.roles}
     >
-      <div className={styles.page}>
+      <Revelar className={styles.page}>
         <header className={styles.hero}>
-          <div>
-            <p className={styles.eyebrow}>Gestão de pessoas</p>
-            <h1>Minha equipe</h1>
-            <p>Acompanhe os liderados diretos e os feedbacks sob sua responsabilidade.</p>
+          <div className={styles.heroText}>
+            <p className="sobretitulo">Gestão de pessoas</p>
+            <h1 className="titulo-grande">Minha equipe</h1>
+            <p className={styles.heroDescription}>
+              Acompanhe os liderados diretos e os feedbacks sob sua responsabilidade.
+            </p>
           </div>
           <div className={styles.scopeBadge} role="status">
             <PortalIcon name="team" />
@@ -63,22 +66,22 @@ export default async function ManagerTeamPage() {
         </header>
 
         <section className={styles.metrics} aria-label="Resumo da equipe">
-          <article data-tone="aqua">
+          <article className="folha" data-revelar data-tone="aqua">
             <span>Liderados ativos</span>
             <strong>{team.metrics.activeMembers}</strong>
             <small>pessoas na sua equipe direta</small>
           </article>
-          <article data-tone="green">
+          <article className="folha" data-revelar data-tone="green">
             <span>Feedbacks enviados</span>
             <strong>{team.metrics.submittedFeedbacks}</strong>
             <small>registros concluídos por você</small>
           </article>
-          <article data-tone="amber">
+          <article className="folha" data-revelar data-tone="amber">
             <span>Rascunhos</span>
             <strong>{team.metrics.draftFeedbacks}</strong>
             <small>feedbacks que precisam de atenção</small>
           </article>
-          <article data-tone="neutral">
+          <article className="folha" data-revelar data-tone="neutral">
             <span>Setor principal</span>
             <strong className={styles.metricText}>{team.manager.departmentName}</strong>
             <small>{team.manager.companyName}</small>
@@ -88,14 +91,14 @@ export default async function ManagerTeamPage() {
         <section className={styles.teamPanel} aria-labelledby="team-title">
           <header className={styles.panelHeader}>
             <div>
-              <p className={styles.eyebrow}>Equipe direta</p>
+              <p className="sobretitulo">Equipe direta</p>
               <h2 id="team-title">Colaboradores ativos</h2>
             </div>
             <span>{team.members.length} {team.members.length === 1 ? "pessoa" : "pessoas"}</span>
           </header>
 
           {team.members.length === 0 ? (
-            <div className={styles.emptyState} role="status">
+            <div className={`folha ${styles.emptyState}`} data-revelar role="status">
               <span className={styles.emptyIcon} aria-hidden="true"><PortalIcon name="team" /></span>
               <h3>Nenhum liderado ativo vinculado</h3>
               <p>O RH precisa revisar a estrutura organizacional para vincular pessoas à sua equipe.</p>
@@ -103,7 +106,7 @@ export default async function ManagerTeamPage() {
           ) : (
             <div className={styles.memberGrid}>
               {team.members.map((member) => (
-                <article className={styles.memberCard} key={member.id}>
+                <article className={`folha ${styles.memberCard}`} data-revelar key={member.id}>
                   <header className={styles.memberHeader}>
                     <span className={styles.avatar} aria-hidden="true">{initials(member.fullName)}</span>
                     <div>
@@ -145,15 +148,15 @@ export default async function ManagerTeamPage() {
           )}
         </section>
 
-        <aside className={styles.cyclePanel} aria-label="Ciclo atual">
+        <aside className={`folha ${styles.cyclePanel}`} data-revelar aria-label="Ciclo atual">
           <span className={styles.cycleIcon} aria-hidden="true"><PortalIcon name="calendar" /></span>
           <div>
-            <p className={styles.eyebrow}>Ciclo atual</p>
+            <p className="sobretitulo">Ciclo atual</p>
             <h2>{team.cycle?.name ?? "Nenhum ciclo aberto"}</h2>
             <p>{team.cycle ? `Encerramento previsto para ${team.cycle.endsAt}.` : "Quando um ciclo for aberto, ele aparecerá aqui para acompanhamento."}</p>
           </div>
         </aside>
-      </div>
+      </Revelar>
     </PortalShell>
   );
 }
