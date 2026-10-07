@@ -47,11 +47,6 @@ export function LoginExperience() {
             .addLabel("intro", 0)
             .set(animatedElements, { willChange: "transform,opacity" }, "intro")
             .from(
-              "[data-entrance='ambient']",
-              { autoAlpha: 0, scale: 0.97, duration: 0.55 },
-              "intro",
-            )
-            .from(
               "[data-entrance='brand']",
               { autoAlpha: 0, y: 10, duration: 0.34 },
               "intro+=0.04",
@@ -98,20 +93,13 @@ export function LoginExperience() {
 
   return (
     <main ref={pageRef} className="login-page">
-      <div className="login-ambient" data-entrance="ambient" aria-hidden="true">
-        <span className="ambient-grid" />
-        <span className="ambient-ring ambient-ring--large" />
-        <span className="ambient-ring ambient-ring--small" />
-        <span className="ambient-line" />
-      </div>
-
       <div className="login-shell">
         <section className="brand-panel" aria-labelledby="page-title">
           <div className="brand-lockup" data-entrance="brand">
             <div className="brand-logo-canvas">
               <Image
                 className="brand-logo-image"
-                src="/brand/ggp-logo-white-blue.png"
+                src="/brand/ggp-logo-gray-blue.png"
                 alt="Grupo Gomes Pires"
                 fill
                 sizes="(max-width: 56rem) 220px, 284px"

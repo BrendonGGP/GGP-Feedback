@@ -125,10 +125,10 @@ function Brand() {
       <span className={styles.brandCrop} aria-hidden="true">
         <span className={styles.brandCanvas}>
           <Image
-            src="/brand/ggp-logo-white-blue.png"
+            src="/brand/ggp-logo-gray-blue.png"
             alt=""
             fill
-            sizes="106px"
+            sizes="80px"
             priority
           />
         </span>

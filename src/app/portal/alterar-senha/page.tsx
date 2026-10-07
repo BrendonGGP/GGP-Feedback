@@ -18,20 +18,13 @@ export default async function ChangePasswordPage() {
 
   return (
     <main className="login-page password-change-page">
-      <div className="login-ambient" aria-hidden="true">
-        <span className="ambient-grid" />
-        <span className="ambient-ring ambient-ring--large" />
-        <span className="ambient-ring ambient-ring--small" />
-        <span className="ambient-line" />
-      </div>
-
       <div className="login-shell">
         <section className="brand-panel" aria-labelledby="password-page-title">
           <div className="brand-lockup">
             <div className="brand-logo-canvas">
               <Image
                 className="brand-logo-image"
-                src="/brand/ggp-logo-white-blue.png"
+                src="/brand/ggp-logo-gray-blue.png"
                 alt="Grupo Gomes Pires"
                 fill
                 sizes="(max-width: 56rem) 220px, 284px"

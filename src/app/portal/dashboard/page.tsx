@@ -146,7 +146,6 @@ export default async function DashboardPage() {
           </section>
 
           <div className={styles.companyPill} data-dashboard-reveal>
-            <span className={styles.companyMark} aria-hidden="true">GGP</span>
             <span>Você faz parte de <strong>{dashboard.profile.company}</strong></span>
           </div>
 
@@ -158,7 +157,6 @@ export default async function DashboardPage() {
                 data-tone={metric.tone}
                 key={metric.label}
               >
-                <span className={styles.metricAccent} aria-hidden="true" />
                 <p>{metric.label}</p>
                 <strong>{metric.value}</strong>
                 <small>{metric.helper}</small>
