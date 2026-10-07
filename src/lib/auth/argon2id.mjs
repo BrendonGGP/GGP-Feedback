@@ -12,8 +12,9 @@ const DEFAULT_PARAMS = Object.freeze({ memory: 65536, passes: 3, parallelism: 4 
 const SALT_LENGTH = 16;
 const TAG_LENGTH = 32;
 
-// Upper bounds stop a malformed stored hash from forcing an expensive derivation.
-const LIMITS = Object.freeze({ memory: 1 << 20, passes: 10, parallelism: 16 });
+// Upper bounds stop a malformed stored hash from forcing an expensive derivation
+// (memory in KiB: 256 MiB, four times the default).
+const LIMITS = Object.freeze({ memory: 1 << 18, passes: 10, parallelism: 16 });
 const PARAM_KEYS = Object.freeze({ m: "memory", t: "passes", p: "parallelism" });
 const BASE64_PATTERN = /^[A-Za-z0-9+/]+$/;
 
