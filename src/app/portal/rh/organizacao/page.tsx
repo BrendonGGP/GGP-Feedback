@@ -35,10 +35,10 @@ export default async function HrOrganizationPage({ searchParams }: OrganizationP
   if (actor.mustChangePassword) redirect("/portal/alterar-senha");
   if (!canAdministerHrDomain(actor)) redirect("/portal/dashboard");
 
-  const [dashboard, organization, params] = await Promise.all([
+  const params = await searchParams;
+  const [dashboard, organization] = await Promise.all([
     getPortalDashboardData(actor),
-    getHrOrganization(actor),
-    searchParams,
+    getHrOrganization(actor, { search: firstValue(params.busca) }),
   ]);
   if (!dashboard || !organization) redirect("/portal/dashboard");
 
@@ -50,7 +50,16 @@ export default async function HrOrganizationPage({ searchParams }: OrganizationP
       .filter((department) => department.active)
       .map((department) => ({ ...department, companyId: company.id, companyName: company.name })),
   );
-  const activeManagers = organization.people.filter((person) => person.active);
+  // Só quem é gestor aparece como opção. Na edição, o gestor atual da pessoa
+  // continua na lista mesmo que tenha deixado de ser gestor, para o campo não
+  // trocar de valor sozinho ao salvar.
+  const managerOptions = (person?: { id: string; managerId: string | null; managerName: string | null }) => {
+    const options = organization.managers.filter((manager) => manager.id !== person?.id);
+    if (person?.managerId && !options.some((manager) => manager.id === person.managerId)) {
+      options.unshift({ id: person.managerId, fullName: person.managerName ?? "Gestor atual", jobTitle: "gestor atual" });
+    }
+    return options;
+  };
   const canCreatePeople = activeCompanies.length > 0 && activeDepartments.length > 0;
   // UMG remains available to the data and cadastro flows; it is intentionally
   // omitted only from the visual structure overview requested by the business.
@@ -140,7 +149,7 @@ export default async function HrOrganizationPage({ searchParams }: OrganizationP
                 <label><span>Regime</span><input name="employmentRegime" required minLength={2} maxLength={80} placeholder="Ex.: CLT" /></label>
                 <label><span>Empresa</span><select name="companyId" required defaultValue=""><option value="" disabled>Selecione a empresa</option>{activeCompanies.map((company) => <option value={company.id} key={company.id}>{company.name}</option>)}</select></label>
                 <label><span>Departamento</span><select name="departmentId" required defaultValue=""><option value="" disabled>Selecione empresa · departamento</option>{activeDepartments.map((department) => <option value={department.id} key={department.id}>{department.companyName} · {department.name}</option>)}</select></label>
-                <label><span>Gestor direto <small>opcional</small></span><select name="managerId" defaultValue=""><option value="">Sem gestor direto</option>{activeManagers.map((manager) => <option value={manager.id} key={manager.id}>{manager.fullName} · {manager.jobTitle}</option>)}</select></label>
+                <label><span>Gestor direto <small>opcional</small></span><select name="managerId" defaultValue=""><option value="">Sem gestor direto</option>{managerOptions().map((manager) => <option value={manager.id} key={manager.id}>{manager.fullName} · {manager.jobTitle}</option>)}</select></label>
                 <div className={styles.personSubmit}><p>A conta de acesso é criada separadamente pelo administrador do sistema.</p><SubmitButton>Cadastrar pessoa</SubmitButton></div>
               </form>
             </details>
@@ -165,6 +174,31 @@ export default async function HrOrganizationPage({ searchParams }: OrganizationP
             <div><p className="sobretitulo">Equipe</p><h2 id="people-title">Pessoas e lideranças</h2></div>
             <span>Até 200 cadastros · alterações protegidas por versão</span>
           </header>
+          <form method="get" action="/portal/rh/organizacao#people-title" role="search" className={styles.searchForm}>
+            <label>
+              <span className="sr-only">Pesquisar pessoa pelo nome</span>
+              <PortalIcon name="search" size={18} />
+              <input
+                name="busca"
+                type="search"
+                defaultValue={organization.search}
+                maxLength={120}
+                placeholder="Pesquisar pelo nome"
+                autoComplete="off"
+              />
+            </label>
+            <button type="submit" className={styles.searchButton}>Pesquisar</button>
+            {organization.search ? (
+              <a href="/portal/rh/organizacao#people-title" className={styles.clearSearch}>Limpar</a>
+            ) : null}
+          </form>
+          {organization.search ? (
+            <p className={styles.searchSummary} role="status">
+              {organization.people.length === 0
+                ? `Nenhuma pessoa encontrada para “${organization.search}”.`
+                : `${organization.people.length} resultado(s) para “${organization.search}”.`}
+            </p>
+          ) : null}
           <div className={styles.peopleList}>
             {organization.people.map((person) => (
               <details className={styles.personRow} key={person.id}>
@@ -179,7 +213,7 @@ export default async function HrOrganizationPage({ searchParams }: OrganizationP
                   <input type="hidden" name="version" value={person.version} />
                   <label><span>Empresa</span><select name="companyId" required defaultValue={person.companyId}>{activeCompanies.map((company) => <option value={company.id} key={company.id}>{company.name}</option>)}</select></label>
                   <label><span>Departamento</span><select name="departmentId" required defaultValue={person.departmentId}>{activeDepartments.map((department) => <option value={department.id} key={department.id}>{department.companyName} · {department.name}</option>)}</select></label>
-                  <label><span>Gestor direto</span><select name="managerId" defaultValue={person.managerId ?? ""}><option value="">Sem gestor direto</option>{activeManagers.filter((manager) => manager.id !== person.id).map((manager) => <option value={manager.id} key={manager.id}>{manager.fullName} · {manager.jobTitle}</option>)}</select></label>
+                  <label><span>Gestor direto</span><select name="managerId" defaultValue={person.managerId ?? ""}><option value="">Sem gestor direto</option>{managerOptions(person).map((manager) => <option value={manager.id} key={manager.id}>{manager.fullName} · {manager.jobTitle}</option>)}</select></label>
                   <label><span>Status</span><select name="active" defaultValue={String(person.active)}><option value="true">Ativa</option><option value="false">Inativa</option></select></label>
                   <label className={styles.reasonField}><span>Motivo da mudança de gestor <small>opcional</small></span><input name="reason" maxLength={240} placeholder="Ex.: reorganização da equipe" /></label>
                   <div className={styles.personMeta}><span>{person.companyName} · {person.employmentRegime}</span><span>{person.directReportCount} liderado(s) ativo(s)</span><span>{person.hasAccount ? "Conta vinculada" : "Sem conta de acesso"}</span></div>
