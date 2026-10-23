@@ -42,7 +42,7 @@ const expiredLockedAccount = () => ({
   mustChangePassword: false,
   lockedUntil: new Date("2020-01-01T00:00:00.000Z"),
   sessionVersion: 3,
-  roles: [{ role: "EMPLOYEE" }],
+  roles: [{ role: "MANAGER" }],
 });
 
 describe("fluxo de login provisionado", () => {
@@ -95,7 +95,7 @@ describe("fluxo de login provisionado", () => {
     expect(authenticatedUser).toMatchObject({
       accountId: "account-1",
       personId: "person-1",
-      roles: ["EMPLOYEE"],
+      roles: ["MANAGER"],
       sessionVersion: 3,
     });
     expect(authenticatedUser?.sessionNonce).toHaveLength(64);
@@ -162,5 +162,24 @@ describe("fluxo de login provisionado", () => {
     });
 
     expect(createSessionMock).toHaveBeenCalled();
+  });
+
+  it("recusa colaborador sem outro papel, mesmo com a senha correta", async () => {
+    findFirstMock.mockResolvedValue({
+      ...expiredLockedAccount(),
+      status: "ACTIVE",
+      lockedUntil: null,
+      roles: [{ role: "EMPLOYEE" }],
+    });
+    verifyPasswordMock.mockResolvedValue(true);
+
+    await expect(
+      authorizeProvisionedCredentials({
+        loginIdentifier: "usuario.teste",
+        password: "senha-sintetica-segura",
+      }),
+    ).resolves.toBeNull();
+
+    expect(createSessionMock).not.toHaveBeenCalled();
   });
 });

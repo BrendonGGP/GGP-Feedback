@@ -11,6 +11,11 @@ import {
   updateHrPersonOrganization,
   type OrganizationMutationResult,
 } from "@/lib/hr/organization-management";
+import {
+  deleteHrPerson,
+  transferHrDirectReports,
+  updateHrAccessProfile,
+} from "@/lib/hr/person-access";
 
 const getString = (formData: FormData, name: string): string => {
   const value = formData.get(name);
@@ -68,5 +73,34 @@ export async function updatePersonOrganizationAction(formData: FormData): Promis
     active: getString(formData, "active") === "true",
     reason: getString(formData, "reason"),
     version: Number(getString(formData, "version")),
+  }));
+}
+
+export async function updateAccessProfileAction(formData: FormData): Promise<never> {
+  const actor = await requireActor();
+  return finish(await updateHrAccessProfile(actor, {
+    personId: getString(formData, "personId"),
+    profile: getString(formData, "profile"),
+  }));
+}
+
+export async function deletePersonAction(formData: FormData): Promise<never> {
+  const actor = await requireActor();
+  if (getString(formData, "confirm") !== "on") {
+    return finish({ ok: false, message: "Confirme a exclusão marcando a caixa de confirmação.", fieldErrors: {} });
+  }
+  return finish(await deleteHrPerson(actor, {
+    personId: getString(formData, "personId"),
+    version: getString(formData, "version"),
+    reason: getString(formData, "reason"),
+  }));
+}
+
+export async function transferReportsAction(formData: FormData): Promise<never> {
+  const actor = await requireActor();
+  return finish(await transferHrDirectReports(actor, {
+    fromManagerId: getString(formData, "fromManagerId"),
+    toManagerId: getString(formData, "toManagerId"),
+    reason: getString(formData, "reason"),
   }));
 }

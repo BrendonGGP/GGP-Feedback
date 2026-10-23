@@ -123,11 +123,6 @@ export function CycleCreateForm({
         {state.fieldErrors.templateId ? <small>{state.fieldErrors.templateId}</small> : null}
       </label>
 
-      <label className={styles.checkboxLabel}>
-        <input type="checkbox" name="selfAssessmentEnabled" />
-        <span>Permitir autoavaliação neste ciclo</span>
-      </label>
-
       <button className={styles.primaryButton} type="submit" disabled={pending || templates.length === 0}>
         {pending ? "Criando ciclo..." : "Criar ciclo"}
       </button>

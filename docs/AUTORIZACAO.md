@@ -12,7 +12,7 @@ a integração da identidade, também será reforçada por RLS no PostgreSQL.
 | `SYSTEM_ADMIN` | Administrador do Sistema | Administra configuração técnica, contas e papéis, sem ler conteúdo de feedback ou PDI |
 | `HR_ADMIN` | RH | Administra o domínio funcional e consulta todas as empresas autorizadas |
 | `MANAGER` | Gestor | Consulta a própria equipe e os feedbacks dos quais é o avaliador registrado |
-| `EMPLOYEE` | Colaborador | Consulta somente os próprios feedbacks e, futuramente, o próprio PDI |
+| `EMPLOYEE` | Colaborador | Pessoa avaliada; sozinho não entra no portal (out/2026) |
 
 ## Administração técnica de contas
 
@@ -21,6 +21,25 @@ sessões existentes da conta afetada e geram evento de auditoria sem conteúdo
 funcional. A conta do administrador autenticado não pode alterar os próprios
 papéis ou status, evitando bloqueio acidental e preservando a segregação de
 funções.
+
+## Perfis definidos pelo RH (out/2026)
+
+- Só SYSTEM_ADMIN, HR_ADMIN e MANAGER entram no portal. Uma conta apenas
+  com EMPLOYEE é recusada no login e em toda leitura de sessão.
+- O RH alterna o perfil funcional de uma conta entre gestor (MANAGER +
+  EMPLOYEE) e colaborador (EMPLOYEE). Não concede nem retira HR_ADMIN,
+  não altera a conta do administrador do sistema nem a própria conta. A troca
+  encerra as sessões da conta e gera o evento UPDATE_ACCESS_PROFILE.
+- Ao inativar uma pessoa, o RH desativa a conta antes de alterar o cadastro
+  (fail closed); ao reativar, a conta desativada volta a ficar ativa.
+- O RH exclui pessoas de forma lógica (people.deleted_at): a conta é
+  desativada, o cadastro some das telas e o histórico é preservado. Pessoas com
+  liderados ativos ou com papel de RH/administrador não podem ser excluídas.
+  O administrador do sistema pode restaurar a pessoa, que volta inativa.
+- O RH transfere todos os liderados ativos de um gestor para outro, com
+  histórico de liderança e auditoria TRANSFER_DIRECT_REPORTS.
+- O administrador do sistema cria empresas e troca a própria senha (exige a
+  senha atual e encerra todas as sessões).
 
 ## Entrada no portal
 
@@ -32,7 +51,7 @@ explícita e nunca aceita um destino definido pelo navegador:
 | `SYSTEM_ADMIN` | `/portal/administracao` |
 | `HR_ADMIN` | `/portal/rh` |
 | `MANAGER` | `/portal/equipe` |
-| `EMPLOYEE` | `/portal/meus-feedbacks` |
+| `EMPLOYEE` | sem acesso: o login é recusado quando não há outro papel |
 
 Quando papéis funcionais são acumulados, a precedência é RH, Gestor e
 Colaborador. Cada área continua verificando o papel necessário no servidor;

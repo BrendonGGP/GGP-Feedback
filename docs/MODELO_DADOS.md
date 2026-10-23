@@ -55,7 +55,9 @@ A trilha de alterações relevantes é gravada pelos serviços transacionais dep
 - Gestores são referenciados por `Person.id`; autoâncora, ciclos e referências desconhecidas são rejeitados.
 - Cada cadastro de pessoa inicia uma linha no histórico de liderança. A troca de gestor encerra a linha vigente e cria outra na mesma transação.
 - Uma pessoa com liderados ativos não pode ser desativada antes da realocação da equipe.
-- Uma pessoa com conta ainda habilitada não pode ser desativada; a conta deve ser desabilitada antes pelo Administrador do Sistema.
+- Ao desativar uma pessoa, o RH desativa a conta de acesso dela antes de alterar o cadastro (fail closed); ao reativar, a conta desativada volta a ficar ativa.
+- A exclusão de pessoas é lógica: `people.deleted_at` e `people.deleted_by_account_id` registram quando e quem excluiu. Uma pessoa excluída fica sempre inativa (`people_deleted_is_inactive_check`), sai das listagens e preserva o histórico de feedbacks. Só o Administrador do Sistema restaura, e a pessoa volta inativa.
+- A transferência de liderados move todos os liderados ativos de um gestor para outro na mesma transação, encerrando e recriando as linhas do histórico de liderança.
 - Atualizações usam o campo `version` para detectar edições concorrentes.
 
 ## Importação

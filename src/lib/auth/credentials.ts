@@ -3,6 +3,7 @@ import { randomBytes, randomUUID } from "node:crypto";
 import { z } from "zod";
 
 import {
+  hasPortalAccess,
   hasValidRoleCombination,
   isAccessRole,
   type AccessRole,
@@ -123,8 +124,9 @@ const authorizeProvisionedCredentialsUnsafe = async (
     return null;
   }
 
-  // An account without a valid role must never receive a usable session.
-  if (!hasValidRoles) {
+  // An account without a valid role must never receive a usable session, and
+  // only managers, HR and the system administrator use the portal.
+  if (!hasValidRoles || !hasPortalAccess(roles)) {
     return null;
   }
 

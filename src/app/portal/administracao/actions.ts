@@ -9,8 +9,16 @@ import {
   revokeManagedAccountSessions,
   updateManagedAccount,
 } from "@/lib/administration/account-management";
+import { signOut } from "@/auth";
 import { getAuthenticatedActor } from "@/lib/auth/session";
-import { changeManagedAccountPassword, managedPasswordSchema } from "@/lib/auth/password-change";
+import {
+  changeManagedAccountPassword,
+  changeOwnPassword,
+  managedPasswordSchema,
+  ownPasswordChangeSchema,
+} from "@/lib/auth/password-change";
+import { createCompanyBySystemAdmin } from "@/lib/hr/organization-management";
+import { restoreDeletedPerson } from "@/lib/hr/person-access";
 
 const getFormString = (value: FormDataEntryValue | null): string =>
   typeof value === "string" ? value : "";
@@ -100,4 +108,42 @@ export async function changeAccountPasswordAction(formData: FormData): Promise<v
     return finishAction({ ok: false, message });
   }
   finishAction({ ok: true, message: "Senha temporária definida. A conta deverá alterá-la no próximo acesso." });
+}
+
+export async function createCompanyAdminAction(formData: FormData): Promise<void> {
+  const actor = await getAuthenticatedActor();
+  if (!actor) redirect("/");
+  finishAction(await createCompanyBySystemAdmin(actor, { name: getFormString(formData.get("name")) }));
+}
+
+export async function restorePersonAction(formData: FormData): Promise<void> {
+  const actor = await getAuthenticatedActor();
+  if (!actor) redirect("/");
+  finishAction(await restoreDeletedPerson(actor, getFormString(formData.get("personId"))));
+}
+
+const OWN_PASSWORD_ERRORS: Record<string, string> = {
+  PASSWORD_CURRENT_INVALID: "A senha atual não confere.",
+  PASSWORD_REUSE_NOT_ALLOWED: "Escolha uma senha diferente da atual.",
+};
+
+export async function changeOwnPasswordAction(formData: FormData): Promise<void> {
+  const actor = await getAuthenticatedActor();
+  if (!actor) redirect("/");
+  const parsed = ownPasswordChangeSchema.safeParse({
+    currentPassword: getFormString(formData.get("currentPassword")),
+    newPassword: getFormString(formData.get("newPassword")),
+    confirmPassword: getFormString(formData.get("confirmPassword")),
+  });
+  if (!parsed.success) {
+    return finishAction({ ok: false, message: parsed.error.issues[0]?.message ?? "Revise a nova senha." });
+  }
+  try {
+    await changeOwnPassword(actor, parsed.data);
+  } catch (error) {
+    const code = error instanceof Error ? error.message : "";
+    return finishAction({ ok: false, message: OWN_PASSWORD_ERRORS[code] ?? "Não foi possível alterar a sua senha." });
+  }
+  // As sessões foram encerradas: entra de novo com a senha nova.
+  await signOut({ redirectTo: "/" });
 }

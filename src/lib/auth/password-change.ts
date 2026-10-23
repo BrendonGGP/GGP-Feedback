@@ -80,6 +80,64 @@ export const changeManagedAccountPassword = async (
   });
 };
 
+export const ownPasswordChangeSchema = passwordChangeSchema.and(
+  z.object({ currentPassword: z.string().min(1, "Informe a senha atual.").max(PASSWORD_MAX_LENGTH) }),
+);
+
+/**
+ * O administrador do sistema troca a própria senha pelo painel (pedido de
+ * out/2026). Exige a senha atual, aplica a política de senha, impede reuso e
+ * encerra todas as sessões (é preciso entrar de novo).
+ */
+export const changeOwnPassword = async (
+  actor: AuthenticatedActor,
+  input: z.infer<typeof ownPasswordChangeSchema>,
+): Promise<void> => {
+  if (!canAdministerSystem(actor)) throw new Error("PASSWORD_OWN_NOT_ALLOWED");
+  const account = await adminPrisma.accessAccount.findUnique({
+    where: { id: actor.accountId },
+    select: { id: true, passwordHash: true, status: true },
+  });
+  if (!account || account.status !== "ACTIVE") throw new Error("PASSWORD_ACCOUNT_NOT_FOUND");
+  if (!(await verifyPassword(account.passwordHash, input.currentPassword))) {
+    throw new Error("PASSWORD_CURRENT_INVALID");
+  }
+  if (await verifyPassword(account.passwordHash, input.newPassword)) {
+    throw new Error("PASSWORD_REUSE_NOT_ALLOWED");
+  }
+  const passwordHash = await hashPassword(input.newPassword);
+  const changedAt = new Date();
+  await adminPrisma.$transaction(async (transaction) => {
+    const changed = await transaction.accessAccount.updateMany({
+      where: { id: account.id, passwordHash: account.passwordHash },
+      data: {
+        passwordHash,
+        mustChangePassword: false,
+        passwordChangedAt: changedAt,
+        failedLoginCount: 0,
+        lockedUntil: null,
+        sessionVersion: { increment: 1 },
+      },
+    });
+    if (changed.count !== 1) throw new Error("PASSWORD_CHANGE_CONFLICT");
+    await transaction.userSession.updateMany({
+      where: { accountId: account.id, revokedAt: null },
+      data: { revokedAt: changedAt },
+    });
+    await transaction.auditEvent.create({
+      data: {
+        actorAccountId: actor.accountId,
+        requestId: crypto.randomUUID(),
+        action: "CHANGE_OWN_PASSWORD",
+        entityType: "ACCESS_ACCOUNT",
+        entityId: account.id,
+        result: "SUCCESS",
+        metadata: { sessionsRevoked: true },
+      },
+    });
+  });
+};
+
 export const changeTemporaryPassword = async (
   accountId: string,
   newPassword: string,

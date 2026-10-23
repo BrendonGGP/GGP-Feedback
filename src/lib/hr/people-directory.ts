@@ -77,7 +77,8 @@ export const getHrPeopleDirectory = async (
   if (!canAdministerHrDomain(actor)) return null;
 
   const filters = parsePeopleDirectoryFilters(input);
-  const where = buildWhere(filters);
+  // Pessoas excluídas pelo RH (exclusão lógica) nunca aparecem no diretório.
+  const where = { AND: [buildWhere(filters), { deletedAt: null }] };
   const [activePeople, activeManagers, roots, withoutAccount, filteredTotal, people] =
     await withDatabaseActor(actor, async (db) =>
       Promise.all([
