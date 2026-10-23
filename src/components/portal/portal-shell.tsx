@@ -39,10 +39,6 @@ const buildNavigation = (roles: readonly AccessRole[]): NavGroup[] => {
     overview.push({ label: "Minha equipe", icon: "team", href: "/portal/equipe" });
   }
 
-  if (!roles.includes("SYSTEM_ADMIN")) {
-    overview.push({ label: "Calendário", icon: "calendar", badge: "Em breve" });
-  }
-
   const administration: NavItem[] = [];
   if (roles.includes("SYSTEM_ADMIN")) {
     administration.push({ label: "Painel admin", icon: "admin", href: "/portal/administracao" });

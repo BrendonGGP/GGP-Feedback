@@ -231,9 +231,9 @@ export default async function DashboardPage() {
             <aside className={styles.sideColumn} aria-label="Informações complementares">
               <section className={`folha ${styles.cycleCard}`} data-revelar aria-labelledby="cycle-title">
                 <header>
-                  <span aria-hidden="true"><PortalIcon name="calendar" /></span>
+                  <span aria-hidden="true"><PortalIcon name="cycle" /></span>
                   <div>
-                    <p className="sobretitulo">Calendário</p>
+                    <p className="sobretitulo">Ciclo</p>
                     <h2 id="cycle-title">Ciclo atual</h2>
                   </div>
                 </header>

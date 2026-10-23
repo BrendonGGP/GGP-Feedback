@@ -5,7 +5,7 @@ import type { AuthenticatedActor } from "@/lib/auth/session";
 import { canAdministerHrDomain } from "@/lib/authorization/access-control";
 import { withDatabaseActor } from "@/lib/infrastructure/database/actor-context";
 import { recordAuditEvent } from "@/lib/infrastructure/database/audit";
-import { runtimePrisma as prisma } from "@/lib/infrastructure/database/prisma";
+import { adminPrisma, runtimePrisma as prisma } from "@/lib/infrastructure/database/prisma";
 
 const uuidSchema = z.string().uuid("Selecione uma opção válida.");
 const requiredName = (label: string, maximum: number) =>
@@ -75,7 +75,13 @@ export type HrOrganizationData = Readonly<{
     directReportCount: number;
     hasAccount: boolean;
   }[];
+  /** Pessoas que podem ser escolhidas como gestor direto (ativas e gestoras). */
+  managers: readonly { id: string; fullName: string; jobTitle: string }[];
+  /** Termo de busca aplicado à lista de pessoas, já normalizado. */
+  search: string;
 }>;
+
+const MAX_SEARCH_LENGTH = 120;
 
 type ManagerLoader = (personId: string) => Promise<string | null | undefined>;
 
@@ -145,11 +151,22 @@ const writeAudit = (
 
 export const getHrOrganization = async (
   actor: AuthenticatedActor,
+  options: Readonly<{ search?: string }> = {},
 ): Promise<HrOrganizationData | null> => {
   if (!canAdministerHrDomain(actor)) return null;
 
+  const search = (options.search ?? "").trim().replace(/\s+/g, " ").slice(0, MAX_SEARCH_LENGTH);
+
+  // Papéis de conta ficam fora do alcance da role de runtime: a leitura de
+  // quem tem o papel MANAGER usa o cliente administrativo (só ids).
+  const managerAssignments = await adminPrisma.accountRoleAssignment.findMany({
+    where: { role: "MANAGER", account: { status: { not: "DISABLED" } } },
+    select: { account: { select: { personId: true } } },
+  });
+  const managerPersonIds = managerAssignments.map(({ account }) => account.personId);
+
   return withDatabaseActor(actor, async () => {
-  const [activeCompanies, activeDepartments, activePeople, peopleWithoutManager, companies, people] =
+  const [activeCompanies, activeDepartments, activePeople, peopleWithoutManager, companies, people, managers] =
     await prisma.$transaction([
       prisma.company.count({ where: { active: true } }),
       prisma.department.count({ where: { active: true } }),
@@ -168,6 +185,7 @@ export const getHrOrganization = async (
         },
       }),
       prisma.person.findMany({
+        where: search ? { fullName: { contains: search, mode: "insensitive" } } : undefined,
         take: 200,
         orderBy: [{ active: "desc" }, { fullName: "asc" }],
         select: {
@@ -187,11 +205,24 @@ export const getHrOrganization = async (
           _count: { select: { directReports: { where: { active: true } } } },
         },
       }),
+      prisma.person.findMany({
+        where: {
+          active: true,
+          OR: [
+            { id: { in: managerPersonIds } },
+            { directReports: { some: { active: true } } },
+          ],
+        },
+        orderBy: { fullName: "asc" },
+        select: { id: true, fullName: true, jobTitle: true },
+      }),
     ]);
 
   return {
     metrics: { activeCompanies, activeDepartments, activePeople, peopleWithoutManager },
     companies,
+    managers,
+    search,
     people: people.map((person) => ({
       id: person.id,
       fullName: person.fullName,
