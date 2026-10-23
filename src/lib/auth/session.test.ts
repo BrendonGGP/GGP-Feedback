@@ -58,7 +58,7 @@ describe("ator autenticado", () => {
       status: "ACTIVE",
       mustChangePassword: true,
       lockedUntil: null,
-      roles: [{ role: "EMPLOYEE" }],
+      roles: [{ role: "MANAGER" }],
     });
 
     await expect(
@@ -67,7 +67,7 @@ describe("ator autenticado", () => {
       accountId: "account-1",
       personId: "person-1",
       mustChangePassword: true,
-      roles: ["EMPLOYEE"],
+      roles: ["MANAGER"],
     });
   });
 
@@ -93,6 +93,13 @@ describe("ator autenticado", () => {
     {
       status: "ACTIVE",
       mustChangePassword: true,
+      lockedUntil: null,
+      roles: [{ role: "EMPLOYEE" }],
+    },
+    // Colaborador sem outro papel não acessa mais o portal (out/2026).
+    {
+      status: "ACTIVE",
+      mustChangePassword: false,
       lockedUntil: null,
       roles: [{ role: "EMPLOYEE" }],
     },

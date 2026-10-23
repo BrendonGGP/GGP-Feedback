@@ -420,7 +420,13 @@ export const getNewFeedbackContext = async (
       const template = cycle.cycleTemplates[0]?.template;
       const hasQuestions = (template?.questions.length ?? 0) > 0;
       const canEvaluateTeam = audienceAllows(template?.audience, "MANAGER") && directReports.length > 0;
-      const canEvaluateSelf = audienceAllows(template?.audience, "EMPLOYEE") && Boolean(self && cycle.selfAssessmentEnabled);
+      const canEvaluateSelf =
+        audienceAllows(template?.audience, "EMPLOYEE") &&
+        Boolean(self) &&
+        canCreateSelfAssessment(actor, {
+          subjectPersonId: self?.id ?? "",
+          selfAssessmentEnabled: cycle.selfAssessmentEnabled,
+        });
       return hasQuestions && (canEvaluateTeam || canEvaluateSelf);
     },
   );

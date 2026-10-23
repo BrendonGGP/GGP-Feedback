@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import {
+  hasPortalAccess,
   hasValidRoleCombination,
   isAccessRole,
   type AccessRole,
@@ -45,7 +46,9 @@ export const getAuthenticatedActor = async (
   if (
     roles.length === 0 ||
     !roles.every(isAccessRole) ||
-    !hasValidRoleCombination(roles)
+    !hasValidRoleCombination(roles) ||
+    // Sessões abertas antes da mudança também perdem o acesso.
+    !hasPortalAccess(roles)
   ) {
     return null;
   }

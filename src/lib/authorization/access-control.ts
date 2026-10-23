@@ -49,6 +49,15 @@ export const hasValidRoleCombination = (
 const hasUsableRoles = (actor: AuthorizationActor): boolean =>
   actor.roles.length > 0 && hasValidRoleCombination(actor.roles);
 
+/** Papéis que entram no portal. Colaborador sem outro papel não acessa (out/2026). */
+export const PORTAL_ACCESS_ROLES = ["SYSTEM_ADMIN", "HR_ADMIN", "MANAGER"] as const satisfies readonly AccessRole[];
+
+/** Só gestores, RH e o administrador do sistema usam o portal. */
+export const hasPortalAccess = (roles: readonly AccessRole[]): boolean =>
+  roles.length > 0 &&
+  hasValidRoleCombination(roles) &&
+  roles.some((role) => (PORTAL_ACCESS_ROLES as readonly AccessRole[]).includes(role));
+
 export const canAdministerSystem = (actor: AuthorizationActor): boolean =>
   hasUsableRoles(actor) && hasRole(actor, "SYSTEM_ADMIN");
 
@@ -128,19 +137,19 @@ export const canCreateFeedbackForPerson = (
   );
 };
 
+/**
+ * A autoavaliação foi encerrada por decisão do RH (out/2026): colaboradores não
+ * acessam mais o portal e o feedback passa a ser só de gestor para liderado.
+ * A política continua existindo para que nenhum caminho do servidor crie ou
+ * edite uma autoavaliação; as já enviadas permanecem no histórico.
+ */
 export const canCreateSelfAssessment = (
   actor: AuthorizationActor,
   assessment: SelfAssessmentScope,
 ): boolean => {
-  if (!hasUsableRoles(actor) || hasRole(actor, "SYSTEM_ADMIN")) {
-    return false;
-  }
-
-  return (
-    hasRole(actor, "EMPLOYEE") &&
-    assessment.selfAssessmentEnabled &&
-    assessment.subjectPersonId === actor.personId
-  );
+  void actor;
+  void assessment;
+  return false;
 };
 
 /**

@@ -38,13 +38,13 @@ export default async function NewFeedbackPage({ searchParams }: NewFeedbackPageP
         <header className={styles.newHeader}>
           <Link href="/portal/meus-feedbacks">← Voltar para Feedback</Link>
           <h1 className="titulo-grande">{draftId ? "Continuar avaliação" : "Nova avaliação"}</h1>
-          <p className={styles.description}>Selecione sua autoavaliação ou um liderado autorizado e responda às competências do ciclo.</p>
+          <p className={styles.description}>Selecione um liderado direto e responda às competências do ciclo.</p>
         </header>
         {unavailable ? (
           <section className={styles.emptyState} data-revelar>
             <span className={styles.emptyIcon}><PortalIcon name="feedback" /></span>
             <strong>Formulário indisponível</strong>
-            <p>É necessário ter um ciclo aberto, um formulário ativo e uma autoavaliação habilitada ou um liderado direto.</p>
+            <p>É necessário ter um ciclo aberto, um formulário ativo para gestores e ao menos um liderado direto.</p>
           </section>
         ) : (
           <FeedbackForm

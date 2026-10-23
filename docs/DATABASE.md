@@ -152,3 +152,9 @@ janela de validação.
 Algumas migrations antigas mantêm nomes históricos relacionados ao provedor
 anterior. Esses arquivos são imutáveis para preservar o histórico do Prisma e
 não representam uma dependência ativa do projeto.
+
+A migration `20261023140000_person_logical_deletion` é aditiva e idempotente:
+adiciona `people.deleted_at`, `people.deleted_by_account_id` (FK para
+`access_accounts` com `ON DELETE SET NULL`), a restrição
+`people_deleted_is_inactive_check` e o índice `people_deleted_at_idx`. Em
+outro ambiente, aplique com `npx prisma migrate deploy`.

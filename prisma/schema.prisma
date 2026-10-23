@@ -90,13 +90,17 @@ model Person {
   employmentRegime   String                 @map("employment_regime") @db.VarChar(80)
   active             Boolean                @default(true)
   version            Int                    @default(1)
+  /// Exclusão lógica pelo RH: some das telas, histórico preservado.
+  deletedAt          DateTime?              @map("deleted_at") @db.Timestamptz(3)
+  deletedByAccountId String?                @map("deleted_by_account_id") @db.Uuid
   createdAt          DateTime               @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt          DateTime               @updatedAt @map("updated_at") @db.Timestamptz(3)
   company            Company                @relation(fields: [companyId], references: [id], onDelete: Restrict)
   department         Department             @relation(fields: [departmentId], references: [id], onDelete: Restrict)
   manager            Person?                @relation("PersonHierarchy", fields: [managerId], references: [id], onDelete: Restrict)
   directReports      Person[]               @relation("PersonHierarchy")
-  account            AccessAccount?
+  account            AccessAccount?         @relation("PersonAccount")
+  deletedBy          AccessAccount?         @relation("PersonDeletedBy", fields: [deletedByAccountId], references: [id], onDelete: SetNull)
   feedbacksReceived  Feedback[]             @relation("FeedbackSubject")
   feedbacksGiven     Feedback[]             @relation("FeedbackEvaluator")
   managerHistory     ReportingLineHistory[] @relation("HistoryManager")
@@ -106,6 +110,7 @@ model Person {
   @@index([departmentId, active])
   @@index([managerId, active])
   @@index([corporateEmail])
+  @@index([deletedAt])
   @@map("people")
 }
 
@@ -126,7 +131,8 @@ model AccessAccount {
   passwordResetExpiresAt DateTime?           @map("password_reset_expires_at") @db.Timestamptz(3)
   createdAt          DateTime                @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt          DateTime                @updatedAt @map("updated_at") @db.Timestamptz(3)
-  person             Person                  @relation(fields: [personId], references: [id], onDelete: Restrict)
+  person             Person                  @relation("PersonAccount", fields: [personId], references: [id], onDelete: Restrict)
+  deletedPeople      Person[]                @relation("PersonDeletedBy")
   roles              AccountRoleAssignment[]
   sessions           UserSession[]
   auditEvents        AuditEvent[]

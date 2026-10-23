@@ -63,7 +63,7 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
           <div>
             <p className="sobretitulo">Desenvolvimento</p>
             <h1 className="titulo-grande">Feedback</h1>
-            <p className={styles.description}>Acompanhe feedbacks de liderança e autoavaliações durante os ciclos.</p>
+            <p className={styles.description}>Acompanhe os feedbacks de liderança registrados nos ciclos.</p>
           </div>
           <div className={styles.heroActions}>
             {actor.roles.includes("HR_ADMIN") ? <a className={styles.secondaryButton} href="/api/portal/meus-feedbacks/export">Exportar CSV</a> : null}

@@ -2,10 +2,12 @@ import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 import type { AuthenticatedActor } from "@/lib/auth/session";
-import { canAdministerHrDomain } from "@/lib/authorization/access-control";
+import { canAdministerHrDomain, canAdministerSystem } from "@/lib/authorization/access-control";
 import { withDatabaseActor } from "@/lib/infrastructure/database/actor-context";
 import { recordAuditEvent } from "@/lib/infrastructure/database/audit";
 import { adminPrisma, runtimePrisma as prisma } from "@/lib/infrastructure/database/prisma";
+
+import { disableAccountOfPerson, enableAccountOfPerson } from "./account-access";
 
 const uuidSchema = z.string().uuid("Selecione uma opção válida.");
 const requiredName = (label: string, maximum: number) =>
@@ -185,7 +187,10 @@ export const getHrOrganization = async (
         },
       }),
       prisma.person.findMany({
-        where: search ? { fullName: { contains: search, mode: "insensitive" } } : undefined,
+        where: {
+          deletedAt: null,
+          ...(search ? { fullName: { contains: search, mode: "insensitive" as const } } : {}),
+        },
         take: 200,
         orderBy: [{ active: "desc" }, { fullName: "asc" }],
         select: {
@@ -268,6 +273,46 @@ export const createHrCompany = async (actor: AuthenticatedActor, input: unknown)
   }
   return { ok: true, message: "Empresa cadastrada.", fieldErrors: {} };
   });
+};
+
+/**
+ * O administrador do sistema também cadastra empresas (pedido de out/2026).
+ * As policies de RLS só deixam o RH inserir empresas pela role de runtime, então
+ * este caminho usa o cliente administrativo, depois da checagem de permissão.
+ */
+export const createCompanyBySystemAdmin = async (actor: AuthenticatedActor, input: unknown): Promise<OrganizationMutationResult> => {
+  if (!canAdministerSystem(actor)) return mutationError("Você não tem permissão para cadastrar empresas.");
+  const parsed = createCompanyInputSchema.safeParse(input);
+  if (!parsed.success) return validationError(parsed.error);
+
+  const baseSlug = slugify(parsed.data.name);
+  if (!baseSlug) return mutationError("Informe um nome de empresa válido.");
+  const duplicate = await adminPrisma.company.findFirst({
+    where: { OR: [{ name: { equals: parsed.data.name, mode: "insensitive" } }, { slug: baseSlug }] },
+    select: { id: true },
+  });
+  if (duplicate) return mutationError("Já existe uma empresa com esse nome.");
+
+  try {
+    await adminPrisma.$transaction(async (transaction) => {
+      const company = await transaction.company.create({ data: { name: parsed.data.name, slug: baseSlug }, select: { id: true } });
+      await transaction.auditEvent.create({
+        data: {
+          actorAccountId: actor.accountId,
+          requestId: crypto.randomUUID(),
+          action: "CREATE",
+          entityType: "COMPANY",
+          entityId: company.id,
+          result: "SUCCESS",
+          metadata: { active: true, by: "SYSTEM_ADMIN" },
+        },
+      });
+    });
+  } catch (error) {
+    if (isUniqueConflict(error)) return mutationError("Já existe uma empresa com esse nome.");
+    return mutationError("Não foi possível cadastrar a empresa agora.");
+  }
+  return { ok: true, message: "Empresa cadastrada. O RH já pode criar os departamentos dela.", fieldErrors: {} };
 };
 
 export const createHrDepartment = async (actor: AuthenticatedActor, input: unknown): Promise<OrganizationMutationResult> => {
@@ -362,8 +407,8 @@ export const updateHrPersonOrganization = async (actor: AuthenticatedActor, inpu
         managerId: true,
         active: true,
         version: true,
-        account: { select: { status: true } },
-        _count: { select: { directReports: { where: { active: true } } } },
+        deletedAt: true,
+        _count: { select: { directReports: { where: { active: true, deletedAt: null } } } },
       },
     }),
     prisma.company.findFirst({ where: { id: parsed.data.companyId, active: true }, select: { id: true } }),
@@ -373,10 +418,11 @@ export const updateHrPersonOrganization = async (actor: AuthenticatedActor, inpu
   if (!person) return mutationError("Pessoa não encontrada.");
   if (!company || !department) return mutationError("Empresa e departamento precisam estar ativos e relacionados.");
   if (managerId && !manager) return mutationError("Selecione um gestor ativo.");
+  if (person.deletedAt) return mutationError("Pessoa não encontrada.");
   if (!parsed.data.active && person._count.directReports > 0) return mutationError("Realoque os liderados ativos antes de desativar esta pessoa.");
-  if (!parsed.data.active && person.account && person.account.status !== "DISABLED") {
-    return mutationError("Peça ao Administrador do Sistema para desabilitar a conta antes de desativar esta pessoa.");
-  }
+  if (!parsed.data.active && person.id === actor.personId) return mutationError("Você não pode inativar o seu próprio cadastro.");
+  const deactivating = person.active && !parsed.data.active;
+  const reactivating = !person.active && parsed.data.active;
 
   const hierarchy = managerId
     ? await prisma.person.findMany({ select: { id: true, managerId: true } })
@@ -390,6 +436,9 @@ export const updateHrPersonOrganization = async (actor: AuthenticatedActor, inpu
   if (hasCycle) return mutationError("Essa alteração criaria um ciclo na hierarquia.");
 
   const managerChanged = person.managerId !== managerId;
+  // Inativar tira o acesso ANTES de gravar (fail closed): a conta é desativada
+  // e as sessões encerradas. Reativar devolve o acesso depois de gravar.
+  const accountDisabled = deactivating ? await disableAccountOfPerson(person.id) : false;
   let updated: boolean;
   try {
     updated = await prisma.$transaction(async (transaction) => {
@@ -427,6 +476,7 @@ export const updateHrPersonOrganization = async (actor: AuthenticatedActor, inpu
         managerChanged,
         activeFrom: person.active,
         activeTo: parsed.data.active,
+        accountDisabled,
       });
       return true;
     });
@@ -435,6 +485,12 @@ export const updateHrPersonOrganization = async (actor: AuthenticatedActor, inpu
   }
 
   if (!updated) return mutationError("O cadastro foi alterado por outra pessoa. Atualize a página e tente novamente.");
-  return { ok: true, message: "Estrutura da pessoa atualizada.", fieldErrors: {} };
+  const accountEnabled = reactivating ? await enableAccountOfPerson(person.id) : false;
+  const message = deactivating
+    ? accountDisabled ? "Pessoa inativada. A conta de acesso foi desativada e as sessões encerradas." : "Pessoa inativada."
+    : reactivating
+      ? accountEnabled ? "Pessoa reativada. A conta de acesso voltou a funcionar." : "Pessoa reativada."
+      : "Estrutura da pessoa atualizada.";
+  return { ok: true, message, fieldErrors: {} };
   });
 };

@@ -8,6 +8,7 @@ import {
   canReadFeedbackContent,
   canReadPdiContent,
   canViewPerson,
+  hasPortalAccess,
   hasValidRoleCombination,
   resolveFeedbackReadScope,
   type AuthorizationActor,
@@ -160,11 +161,12 @@ describe("limites dos perfis de acesso", () => {
       }),
     ).toBe(false);
     expect(
+      // Autoavaliação encerrada (out/2026): nenhuma combinação a libera.
       canCreateSelfAssessment(employee, {
         subjectPersonId: "employee",
         selfAssessmentEnabled: true,
       }),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       canCreateSelfAssessment(employee, {
         subjectPersonId: "another-employee",
@@ -188,7 +190,16 @@ describe("limites dos perfis de acesso", () => {
         subjectPersonId: "manager-employee",
         selfAssessmentEnabled: true,
       }),
-    ).toBe(true);
+    ).toBe(false);
+  });
+
+  it("libera o portal só para gestor, RH e administrador do sistema", () => {
+    expect(hasPortalAccess(["EMPLOYEE"])).toBe(false);
+    expect(hasPortalAccess([])).toBe(false);
+    expect(hasPortalAccess(["MANAGER", "EMPLOYEE"])).toBe(true);
+    expect(hasPortalAccess(["HR_ADMIN"])).toBe(true);
+    expect(hasPortalAccess(["SYSTEM_ADMIN"])).toBe(true);
+    expect(hasPortalAccess(["SYSTEM_ADMIN", "HR_ADMIN"])).toBe(false);
   });
 
   it("falha fechado para papeis ausentes ou combinacao tecnica mista", () => {

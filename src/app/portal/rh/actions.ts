@@ -41,7 +41,8 @@ export async function createCycleAction(
     startsAt: getFormString(formData.get("startsAt")),
     endsAt: getFormString(formData.get("endsAt")),
     templateId: getFormString(formData.get("templateId")),
-    selfAssessmentEnabled: formData.get("selfAssessmentEnabled") === "on",
+    // Autoavaliação encerrada (out/2026): ciclos novos nascem sem ela.
+    selfAssessmentEnabled: false,
   });
 
   if (!result.ok) {

@@ -14,6 +14,7 @@ import {
   type AccessRole,
 } from "@/lib/authorization/access-control";
 import { getPortalDashboardData } from "@/lib/dashboard/dashboard-data";
+import { listDeletedPeople } from "@/lib/hr/person-access";
 
 import { ActionSubmitButton } from "./action-submit-button";
 import { AccountFilters } from "./account-filters";
@@ -21,7 +22,10 @@ import { CreateAccountForm } from "./create-account-form";
 import { DeleteAccountButton } from "./delete-account-button";
 import { PasswordResetDialog } from "./password-reset-dialog";
 import {
+  changeOwnPasswordAction,
+  createCompanyAdminAction,
   deleteAccountAction,
+  restorePersonAction,
   revokeAccountSessionsAction,
   updateAccountAction,
 } from "./actions";
@@ -68,9 +72,10 @@ export default async function SystemAdministrationPage({
   const params = await searchParams;
   const query = readParam(params.busca);
   const status = readParam(params.status);
-  const [dashboard, management] = await Promise.all([
+  const [dashboard, management, deletedPeople] = await Promise.all([
     getPortalDashboardData(actor),
     getSystemAccountManagement(actor, { query, status }),
+    listDeletedPeople(actor),
   ]);
   if (!dashboard || !management) redirect("/portal/dashboard");
 
@@ -227,6 +232,59 @@ export default async function SystemAdministrationPage({
               </div>
             )}
             {management.resultLimited ? <p className={styles.resultLimit}><PortalIcon name="info" size={18} /><span>Exibindo os primeiros 100 resultados. Refine os filtros para localizar outra conta.</span></p> : null}
+          </section>
+
+          <div className={styles.toolsGrid}>
+            <section className={`folha ${styles.toolPanel}`} data-revelar aria-labelledby="new-company-title">
+              <p className="sobretitulo">Estrutura</p>
+              <h2 id="new-company-title">Nova empresa</h2>
+              <p className={styles.toolHint}>Os departamentos e pessoas da empresa são cadastrados depois pelo RH.</p>
+              <form action={createCompanyAdminAction} className={styles.toolForm}>
+                <label><span>Nome da empresa</span><input name="name" type="text" required minLength={2} maxLength={160} autoComplete="organization" /></label>
+                <ActionSubmitButton label="Cadastrar empresa" pendingLabel="Cadastrando..." />
+              </form>
+            </section>
+
+            <section className={`folha ${styles.toolPanel}`} data-revelar aria-labelledby="own-password-title">
+              <p className="sobretitulo">Sua conta</p>
+              <h2 id="own-password-title">Alterar minha senha</h2>
+              <p className={styles.toolHint}>Ao salvar, todas as suas sessões são encerradas e você entra de novo com a senha nova.</p>
+              <form action={changeOwnPasswordAction} className={styles.toolForm}>
+                <label><span>Senha atual</span><input name="currentPassword" type="password" required autoComplete="current-password" maxLength={128} /></label>
+                <label><span>Nova senha</span><input name="newPassword" type="password" required minLength={9} maxLength={128} autoComplete="new-password" /></label>
+                <label><span>Confirmar nova senha</span><input name="confirmPassword" type="password" required minLength={9} maxLength={128} autoComplete="new-password" /></label>
+                <ActionSubmitButton label="Alterar senha" pendingLabel="Alterando..." />
+              </form>
+            </section>
+          </div>
+
+          <section className={`folha ${styles.panel}`} data-revelar aria-labelledby="deleted-people-title">
+            <header className={styles.panelHeader}>
+              <div>
+                <p className="sobretitulo">Exclusões do RH</p>
+                <h2 id="deleted-people-title">Pessoas excluídas</h2>
+              </div>
+              <span>{deletedPeople?.length ?? 0} registro(s)</span>
+            </header>
+            {!deletedPeople || deletedPeople.length === 0 ? (
+              <p className={styles.toolHint}>Nenhuma pessoa excluída.</p>
+            ) : (
+              <ul className={styles.deletedList}>
+                {deletedPeople.map((person) => (
+                  <li key={person.id}>
+                    <span className={styles.deletedIdentity}>
+                      <strong>{person.fullName}</strong>
+                      <small>{person.jobTitle} · {person.companyName}</small>
+                      <small>Excluída em {formatLastLogin(person.deletedAt)}{person.deletedByLogin ? ` por ${person.deletedByLogin}` : ""}</small>
+                    </span>
+                    <form action={restorePersonAction}>
+                      <input type="hidden" name="personId" value={person.id} />
+                      <ActionSubmitButton label="Restaurar como inativa" pendingLabel="Restaurando..." tone="secondary" />
+                    </form>
+                  </li>
+                ))}
+              </ul>
+            )}
           </section>
         </Revelar>
       </div>

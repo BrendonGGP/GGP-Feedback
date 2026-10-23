@@ -7,11 +7,15 @@ import { getAuthenticatedActor } from "@/lib/auth/session";
 import { canAdministerHrDomain } from "@/lib/authorization/access-control";
 import { getPortalDashboardData } from "@/lib/dashboard/dashboard-data";
 import { getHrOrganization } from "@/lib/hr/organization-management";
+import { getAccessProfiles } from "@/lib/hr/person-access";
 
 import {
   createCompanyAction,
   createDepartmentAction,
   createPersonAction,
+  deletePersonAction,
+  transferReportsAction,
+  updateAccessProfileAction,
   updatePersonOrganizationAction,
 } from "./actions";
 import styles from "./organization.module.css";
@@ -41,6 +45,15 @@ export default async function HrOrganizationPage({ searchParams }: OrganizationP
     getHrOrganization(actor, { search: firstValue(params.busca) }),
   ]);
   if (!dashboard || !organization) redirect("/portal/dashboard");
+  const accessProfiles = await getAccessProfiles(actor, organization.people.map((person) => person.id));
+  const profileLabel = (personId: string): string => {
+    const profile = accessProfiles.get(personId);
+    if (!profile) return "Sem conta";
+    if (profile.roles.includes("SYSTEM_ADMIN")) return "Administrador";
+    if (profile.roles.includes("HR_ADMIN")) return profile.roles.includes("MANAGER") ? "RH · Gestor" : "RH";
+    if (profile.roles.includes("MANAGER")) return "Gestor";
+    return "Colaborador";
+  };
 
   const success = firstValue(params.sucesso);
   const error = firstValue(params.erro);
@@ -174,6 +187,15 @@ export default async function HrOrganizationPage({ searchParams }: OrganizationP
             <div><p className="sobretitulo">Equipe</p><h2 id="people-title">Pessoas e lideranças</h2></div>
             <span>Até 200 cadastros · alterações protegidas por versão</span>
           </header>
+          <details className={styles.transferPanel}>
+            <summary>Transferir liderados de um gestor para outro</summary>
+            <form action={transferReportsAction} className={styles.transferForm}>
+              <label><span>Gestor atual</span><select name="fromManagerId" required defaultValue=""><option value="" disabled>Selecione quem tem liderados</option>{organization.managers.map((manager) => <option value={manager.id} key={manager.id}>{manager.fullName} · {manager.jobTitle}</option>)}</select></label>
+              <label><span>Novo gestor</span><select name="toManagerId" required defaultValue=""><option value="" disabled>Selecione o novo gestor</option>{organization.managers.map((manager) => <option value={manager.id} key={manager.id}>{manager.fullName} · {manager.jobTitle}</option>)}</select></label>
+              <label className={styles.reasonField}><span>Motivo <small>opcional</small></span><input name="reason" maxLength={240} placeholder="Ex.: reorganização da equipe" /></label>
+              <SubmitButton>Transferir liderados</SubmitButton>
+            </form>
+          </details>
           <form method="get" action="/portal/rh/organizacao#people-title" role="search" className={styles.searchForm}>
             <label>
               <span className="sr-only">Pesquisar pessoa pelo nome</span>
@@ -206,6 +228,7 @@ export default async function HrOrganizationPage({ searchParams }: OrganizationP
                   <span className={styles.avatar}>{initials(person.fullName)}</span>
                   <span className={styles.personIdentity}><strong>{person.fullName}</strong><small>{person.jobTitle} · {person.departmentName}</small></span>
                   <span className={styles.personManager}><small>Gestor direto</small><strong>{person.managerName ?? "Sem gestor"}</strong></span>
+                  <span className={styles.profileChip}>{profileLabel(person.id)}</span>
                   <span className={styles.status} data-active={person.active}>{person.active ? "Ativa" : "Inativa"}</span>
                 </summary>
                 <form action={updatePersonOrganizationAction} className={styles.editForm}>
@@ -219,6 +242,55 @@ export default async function HrOrganizationPage({ searchParams }: OrganizationP
                   <div className={styles.personMeta}><span>{person.companyName} · {person.employmentRegime}</span><span>{person.directReportCount} liderado(s) ativo(s)</span><span>{person.hasAccount ? "Conta vinculada" : "Sem conta de acesso"}</span></div>
                   <SubmitButton>Salvar organização</SubmitButton>
                 </form>
+
+                <div className={styles.accessArea}>
+                  {(() => {
+                    const profile = accessProfiles.get(person.id);
+                    if (!profile) {
+                      return <p className={styles.accessNote}>Sem conta de acesso. A conta é criada pelo administrador do sistema.</p>;
+                    }
+                    if (profile.roles.includes("SYSTEM_ADMIN")) {
+                      return <p className={styles.accessNote}>Conta do administrador do sistema: o perfil não é alterado pelo RH.</p>;
+                    }
+                    return (
+                      <form action={updateAccessProfileAction} className={styles.profileForm}>
+                        <input type="hidden" name="personId" value={person.id} />
+                        <label>
+                          <span>Perfil de acesso</span>
+                          <select name="profile" defaultValue={profile.roles.includes("MANAGER") ? "MANAGER" : "EMPLOYEE"}>
+                            <option value="MANAGER">Gestor (acessa o portal)</option>
+                            <option value="EMPLOYEE">Colaborador (sem acesso ao portal)</option>
+                          </select>
+                        </label>
+                        <p className={styles.accessNote}>
+                          Conta {profile.status === "DISABLED" ? "desativada" : "ativa"}
+                          {profile.roles.includes("HR_ADMIN") ? " · também é RH (papel alterado só pelo administrador)" : ""}.
+                          Salvar encerra as sessões abertas da pessoa.
+                        </p>
+                        <SubmitButton>Salvar perfil</SubmitButton>
+                      </form>
+                    );
+                  })()}
+
+                  <details className={styles.dangerZone}>
+                    <summary>Excluir da plataforma</summary>
+                    {person.directReportCount > 0 ? (
+                      <p className={styles.accessNote}>Transfira os {person.directReportCount} liderado(s) desta pessoa antes de excluí-la.</p>
+                    ) : (
+                      <form action={deletePersonAction} className={styles.deleteForm}>
+                        <input type="hidden" name="personId" value={person.id} />
+                        <input type="hidden" name="version" value={person.version} />
+                        <p className={styles.accessNote}>
+                          A pessoa some das telas e perde o acesso. O histórico de feedbacks fica preservado,
+                          a ação fica registrada com o seu usuário e o administrador do sistema pode restaurar.
+                        </p>
+                        <label className={styles.reasonField}><span>Motivo <small>opcional</small></span><input name="reason" maxLength={240} placeholder="Ex.: desligamento" /></label>
+                        <label className={styles.confirmField}><input type="checkbox" name="confirm" required /> <span>Confirmo a exclusão de {person.fullName}</span></label>
+                        <button type="submit" className={styles.dangerButton}>Excluir da plataforma</button>
+                      </form>
+                    )}
+                  </details>
+                </div>
               </details>
             ))}
             {organization.people.length === 0 ? <div className={styles.emptyState}><span className={styles.emptyIcon}><PortalIcon name="people" /></span><strong>Nenhuma pessoa cadastrada.</strong></div> : null}
